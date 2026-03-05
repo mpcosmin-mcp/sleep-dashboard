@@ -1,0 +1,7 @@
+node_modules/
+dist/
+_site/
+.parcel-cache/
+bundle.html
+*.tsbuildinfo
+.DS_Store
