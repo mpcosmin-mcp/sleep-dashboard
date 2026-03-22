@@ -178,7 +178,7 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                         <div className="flex items-center gap-1.5">
                           {p.entries && <span className="text-[10px] text-muted-foreground">{p.entries} zile</span>}
                           {(() => { const s = loggingStreak(data, p.name); return s > 0 ? (
-                            <span className="text-[10px] text-muted-foreground">· 🔥 {s}d streak</span>
+                            <span className="text-[10px] text-muted-foreground">· ⚡{s}d streak</span>
                           ) : null; })()}
                         </div>
                       </div>
@@ -223,7 +223,7 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                   <div className="font-bold text-sm">{p.name}</div>
                   {(() => { const s = loggingStreak(data, p.name); return s > 0 ? (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      🔥 {s}d
+                      ⚡{s}d
                     </span>
                   ) : null; })()}
                   {(() => { const total = getTotalKudos(p.name); return total > 0 ? (
