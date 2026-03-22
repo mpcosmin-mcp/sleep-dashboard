@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor,
-  getTier, getInsight, fmtDate, todayStr, aggregate,
+  getTier, fmtDate, todayStr, aggregate, personColor, NAMES, generateInsights,
 } from '@/lib/sleep';
 import { V } from '@/lib/hide';
 import { MVal } from '@/components/shared/MVal';
@@ -13,9 +13,31 @@ import { Avi } from '@/components/shared/Avi';
 
 type DashView = 'daily' | 'weekly' | 'monthly';
 
-export function DashboardPage({ data }: { data: SleepEntry[] }) {
+/* ── Kudos system (Strava-style, localStorage) ── */
+const KUDOS_REACTIONS = ['👏', '🔥', '💪', '🚀', '😴', '🏆'];
+
+function kudosKey(from: string, to: string, date: string) {
+  return `st_kudos_${date}_${from}_${to}`;
+}
+function getKudos(from: string, to: string, date: string): string | null {
+  try { return localStorage.getItem(kudosKey(from, to, date)); } catch { return null; }
+}
+function saveKudos(from: string, to: string, date: string, emoji: string) {
+  try { localStorage.setItem(kudosKey(from, to, date), emoji); } catch {}
+}
+function getKudosFor(to: string, date: string): { from: string; emoji: string }[] {
+  const result: { from: string; emoji: string }[] = [];
+  for (const n of NAMES) {
+    const k = getKudos(n, to, date);
+    if (k) result.push({ from: n, emoji: k });
+  }
+  return result;
+}
+
+export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string | null }) {
   const [view, setView] = useState<DashView>('daily');
   const [selDate, setSelDate] = useState('');
+  const [cheerRefresh, setCheerRefresh] = useState(0);
 
   const dates = [...new Set(data.map(d => d.date))].sort();
   const activeDate = selDate || dates[dates.length - 1] || '';
@@ -49,6 +71,14 @@ export function DashboardPage({ data }: { data: SleepEntry[] }) {
   const hrvP = sorted.filter(p => p.hrv !== null);
   const avgHRV = hrvP.length ? Math.round(hrvP.reduce((s, p) => s + (p.hrv || 0), 0) / hrvP.length) : null;
 
+  const insights = generateInsights(data, filtered);
+
+  const handleCheer = (to: string, emoji: string) => {
+    if (!user) return;
+    saveKudos(user, to, todayStr(), emoji);
+    setCheerRefresh(c => c + 1);
+  };
+
   if (!data.length) return <div className="text-center text-muted-foreground py-20 text-sm">Nicio înregistrare încă.</div>;
 
   return (
@@ -74,17 +104,18 @@ export function DashboardPage({ data }: { data: SleepEntry[] }) {
         )}
       </div>
 
-      {/* Insight */}
-      {sorted.length > 0 && (
-        <Card className="mb-5 border-primary/15 shadow-sm">
-          <CardContent className="py-3.5 px-4 flex items-start gap-3">
-            <span className="text-xl mt-0.5">🦉</span>
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-primary mb-0.5">Insight</div>
-              <p className="text-sm leading-relaxed">{getInsight(avgSS)}</p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Smart Insights */}
+      {insights.length > 0 && (
+        <div className="space-y-2 mb-5">
+          {insights.slice(0, 4).map((ins, i) => (
+            <Card key={i} className={`shadow-sm ${ins.type === 'team' ? 'border-primary/15' : 'border-transparent'}`}>
+              <CardContent className="py-3 px-4 flex items-start gap-3">
+                <span className="text-lg mt-0.5">{ins.emoji}</span>
+                <p className="text-sm leading-relaxed">{ins.text}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
 
       {/* Stats */}
@@ -156,13 +187,16 @@ export function DashboardPage({ data }: { data: SleepEntry[] }) {
         </Table>
       </Card>
 
-      {/* Profile cards */}
+      {/* Profile cards with Kudos */}
       <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Profiluri</div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
         {sorted.map((p, i) => {
           const tier = getTier(p.ss);
+          const kudos = getKudosFor(p.name, todayStr());
+          const myKudo = user ? getKudos(user, p.name, todayStr()) : null;
+          const canKudo = user && user !== p.name && !myKudo;
           return (
-            <Card key={p.name + i} className={`shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${p.ss >= 90 ? 'ring-1 ring-[#1a8c5e]/20' : ''}`}
+            <Card key={p.name + i + cheerRefresh} className={`shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${p.ss >= 90 ? 'ring-1 ring-[#1a8c5e]/20' : ''}`}
                   style={{ animationDelay: `${i * 50}ms` }}>
               <CardContent className="py-4 px-4">
                 <div className="flex justify-between items-start mb-3">
@@ -173,7 +207,7 @@ export function DashboardPage({ data }: { data: SleepEntry[] }) {
                 <div className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: tier.color }}>
                   {tier.label}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 mb-3">
                   <div className="bg-muted rounded-md p-2 text-center">
                     <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">RHR</div>
                     <MVal value={p.rhr} color={rhrColor(p.rhr)} unit="bpm" />
@@ -183,11 +217,51 @@ export function DashboardPage({ data }: { data: SleepEntry[] }) {
                     <MVal value={p.hrv ?? '—'} color={hrvColor(p.hrv)} unit={p.hrv ? 'ms' : ''} />
                   </div>
                 </div>
+
+                {/* Kudos section — Strava style */}
+                <div className="border-t pt-2.5">
+                  {kudos.length > 0 && (
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className="flex -space-x-1">
+                        {kudos.map((k, ki) => (
+                          <div key={ki} className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-card"
+                               style={{ background: personColor(k.from) + '20' }}
+                               title={`${k.from.split(' ')[0]} a dat ${k.emoji}`}>
+                            {k.emoji}
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">
+                        {kudos.map(k => k.from.split(' ')[0]).join(', ')} {kudos.length === 1 ? 'a dat' : 'au dat'} kudos
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    {canKudo ? (
+                      <div className="flex gap-1">
+                        {KUDOS_REACTIONS.map(e => (
+                          <button key={e} onClick={() => handleCheer(p.name, e)}
+                            className="w-8 h-8 rounded-full hover:bg-muted hover:scale-110 active:scale-95 transition-all text-base flex items-center justify-center"
+                            title="Dă kudos!">
+                            {e}
+                          </button>
+                        ))}
+                      </div>
+                    ) : myKudo ? (
+                      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <span className="text-base">{myKudo}</span> Ai dat kudos!
+                      </div>
+                    ) : user === p.name ? (
+                      <span className="text-[10px] text-muted-foreground">Kudos de la echipă apar aici</span>
+                    ) : null}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           );
         })}
       </div>
+
     </div>
   );
 }

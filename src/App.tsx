@@ -147,7 +147,7 @@ export default function App() {
           ) : (
             <>
               {page === 'input' && <InputPage data={data} setData={setData} user={user} pickUser={pickUser} logout={logout} showToast={showToast} />}
-              {page === 'dashboard' && <DashboardPage data={data} />}
+              {page === 'dashboard' && <DashboardPage data={data} user={user} />}
               {page === 'charts' && <ChartsPage data={data} dark={dark} />}
               {page === 'history' && <HistoryPage data={data} />}
               {page === 'habits' && <HabitPage user={user} pickUser={pickUser} logout={logout} />}
