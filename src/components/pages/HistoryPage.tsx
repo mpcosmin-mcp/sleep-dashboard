@@ -1,16 +1,27 @@
 import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { type SleepEntry, ssColor, rhrColor, hrvColor, getTier, fmtDate, personColor } from '@/lib/sleep';
+import { type SleepEntry, ssColor, rhrColor, hrvColor, getTier, fmtDate, personColor, calcXP, xpLevel, xpProgress, XP_COLOR, XP_PER_LEVEL } from '@/lib/sleep';
 import { V } from '@/lib/hide';
+
+function entryXP(ss: number): { base: number; bonus: number; total: number; label: string } {
+  const base = 10;
+  const bonus = ss >= 90 ? 10 : ss >= 80 ? 5 : 0;
+  return { base, bonus, total: base + bonus, label: bonus > 0 ? `+${base}+${bonus}` : `+${base}` };
+}
 
 export function HistoryPage({ data }: { data: SleepEntry[] }) {
   const [filter, setFilter] = useState('');
   const allNames = [...new Set(data.map(d => d.name))];
   const filtered = filter ? data.filter(d => d.name === filter) : data;
   const sorted = [...filtered].sort((a, b) => b.date.localeCompare(a.date) || b.ss - a.ss);
+
+  // XP summary when filtering one person
+  const personXP = filter ? calcXP(data, filter) : 0;
+  const level = xpLevel(personXP);
+  const progress = xpProgress(personXP);
 
   if (!data.length) return <div className="text-center text-muted-foreground py-20 text-sm">Nicio înregistrare.</div>;
 
@@ -35,6 +46,30 @@ export function HistoryPage({ data }: { data: SleepEntry[] }) {
         </Tabs>
       </div>
 
+      {/* XP summary card when filtering one person */}
+      {filter && (
+        <Card className="mb-4 shadow-sm" style={{ borderColor: XP_COLOR + '20' }}>
+          <CardContent className="py-3 px-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">✨</span>
+                <span className="font-bold text-sm" style={{ color: XP_COLOR }}>Level {level}</span>
+                <span className="text-[10px] text-muted-foreground">· {personXP} XP total</span>
+              </div>
+              <span className="text-[10px] text-muted-foreground">{progress}/{XP_PER_LEVEL} → Lv {level + 1}</span>
+            </div>
+            <div className="h-2 rounded-full bg-muted overflow-hidden mb-2">
+              <div className="h-full rounded-full transition-all" style={{ width: `${progress}%`, background: XP_COLOR }} />
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground">
+              <span>📋 {sorted.length} entries × 10 = <b>{sorted.length * 10}</b></span>
+              <span>🎯 SS≥80 bonus = <b>+{sorted.filter(e => e.ss >= 80 && e.ss < 90).length * 5 + sorted.filter(e => e.ss >= 90).length * 10}</b></span>
+              <span>⚡ Streak bonus = <b>+50</b> la 7d</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
@@ -44,12 +79,14 @@ export function HistoryPage({ data }: { data: SleepEntry[] }) {
               <TableHead className="text-[10px] text-right">Sleep</TableHead>
               <TableHead className="text-[10px] text-right">RHR</TableHead>
               <TableHead className="text-[10px] text-right">HRV</TableHead>
+              {filter && <TableHead className="text-[10px] text-right">XP</TableHead>}
               <TableHead className="text-[10px] text-right">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.map((p, i) => {
               const tier = getTier(p.ss);
+              const xp = entryXP(p.ss);
               return (
                 <TableRow key={i}>
                   <TableCell className="font-mono text-xs" style={{ color: 'hsl(28 55% 40%)' }}>{fmtDate(p.date)}</TableCell>
@@ -59,6 +96,11 @@ export function HistoryPage({ data }: { data: SleepEntry[] }) {
                   <TableCell className="text-right font-mono text-xs" style={{ color: hrvColor(p.hrv) }}>
                     {p.hrv !== null ? <V>{p.hrv}</V> : '—'}
                   </TableCell>
+                  {filter && (
+                    <TableCell className="text-right">
+                      <span className="font-mono text-[10px] font-bold" style={{ color: XP_COLOR }}>{xp.label}</span>
+                    </TableCell>
+                  )}
                   <TableCell className="text-right">
                     <Badge variant="outline" className="text-[10px] font-bold border-0 px-2 py-0.5"
                            style={{ color: tier.color, background: tier.color + '12' }}>

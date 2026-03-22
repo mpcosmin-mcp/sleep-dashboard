@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { type SleepEntry, NAMES, ssColor, rhrColor, hrvColor, getTier, todayStr, submitEntry, calcXP, loggingStreak, personColor, XP_COLOR, STREAK_COLOR } from '@/lib/sleep';
+import { type SleepEntry, NAMES, ssColor, rhrColor, hrvColor, getTier, todayStr, submitEntry, calcXP, loggingStreak, personColor, XP_COLOR, STREAK_COLOR, xpLevel, xpProgress, XP_PER_LEVEL } from '@/lib/sleep';
 import { MVal } from '@/components/shared/MVal';
 import { Avi } from '@/components/shared/Avi';
 
@@ -37,9 +37,14 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
                 </div>
                 <div className="flex items-center gap-3 px-4 py-3 shrink-0">
                   {sr.days > 0 && <span className="text-[10px] font-bold" style={{ color: STREAK_COLOR }}>⚡{sr.days}d</span>}
-                  <div className="flex items-center gap-1 border-l pl-3" style={{ borderLeftColor: XP_COLOR + '25' }}>
-                    <span className="font-mono text-sm font-bold" style={{ color: XP_COLOR }}>{xp}</span>
-                    <span className="text-[9px] font-bold uppercase" style={{ color: XP_COLOR, opacity: 0.6 }}>XP</span>
+                  <div className="border-l pl-3 w-16" style={{ borderLeftColor: XP_COLOR + '25' }}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-[9px] font-bold" style={{ color: XP_COLOR }}>Lv {xpLevel(xp)}</span>
+                      <span className="text-[8px] text-muted-foreground">{xpProgress(xp)}/{XP_PER_LEVEL}</span>
+                    </div>
+                    <div className="h-1 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${xpProgress(xp)}%`, background: XP_COLOR }} />
+                    </div>
                   </div>
                 </div>
               </button>

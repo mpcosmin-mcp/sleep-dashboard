@@ -30,6 +30,9 @@ const HRV = { high: '#7c3aed', good: '#2563eb', ok: '#ca8a04', low: '#ea580c', b
 // XP & Streak: Duolingo golden
 export const XP_COLOR = '#f59e0b';
 export const STREAK_COLOR = '#f97316';
+export const XP_PER_LEVEL = 100;
+export function xpLevel(xp: number) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
+export function xpProgress(xp: number) { return xp % XP_PER_LEVEL; } // 0-99
 
 export function ssColor(ss: number) {
   if (ss >= 90) return SS.top; if (ss >= 80) return SS.good;
