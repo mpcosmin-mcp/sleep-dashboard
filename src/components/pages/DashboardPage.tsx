@@ -34,6 +34,17 @@ function getKudosFor(to: string, date: string): { from: string; emoji: string }[
   return result;
 }
 
+function getTotalKudos(to: string): number {
+  let count = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('st_kudos_') && key.endsWith(`_${to}`)) count++;
+    }
+  } catch {}
+  return count;
+}
+
 export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string | null }) {
   const [view, setView] = useState<DashView>('daily');
   const [selDate, setSelDate] = useState('');
@@ -203,7 +214,14 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                   <Avi name={p.name} size="md" />
                   <MVal value={p.ss} color={ssColor(p.ss)} unit="/100" big />
                 </div>
-                <div className="font-bold text-sm mb-0.5">{p.name}</div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <div className="font-bold text-sm">{p.name}</div>
+                  {(() => { const total = getTotalKudos(p.name); return total > 0 ? (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                      👏 {total}
+                    </span>
+                  ) : null; })()}
+                </div>
                 <div className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: tier.color }}>
                   {tier.label}
                 </div>
@@ -281,6 +299,11 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                       <div className="flex items-center gap-2 mb-2">
                         <Avi name={name} size="md" />
                         <div className="font-bold text-sm">{name}</div>
+                        {(() => { const total = getTotalKudos(name); return total > 0 ? (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                            👏 {total}
+                          </span>
+                        ) : null; })()}
                       </div>
                       {kudos.length > 0 && (
                         <div className="flex items-center gap-1.5 mb-2">
