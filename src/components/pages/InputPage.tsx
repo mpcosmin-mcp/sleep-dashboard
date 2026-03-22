@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { type SleepEntry, NAMES, ssColor, rhrColor, hrvColor, getTier, todayStr, submitEntry } from '@/lib/sleep';
+import { type SleepEntry, NAMES, ssColor, rhrColor, hrvColor, getTier, todayStr, submitEntry, calcXP, loggingStreak, personColor } from '@/lib/sleep';
 import { MVal } from '@/components/shared/MVal';
 import { Avi } from '@/components/shared/Avi';
 
@@ -22,13 +22,23 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
         <h2 className="text-2xl font-bold tracking-tight mb-1">Alege profilul</h2>
         <p className="text-muted-foreground text-sm mb-6">Selectează-ți contul pentru a loga datele de somn.</p>
         <div className="flex flex-col gap-2">
-          {NAMES.map(n => (
-            <button key={n} onClick={() => pickUser(n)}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-card hover:bg-accent transition-all text-left group">
-              <Avi name={n} size="md" />
-              <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform">{n}</span>
-            </button>
-          ))}
+          {NAMES.map(n => {
+            const xp = calcXP(data, n);
+            const sr = loggingStreak(data, n);
+            return (
+              <button key={n} onClick={() => pickUser(n)}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-card hover:bg-accent transition-all text-left group">
+                <Avi name={n} size="md" />
+                <div className="flex-1 min-w-0">
+                  <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform block">{n}</span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {xp > 0 && <span className="text-[10px] font-bold text-muted-foreground">✨ {xp} XP</span>}
+                    {sr.days > 0 && <span className="text-[10px] font-bold text-muted-foreground">⚡{sr.days}d</span>}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     );
