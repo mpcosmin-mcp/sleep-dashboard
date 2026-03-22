@@ -125,7 +125,7 @@ export function jsonp(url: string): Promise<any> {
 export async function fetchAllData(): Promise<SleepEntry[]> {
   const json = await jsonp(API + '?v=' + Date.now());
   return (json.data || []).map((r: any) => ({
-    date: String(r.date || '').trim(), name: String(r.name || '').trim(),
+    date: String(r.date || '').trim().slice(0, 10), name: String(r.name || '').trim(),
     ss: parseFloat(r.sleep_score) || 0, rhr: parseFloat(r.rhr) || 0,
     hrv: r.hrv !== '' && r.hrv != null ? parseFloat(r.hrv) : null,
   })).filter((r: SleepEntry) => r.date && r.name);
@@ -167,10 +167,10 @@ export function loggingStreak(data: SleepEntry[], name: string): StreakResult {
   let xpSpent = 0;
   let usedFreeFreeze = false;
 
-  // Check that most recent entry is today or yesterday (otherwise streak is 0)
-  const today = dateStr(new Date());
-  const yesterday = dateStr(prevDay(new Date()));
-  if (loggedDates[0] !== today && loggedDates[0] !== yesterday) return empty;
+  // Sleep date = night before logging. If someone logs today (22nd),
+  // the sheet shows 21st. So "active" means most recent date >= 2 days ago.
+  const twoDaysAgo = dateStr(prevDay(prevDay(new Date())));
+  if (loggedDates[0] < twoDaysAgo) return empty;
 
   for (let i = 0; i < loggedDates.length; i++) {
     streak++;
