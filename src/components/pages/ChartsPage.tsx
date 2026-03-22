@@ -25,7 +25,7 @@ function latestValue(data: SleepEntry[], name: string, key: 'ss' | 'rhr' | 'hrv'
   return v != null ? String(v) : '—';
 }
 
-export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; dark: boolean; onDateClick?: (date: string) => void }) {
+export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; dark: boolean; onDateClick?: (date: string, userFilter?: string) => void }) {
   const [userFilter, setUserFilter] = useState('');
   const chartsRef = useRef<Record<string, any>>({});
 
@@ -94,7 +94,7 @@ export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; da
         if (elements.length > 0 && onDateClick) {
           const idx = elements[0].index;
           const clickedDate = dates[idx];
-          if (clickedDate) onDateClick(clickedDate);
+          if (clickedDate) onDateClick(clickedDate, userFilter || undefined);
         }
       },
       animation: { duration: 500, easing: 'easeOutQuart' as const },

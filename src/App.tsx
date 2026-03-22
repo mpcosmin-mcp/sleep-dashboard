@@ -33,10 +33,12 @@ export default function App() {
   const [data, setData] = useState<SleepEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [jumpDate, setJumpDate] = useState<string | null>(null);
+  const [jumpUser, setJumpUser] = useState<string | undefined>(undefined);
 
   // Navigate from any page to Dashboard daily view for a specific date
-  const navigateToDashDate = useCallback((date: string) => {
+  const navigateToDashDate = useCallback((date: string, userFilter?: string) => {
     setJumpDate(date);
+    setJumpUser(userFilter);
     setPage('dashboard');
   }, []);
   const [toast, setToast] = useState({ msg: '', show: false });
@@ -153,7 +155,7 @@ export default function App() {
             <>
               {user && !loading && <div className="relative"><ProgressHub user={user} data={data} /></div>}
               {page === 'input' && <InputPage data={data} setData={setData} user={user} pickUser={pickUser} logout={logout} showToast={showToast} />}
-              {page === 'dashboard' && <DashboardPage data={data} user={user} jumpDate={jumpDate} clearJump={() => setJumpDate(null)} />}
+              {page === 'dashboard' && <DashboardPage data={data} user={user} jumpDate={jumpDate} jumpUser={jumpUser} clearJump={() => { setJumpDate(null); setJumpUser(undefined); }} />}
               {page === 'charts' && <ChartsPage data={data} dark={dark} onDateClick={navigateToDashDate} />}
               {page === 'history' && <HistoryPage data={data} />}
               {page === 'habits' && <HabitPage user={user} pickUser={pickUser} logout={logout} />}
