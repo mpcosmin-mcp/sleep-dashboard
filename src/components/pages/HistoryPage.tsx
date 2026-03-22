@@ -90,7 +90,7 @@ export function HistoryPage({ data }: { data: SleepEntry[] }) {
               return (
                 <TableRow key={i}>
                   <TableCell className="font-mono text-xs" style={{ color: 'hsl(28 55% 40%)' }}>{fmtDate(p.date)}</TableCell>
-                  {!filter && <TableCell className="text-sm">{p.name}</TableCell>}
+                  {!filter && <TableCell className="text-sm font-semibold" style={{ color: personColor(p.name) }}>{p.name}</TableCell>}
                   <TableCell className="text-right font-mono text-xs font-bold" style={{ color: ssColor(p.ss) }}><V>{p.ss}</V></TableCell>
                   <TableCell className="text-right font-mono text-xs" style={{ color: rhrColor(p.rhr) }}><V>{p.rhr}</V></TableCell>
                   <TableCell className="text-right font-mono text-xs" style={{ color: hrvColor(p.hrv) }}>

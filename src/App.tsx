@@ -8,6 +8,7 @@ import { DashboardPage } from '@/components/pages/DashboardPage';
 import { ChartsPage } from '@/components/pages/ChartsPage';
 import { HistoryPage } from '@/components/pages/HistoryPage';
 import { HabitPage } from '@/components/pages/HabitPage';
+import { ProgressHub } from '@/components/shared/ProgressHub';
 
 // ── Types ──
 type Page = 'input' | 'dashboard' | 'charts' | 'history' | 'habits';
@@ -143,6 +144,7 @@ export default function App() {
             </div>
           ) : (
             <>
+              {user && !loading && <div className="relative"><ProgressHub user={user} data={data} /></div>}
               {page === 'input' && <InputPage data={data} setData={setData} user={user} pickUser={pickUser} logout={logout} showToast={showToast} />}
               {page === 'dashboard' && <DashboardPage data={data} user={user} />}
               {page === 'charts' && <ChartsPage data={data} dark={dark} />}
