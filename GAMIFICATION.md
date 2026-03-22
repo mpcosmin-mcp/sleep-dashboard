@@ -1,145 +1,143 @@
-# SleepTracker Gamification System
+# Sleep Tracker — Gamification System
+
+> Keep it simple. Vizual, nu numeric. One-click info.
+
+---
+
+## Core Architecture
+
+Două axe: **XP** (efort acumulat) + **Streak** (consistență zilnică).
+
+```
+XP_total = sum(Action × Value)
+Streak   = consecutive_days(last_activity >= yesterday)
+```
+
+### Regula celor 3 (Minimalist Strategy)
+1. **XP-ul e fix** — fără multiplicatori sau formule grele
+2. **Vizual, nu numeric** — bară de progres > "456 XP până la nivel 12"
+3. **One-click info** — icon (i) cu tooltip, nu manual
+
+---
 
 ## XP (Experience Points)
 
-### Earning XP
-| Action | XP | Notes |
-|---|---|---|
-| Log sleep data | +10 | Per day logged |
-| Sleep Score >= 80 | +5 | Bonus per entry |
-| Sleep Score >= 90 | +10 | Bonus per entry (replaces +5) |
-| 7-day streak | +50 | One-time milestone bonus |
-| 30-day streak | +200 | One-time milestone bonus |
-| Receive kudos | +5 | Per kudos from teammates |
+### Earning
 
-### Spending XP
-| Action | Cost | Condition |
+| Action | XP | Condiție |
 |---|---|---|
-| Streak freeze (1 day gap) | 50 XP | Only if SS < 75 after gap |
-| Streak freeze (2 days gap) | 100 XP | No free option |
-| Streak freeze (3 days gap) | 300 XP | No free option |
+| Log somn | **+10** | Per zi logată |
+| Sleep Score >= 80 | **+5** | Bonus |
+| Sleep Score >= 90 | **+10** | Înlocuiește +5 |
+| 7-day streak | **+50** | Milestone one-time |
+| 30-day streak | **+200** | Milestone one-time |
+| Primești kudos | **+5** | Per kudos |
 
-XP balance = earned - spent. Never goes below 0.
+### Spending
+
+| Action | Cost | Când |
+|---|---|---|
+| Streak freeze (1 zi gap) | **50 XP** | Doar dacă SS < 75 |
+| Streak freeze (2 zile gap) | **100 XP** | — |
+| Streak freeze (3 zile gap) | **300 XP** | — |
+
+`XP_balance = earned - spent` (min 0)
 
 ---
 
-## Streak System
+## Streak
 
-### How It Works
-- Streak counts consecutive days with logged sleep data
-- Starts from today (or yesterday if today not yet logged)
-- Displayed as `⚡Xd` on profile cards and leaderboard
+### Logica de bază
+- Userul logează **dimineața** somnul din noaptea anterioară
+- Data din sheet = noaptea de somn (ex: log pe 22 Mar → sheet date = 21 Mar)
+- Streak = zile consecutive cu date logate, pornind de la cea mai recentă
+- Activ dacă ultima dată logată >= 2 zile în urmă (acoperă gap-ul natural log dimineață)
 
-### Streak Freeze Rules
-Gap days (days without logged data) can be "frozen" to preserve the streak:
+### Freeze Rules
 
-**1 day gap:**
-- **FREE** if the day after the gap has Sleep Score >= 75 (good sleep = you earned it)
-- **OR** costs 50 XP (if SS < 75 or you prefer to spend XP)
-- Player's choice is automatic: free freeze takes priority, XP freeze as fallback
+**1 zi gap:**
+- **GRATIS** dacă SS pe ziua de după gap >= 75 (ai dormit bine = meritat)
+- **SAU** 50 XP (dacă SS < 75)
 
-**2 days gap:**
-- Costs 100 XP (no free option)
+**2 zile gap:** 100 XP (fără opțiune gratuită)
 
-**3 days gap:**
-- Costs 300 XP (no free option)
+**3 zile gap:** 300 XP (fără opțiune gratuită)
 
-**4+ days gap:**
-- Streak is lost. No recovery possible.
-- Rationale: max 3 days covers dead watch battery, travel, etc.
+**4+ zile gap:** Streak pierdut. Fără recuperare.
 
-### Visual Indicators
-- `⚡12d` — 12 day streak, no freezes
-- `⚡12d ❄️1` — 12 day streak, 1 frozen day
-- Tooltip shows: freeze details + XP spent
+> Rațional: max 3 zile acoperă ceas descărcat, călătorie, etc.
+
+### Afișare
+- `⚡12d` — 12 zile streak
+- `⚡12d ❄️1` — cu 1 zi frozen
+- Tooltip: detalii freeze + XP cheltuit
 
 ---
 
-## Kudos System (Strava-style)
+## Codul Culorilor
 
-### How It Works
-- Each user can send 1 kudos per day per teammate
-- Choose from reactions: 👏 🔥 💪 🚀 😴 🏆
-- Can't send kudos to yourself
-- Kudos visible on profile cards with sender avatar
-- Total kudos count shown as `👏 X` badge
+| Parametru | Culoare | Semnificație |
+|---|---|---|
+| **Sleep Score** | Albastru → Verde → Galben → Roșu | Calitatea somnului (90+ / 80+ / 65+ / <65) |
+| **RHR** | Albastru → Verde → Galben → Roșu | Calmness & recovery (<52 / <58 / <65 / <72) |
+| **HRV** | Violet → Albastru → Galben → Roșu | Sistemul nervos (>65 / >50 / >35 / <35) |
+| **XP** | **Golden Amber** `#f59e0b` | Progres, recompensă |
+| **Streak** | **Orange** `#f97316` | Energie, urgență, dinamism |
+| **Task Done** | **Verde** `#16a34a` | Succes, validare |
+| **Atenție** | **Roșu Soft** `#dc2626` | Acțiune necesară |
 
-### Where Kudos Appear
-- **Profile cards** (Dashboard) — shows received kudos + reaction buttons for others
-- **"Trimite kudos" section** — appears for teammates not in current view
-- **Leaderboard** — kudos count badge next to name
-
-### Storage
-- localStorage: `st_kudos_{date}_{fromName}_{toName}` = emoji
-- Per-device (not synced across devices)
+Fiecare metric cell are background tinted (culoare + 12% opacitate).
 
 ---
 
-## Smart Insights Engine
+## Kudos (Strava-style)
 
-### Team Insights (based on filtered data)
-| Condition | Emoji | Tone |
-|---|---|---|
-| Team avg SS >= 90 | 🏆 | Celebratory, sarcastic-proud |
-| Team avg SS >= 80 | 🎯 | Encouraging, 1% better |
-| Team avg SS >= 65 | ⚡ | Honest nudge, blame the phone |
-| Team avg SS < 65 | 😴 | Wake-up call, Netflix callout |
-| Gap >= 20 between best/worst | 📊 | Data-driven observation |
-| Gap <= 5 between all | 🤝 | Team spirit celebration |
+- 1 kudos/zi/teammate (nu ție)
+- Reactions: 👏 🔥 💪 🚀 😴 🏆
+- Vizibil pe profile cards + secțiune "Trimite kudos"
+- `+5 XP` per kudos primit
+- Storage: `localStorage st_kudos_{date}_{from}_{to}`
 
-### Per-Person Insights (based on all data)
-| Condition | Emoji | Tone |
-|---|---|---|
-| Trend up (+10 pts) | 📈 | Keep it up energy |
-| Trend down (-10 pts) | 📉 | Honest, priority call |
-| RHR spike (+8 bpm) | 💓 | Medical awareness |
-| RHR athlete (<55 bpm) | 🧊 | Respect, athlete callout |
-| HRV above average (+15ms) | 🧘 | Nervous system awareness |
-| 7d consecutive SS > 80 | 🔥 | Consistency champion |
-| SS >= 95 + RHR < 55 | 💎 | Diamond day callout |
-| Last 3 days avg SS < 60 | 🚨 | Sarcastic wake-up call |
+---
 
-### Tone Guidelines
-- Fun, sarcastic, but constructive
-- Mix of Romanian and English slang
-- Always actionable — not just observation
-- Maximum 4 insights shown at once on Dashboard
+## Daily Insight (One-liner)
+
+Un singur mesaj funny pe Dashboard, bazat pe date. Se schimbă zilnic.
+
+Pool de mesaje per condiție:
+- Team SS >= 90: "Echipa doarme ca regii"
+- Team SS < 65: "Netflix 1 — Echipa 0"
+- Gap mare între best/worst: callout cu nume
+- Per-person: SS 95+ = "diamant", RHR < 55 = "atlet", SS < 50 = "ai clipit?"
+
+Ton: fun, sarcastic, constructiv. Mix RO/EN.
 
 ---
 
 ## 1% Better (Habit Tracker)
 
-### How It Works
-- Each person selects habits from a pool of 10
-- Daily checkbox tracking
-- Streak counter (consecutive complete days)
-- Monthly completion percentage
+Selectezi din 10 habitudini, bifezi zilnic.
 
-### Habit Pool
-**Sleep Hygiene:**
-- Culcat inainte de 23:00
-- Fara telefon 30 min inainte de somn
-- Fara cafea dupa 14:00
-- Fara ecrane 1h inainte de somn
+**Somn:** Culcat < 23:00, Fără telefon 30min, Fără cafea > 14:00, Fără ecrane 1h
+**General:** 30min mișcare, 2L apă, 10min meditație, 15min citit, Jurnal, Cold shower
 
-**General Self-Improvement:**
-- 30 min miscare
-- 2L apa
-- 10 min meditatie / respiratie
-- Citit 15 min
-- Jurnal / reflectie
-- Cold shower
-
-### Storage
-- localStorage: `st_habits_{slug}` (config) + `st_habit_log_{slug}` (daily completions)
-- Per-device
+Stats: streak habitudini, % completare lunară.
+Storage: localStorage per device.
 
 ---
 
-## Future Ideas
-- [ ] AI analysis (Claude Haiku) — weekly automated insights
-- [ ] Personal profile page — dedicated view per user
-- [ ] XP leaderboard — separate ranking by XP
-- [ ] Achievements/badges — unlock at milestones (first 7d streak, 1000 XP, etc.)
-- [ ] Habit XP integration — earn XP from habit completions
-- [ ] Team challenges — weekly goals for the whole team
+## Infopoint (User-Facing)
+
+Icon **(i)** lângă fiecare metric. La hover/tap:
+
+- 🔥 **Streak**: "Câte zile la rând ai logat. Vino zilnic să crești scorul!"
+- ✨ **XP**: "Efortul tău cuantificat. Fiecare zi logată + somn bun = XP."
+- ❄️ **Freeze**: "Ai ratat o zi? Dacă ai dormit bine, streak-ul e salvat gratis. Altfel, costă XP."
+
+---
+
+## Next Steps
+- [ ] AI weekly analysis (Claude Haiku, local script)
+- [ ] Personal profile page
+- [ ] Progress bar vizual pentru XP (în loc de număr)
+- [ ] Achievements/badges la milestones
