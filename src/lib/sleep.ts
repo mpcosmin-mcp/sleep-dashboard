@@ -195,6 +195,22 @@ export async function submitEntry(entry: Record<string, any>) {
   await jsonp(`${API}?${params}`);
 }
 
+/** Consecutive days a person has logged data (backwards from today) */
+export function loggingStreak(data: SleepEntry[], name: string): number {
+  const personDates = new Set(data.filter(d => d.name === name).map(d => d.date));
+  if (!personDates.size) return 0;
+  let streak = 0;
+  const d = new Date();
+  d.setHours(12, 0, 0, 0);
+  for (let i = 0; i < 365; i++) {
+    const ds = d.toISOString().split('T')[0];
+    if (personDates.has(ds)) { streak++; d.setDate(d.getDate() - 1); }
+    else if (i === 0) { d.setDate(d.getDate() - 1); } // today not logged yet — start from yesterday
+    else break;
+  }
+  return streak;
+}
+
 export function aggregate(data: SleepEntry[]): AggEntry[] {
   const grp: Record<string, any> = {};
   data.forEach(e => {

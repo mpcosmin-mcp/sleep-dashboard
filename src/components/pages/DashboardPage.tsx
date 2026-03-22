@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor,
-  getTier, fmtDate, todayStr, aggregate, personColor, NAMES, generateInsights,
+  getTier, fmtDate, todayStr, aggregate, personColor, NAMES, generateInsights, loggingStreak,
 } from '@/lib/sleep';
 import { V } from '@/lib/hide';
 import { MVal } from '@/components/shared/MVal';
@@ -175,7 +175,12 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                       <Avi name={p.name} />
                       <div>
                         <div className="text-sm font-semibold">{p.name}</div>
-                        {p.entries && <div className="text-[10px] text-muted-foreground">{p.entries} zile</div>}
+                        <div className="flex items-center gap-1.5">
+                          {p.entries && <span className="text-[10px] text-muted-foreground">{p.entries} zile</span>}
+                          {(() => { const s = loggingStreak(data, p.name); return s > 0 ? (
+                            <span className="text-[10px] text-muted-foreground">· 🔥 {s}d streak</span>
+                          ) : null; })()}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
@@ -214,8 +219,13 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                   <Avi name={p.name} size="md" />
                   <MVal value={p.ss} color={ssColor(p.ss)} unit="/100" big />
                 </div>
-                <div className="flex items-center gap-2 mb-0.5">
+                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <div className="font-bold text-sm">{p.name}</div>
+                  {(() => { const s = loggingStreak(data, p.name); return s > 0 ? (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                      🔥 {s}d
+                    </span>
+                  ) : null; })()}
                   {(() => { const total = getTotalKudos(p.name); return total > 0 ? (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
                       👏 {total}
