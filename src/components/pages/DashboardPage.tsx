@@ -495,56 +495,17 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                 <div className="font-mono text-lg font-bold w-10 text-right shrink-0" style={{ color: p.ss > 0 ? ssColor(p.ss) : '#e2e8f0' }}>
                   {p.ss > 0 ? <V>{p.ss}</V> : '—'}
                 </div>
+                {/* Like button — daily view only, not self */}
+                {view === 'daily' && !isMe && p.ss > 0 && (() => {
+                  const myLike = me ? getKudos(me, p.name, activeDate) : null;
+                  const likes = getKudosFor(p.name, activeDate);
+                  return myLike ? (
+                    <span className="text-[10px] w-5 text-center" title="Liked!">👍</span>
+                  ) : me ? (
+                    <button onClick={() => handleCheer(p.name, '👍')} className="text-[10px] w-5 text-center opacity-30 hover:opacity-100 transition-opacity" title="Like">👍</button>
+                  ) : null;
+                })()}
               </div>
-            );
-          })}
-        </div>
-      </Section>
-
-      {/* ═══ ECHIPA — Kudos per selected date ═══ */}
-      <Section title="Echipa" icon="👥" defaultOpen={true}
-              badge={<span className="text-[9px] text-muted-foreground">kudos · {fmtDate(activeDate)}</span>}>
-        <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {NAMES.filter(n => n !== me).map(name => {
-            const pAgg = sorted.find(p => p.name === name);
-            const pTier = pAgg ? getTier(pAgg.ss) : null;
-            const hasData = !!pAgg; // only show kudos if person has data in this period
-            const kudos = getKudosFor(name, activeDate);
-            const myKudo = me ? getKudos(me, name, activeDate) : null;
-            const canKudo = me && !myKudo && hasData;
-            const pc = personColor(name);
-            return (
-              <Card key={name + cheerRefresh + activeDate} className="shadow-sm" style={{ borderLeft: `3px solid ${pc}` }}>
-                <CardContent className="py-3 px-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Avi name={name} />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[11px] font-bold truncate" style={{ color: pc }}>{name}</div>
-                      {pTier ? <div className="text-[9px]" style={{ color: pTier.color }}>SS {pAgg?.ss}</div> : <div className="text-[9px] text-muted-foreground">Fără date</div>}
-                    </div>
-                  </div>
-                  {kudos.length > 0 && (
-                    <div className="flex items-center gap-1 mb-2">
-                      {kudos.map((k, ki) => (
-                        <div key={ki} className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-card"
-                             style={{ background: personColor(k.from) + '20' }} title={`${k.from.split(' ')[0]}: ${k.emoji}`}>
-                          {k.emoji}
-                        </div>
-                      ))}
-                      <span className="text-[9px] text-muted-foreground ml-1">{kudos.map(k => k.from.split(' ')[0]).join(', ')}</span>
-                    </div>
-                  )}
-                  {canKudo ? (
-                    <button onClick={() => handleCheer(name, '👍')}
-                      className="text-[10px] font-bold px-3 py-1 rounded-md hover:scale-105 active:scale-95 transition-all"
-                      style={{ background: personColor(me) + '15', color: personColor(me) }}>
-                      👍 Like
-                    </button>
-                  ) : myKudo ? (
-                    <div className="text-[10px] text-muted-foreground">👍 Liked!</div>
-                  ) : null}
-                </CardContent>
-              </Card>
             );
           })}
         </div>
