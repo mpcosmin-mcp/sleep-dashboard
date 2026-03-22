@@ -21,21 +21,34 @@ const PERSON_COLOR: Record<string, string> = {
   'Cornel-Gabriel Meleru':   '#2a8c6e',   // teal green
 };
 
-const MC = { elite: '#1a8c5e', good: '#2a96a8', ok: '#c49020', poor: '#d06830', bad: '#c43a3a', dim: '#a09585' };
+// Sleep Score: blue (best) → green → amber → red
+const SS = { top: '#2563eb', good: '#16a34a', ok: '#ca8a04', poor: '#ea580c', bad: '#dc2626' };
+// RHR: lower is better — blue (calm) → green → amber → red
+const RHR = { elite: '#2563eb', good: '#16a34a', ok: '#ca8a04', poor: '#ea580c', bad: '#dc2626' };
+// HRV: nervous system — purple-blue spectrum (personal, varies)
+const HRV = { high: '#7c3aed', good: '#2563eb', ok: '#ca8a04', low: '#ea580c', bad: '#dc2626', dim: '#a09585' };
+// XP & Streak: Duolingo golden
+export const XP_COLOR = '#f59e0b';
+export const STREAK_COLOR = '#f97316';
 
 export function ssColor(ss: number) {
-  if (ss >= 90) return MC.elite; if (ss >= 80) return MC.good;
-  if (ss >= 65) return MC.ok; if (ss >= 50) return MC.poor; return MC.bad;
+  if (ss >= 90) return SS.top; if (ss >= 80) return SS.good;
+  if (ss >= 65) return SS.ok; if (ss >= 50) return SS.poor; return SS.bad;
 }
 export function rhrColor(rhr: number) {
-  if (rhr < 50) return MC.elite; if (rhr < 55) return MC.good;
-  if (rhr < 60) return MC.ok; if (rhr < 70) return MC.poor; return MC.bad;
+  if (rhr < 52) return RHR.elite; if (rhr < 58) return RHR.good;
+  if (rhr < 65) return RHR.ok; if (rhr < 72) return RHR.poor; return RHR.bad;
 }
 export function hrvColor(hrv: number | null) {
-  if (hrv == null) return MC.dim;
-  if (hrv > 65) return MC.elite; if (hrv > 50) return MC.good;
-  if (hrv > 35) return MC.ok; if (hrv > 20) return MC.poor; return MC.bad;
+  if (hrv == null) return HRV.dim;
+  if (hrv > 65) return HRV.high; if (hrv > 50) return HRV.good;
+  if (hrv > 35) return HRV.ok; if (hrv > 20) return HRV.low; return HRV.bad;
 }
+
+// Background tints for metric cells
+export function ssBg(ss: number) { return ssColor(ss) + '12'; }
+export function rhrBg(rhr: number) { return rhrColor(rhr) + '12'; }
+export function hrvBg(hrv: number | null) { return hrvColor(hrv) + '12'; }
 
 export function getTier(ss: number) {
   if (ss >= 90) return { label: 'Excelent', color: MC.elite };

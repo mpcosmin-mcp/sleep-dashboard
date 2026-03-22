@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { type SleepEntry, NAMES, ssColor, rhrColor, hrvColor, getTier, todayStr, submitEntry, calcXP, loggingStreak, personColor } from '@/lib/sleep';
+import { type SleepEntry, NAMES, ssColor, rhrColor, hrvColor, getTier, todayStr, submitEntry, calcXP, loggingStreak, personColor, XP_COLOR, STREAK_COLOR } from '@/lib/sleep';
 import { MVal } from '@/components/shared/MVal';
 import { Avi } from '@/components/shared/Avi';
 
@@ -36,10 +36,10 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
                   <span className="font-semibold text-sm truncate">{n}</span>
                 </div>
                 <div className="flex items-center gap-3 px-4 py-3 shrink-0">
-                  {sr.days > 0 && <span className="text-[10px] font-bold text-muted-foreground">⚡{sr.days}d</span>}
-                  <div className="flex items-center gap-1 border-l pl-3" style={{ borderLeftColor: c + '25' }}>
-                    <span className="font-mono text-sm font-bold" style={{ color: c }}>{xp}</span>
-                    <span className="text-[9px] font-bold uppercase text-muted-foreground">XP</span>
+                  {sr.days > 0 && <span className="text-[10px] font-bold" style={{ color: STREAK_COLOR }}>⚡{sr.days}d</span>}
+                  <div className="flex items-center gap-1 border-l pl-3" style={{ borderLeftColor: XP_COLOR + '25' }}>
+                    <span className="font-mono text-sm font-bold" style={{ color: XP_COLOR }}>{xp}</span>
+                    <span className="text-[9px] font-bold uppercase" style={{ color: XP_COLOR, opacity: 0.6 }}>XP</span>
                   </div>
                 </div>
               </button>

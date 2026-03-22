@@ -82,14 +82,11 @@ export default function App() {
 
         {/* ── Desktop Sidebar ── */}
         <aside className="hidden lg:flex w-56 shrink-0 border-r bg-card/60 flex-col p-4 gap-5 sticky top-0 h-screen">
-          <div className="flex items-center gap-2.5 px-1">
+          <button onClick={() => { logout(); setPage('input'); }} className="flex items-center gap-2.5 px-1 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"
                  style={{ background: brandGrad, color: '#fff' }}>🦉</div>
-            <div>
-              <div className="font-bold text-sm tracking-tight">SleepTrack</div>
-              <div className="text-[10px] font-medium text-muted-foreground tracking-widest uppercase">Conti Sibiu</div>
-            </div>
-          </div>
+            <div className="font-bold text-sm tracking-tight">Sleep Tracker</div>
+          </button>
           <nav className="flex flex-col gap-0.5">
             {NAV.map(n => (
               <button key={n.id} onClick={() => setPage(n.id)}
@@ -119,11 +116,11 @@ export default function App() {
         {/* ── Mobile Header ── */}
         <header className="lg:hidden sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b px-4 py-2.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <button onClick={() => { logout(); setPage('input'); }} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs shadow-sm"
                    style={{ background: brandGrad, color: '#fff' }}>🦉</div>
-              <span className="font-bold text-sm tracking-tight">SleepTrack</span>
-            </div>
+              <span className="font-bold text-sm tracking-tight">Sleep Tracker</span>
+            </button>
             <div className="flex items-center gap-0.5">
               <button onClick={() => setHidden(!hidden)} aria-label={hidden ? 'Arată date' : 'Ascunde date'}
                 className="p-2 rounded-md hover:bg-accent focus-visible:ring-2 ring-primary/30 transition-colors text-sm">

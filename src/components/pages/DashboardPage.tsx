@@ -4,8 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
-  type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor,
+  type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor, ssBg, rhrBg, hrvBg,
   getTier, fmtDate, todayStr, aggregate, personColor, NAMES, generateInsights, loggingStreak, calcXP,
+  XP_COLOR, STREAK_COLOR,
 } from '@/lib/sleep';
 import { V } from '@/lib/hide';
 import { MVal } from '@/components/shared/MVal';
@@ -228,27 +229,27 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                   </div>
                 </div>
 
-                {/* Metrics grid — each in its own cell */}
+                {/* Metrics grid — each in its own tinted cell */}
                 <div className="grid grid-cols-4 gap-1.5 mb-3">
-                  <div className="bg-muted rounded-lg p-2 text-center">
-                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">RHR</div>
+                  <div className="rounded-lg p-2 text-center" style={{ background: rhrBg(p.rhr) }}>
+                    <div className="text-[8px] font-bold uppercase tracking-wider" style={{ color: rhrColor(p.rhr), opacity: 0.7 }}>RHR</div>
                     <div className="font-mono text-sm font-bold mt-0.5" style={{ color: rhrColor(p.rhr) }}>{p.rhr}</div>
-                    <div className="text-[8px] text-muted-foreground">bpm</div>
+                    <div className="text-[8px]" style={{ color: rhrColor(p.rhr), opacity: 0.5 }}>bpm</div>
                   </div>
-                  <div className="bg-muted rounded-lg p-2 text-center">
-                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">HRV</div>
+                  <div className="rounded-lg p-2 text-center" style={{ background: hrvBg(p.hrv) }}>
+                    <div className="text-[8px] font-bold uppercase tracking-wider" style={{ color: hrvColor(p.hrv), opacity: 0.7 }}>HRV</div>
                     <div className="font-mono text-sm font-bold mt-0.5" style={{ color: hrvColor(p.hrv) }}>{p.hrv ?? '—'}</div>
-                    <div className="text-[8px] text-muted-foreground">ms</div>
+                    <div className="text-[8px]" style={{ color: hrvColor(p.hrv), opacity: 0.5 }}>ms</div>
                   </div>
-                  <div className="bg-muted rounded-lg p-2 text-center">
-                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">XP</div>
-                    <div className="font-mono text-sm font-bold mt-0.5" style={{ color: c }}>{xp}</div>
-                    <div className="text-[8px] text-muted-foreground">pts</div>
+                  <div className="rounded-lg p-2 text-center" style={{ background: XP_COLOR + '12' }}>
+                    <div className="text-[8px] font-bold uppercase tracking-wider" style={{ color: XP_COLOR, opacity: 0.7 }}>XP</div>
+                    <div className="font-mono text-sm font-bold mt-0.5" style={{ color: XP_COLOR }}>{xp}</div>
+                    <div className="text-[8px]" style={{ color: XP_COLOR, opacity: 0.5 }}>pts</div>
                   </div>
-                  <div className="bg-muted rounded-lg p-2 text-center">
-                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">Streak</div>
-                    <div className="font-mono text-sm font-bold mt-0.5">{sr.days > 0 ? `${sr.days}` : '—'}</div>
-                    <div className="text-[8px] text-muted-foreground">{sr.days > 0 ? 'zile' : ''}</div>
+                  <div className="rounded-lg p-2 text-center" style={{ background: sr.days > 0 ? STREAK_COLOR + '12' : undefined }}>
+                    <div className="text-[8px] font-bold uppercase tracking-wider" style={{ color: sr.days > 0 ? STREAK_COLOR : undefined, opacity: 0.7 }}>Streak</div>
+                    <div className="font-mono text-sm font-bold mt-0.5" style={{ color: sr.days > 0 ? STREAK_COLOR : undefined }}>{sr.days > 0 ? sr.days : '—'}</div>
+                    <div className="text-[8px]" style={{ color: sr.days > 0 ? STREAK_COLOR : undefined, opacity: 0.5 }}>{sr.days > 0 ? 'zile' : ''}</div>
                   </div>
                 </div>
 
