@@ -48,6 +48,10 @@ export function ChartsPage({ data, dark }: { data: SleepEntry[]; dark: boolean }
       return g;
     };
 
+    // js-index-maps: O(1) lookups instead of O(n) per date×name
+    const dataMap = new Map<string, SleepEntry>();
+    for (const e of sourceData) dataMap.set(`${e.date}|${e.name}`, e);
+
     const mkDS = (key: string, canvasId: string, h: number) => {
       const ctx = document.getElementById(canvasId)?.getContext?.('2d');
       if (!ctx) return [];
@@ -56,7 +60,7 @@ export function ChartsPage({ data, dark }: { data: SleepEntry[]; dark: boolean }
         return {
           label: n.split(' ')[0],
           data: dates.map(d => {
-            const e = sourceData.find(r => r.date === d && r.name === n);
+            const e = dataMap.get(`${d}|${n}`);
             return e ? (key === 'hrv' ? e.hrv : (e as any)[key]) : null;
           }),
           borderColor: color,

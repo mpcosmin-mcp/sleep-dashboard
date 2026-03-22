@@ -125,12 +125,12 @@ export default function App() {
               <span className="font-bold text-sm tracking-tight">SleepTrack</span>
             </div>
             <div className="flex items-center gap-0.5">
-              <button onClick={() => setHidden(!hidden)}
-                className="p-2 rounded-md hover:bg-accent transition-colors text-sm">
+              <button onClick={() => setHidden(!hidden)} aria-label={hidden ? 'Arată date' : 'Ascunde date'}
+                className="p-2 rounded-md hover:bg-accent focus-visible:ring-2 ring-primary/30 transition-colors text-sm">
                 {hidden ? '👁️' : '🙈'}
               </button>
-              <button onClick={() => setDark(!dark)}
-                className="p-2 rounded-md hover:bg-accent transition-colors text-sm">
+              <button onClick={() => setDark(!dark)} aria-label={dark ? 'Light mode' : 'Dark mode'}
+                className="p-2 rounded-md hover:bg-accent focus-visible:ring-2 ring-primary/30 transition-colors text-sm">
                 {dark ? '☀️' : '🌙'}
               </button>
             </div>
