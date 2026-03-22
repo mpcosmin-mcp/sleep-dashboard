@@ -414,13 +414,13 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                   const dotColor = day.logged ? ssColor(day.ss) : '#f1f5f9';
                   return (
                     <div key={di}
-                      className={`h-9 rounded flex flex-col items-center justify-center ${day.isToday ? 'ring-1.5' : ''} ${!day.isCurrentMonth ? 'opacity-25' : ''} ${day.logged ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
+                      className={`h-9 rounded flex flex-col items-center justify-center ${day.isToday ? 'ring-1.5' : ''} ${!day.isCurrentMonth ? 'opacity-25' : ''} ${day.isCurrentMonth ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
                       style={{
                         background: day.logged ? dotColor + '18' : undefined,
                         ringColor: day.isToday ? c : undefined,
                       }}
                       onClick={() => {
-                        if (day.logged) {
+                        if (day.isCurrentMonth) {
                           // Calendar date = sheet date + 1, so sheet date = calendar - 1
                           const parts = day.date.split('-').map(Number);
                           const sheet = new Date(parts[0], parts[1] - 1, parts[2] - 1);
