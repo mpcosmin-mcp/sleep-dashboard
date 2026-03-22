@@ -25,17 +25,26 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
           {NAMES.map(n => {
             const xp = calcXP(data, n);
             const sr = loggingStreak(data, n);
+            const c = personColor(n);
             return (
               <button key={n} onClick={() => pickUser(n)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-card hover:bg-accent transition-all text-left group">
-                <Avi name={n} size="md" />
-                <div className="flex-1 min-w-0">
-                  <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform block">{n}</span>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    {xp > 0 && <span className="text-[10px] font-bold text-muted-foreground">✨ {xp} XP</span>}
-                    {sr.days > 0 && <span className="text-[10px] font-bold text-muted-foreground">⚡{sr.days}d</span>}
+                className="flex items-center rounded-xl border bg-card hover:scale-[1.01] active:scale-[0.99] transition-all text-left group overflow-hidden">
+                {/* Left section: avatar + name */}
+                <div className="flex items-center gap-3 flex-1 min-w-0 px-4 py-3">
+                  <Avi name={n} size="md" />
+                  <div className="flex-1 min-w-0">
+                    <span className="font-semibold text-sm block truncate">{n}</span>
+                    {sr.days > 0 && <span className="text-[10px] text-muted-foreground">⚡{sr.days}d streak</span>}
                   </div>
                 </div>
+                {/* Right section: XP pill */}
+                {xp > 0 && (
+                  <div className="flex items-center gap-1.5 px-4 py-3 border-l bg-muted/40 shrink-0"
+                       style={{ borderLeftColor: c + '20' }}>
+                    <span className="text-xs font-bold font-mono" style={{ color: c }}>{xp}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">XP</span>
+                  </div>
+                )}
               </button>
             );
           })}
