@@ -262,6 +262,66 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
         })}
       </div>
 
+      {/* Kudos for users not in current view */}
+      {user && (() => {
+        const visibleNames = new Set(sorted.map(p => p.name));
+        const missing = NAMES.filter(n => !visibleNames.has(n) && n !== user);
+        if (!missing.length) return null;
+        return (
+          <div className="mb-6">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Trimite kudos</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {missing.map(name => {
+                const c = personColor(name);
+                const kudos = getKudosFor(name, todayStr());
+                const myKudo = getKudos(user, name, todayStr());
+                return (
+                  <Card key={name} className="shadow-sm">
+                    <CardContent className="py-3 px-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Avi name={name} size="md" />
+                        <div className="font-bold text-sm">{name}</div>
+                      </div>
+                      {kudos.length > 0 && (
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <div className="flex -space-x-1">
+                            {kudos.map((k, ki) => (
+                              <div key={ki} className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-card"
+                                   style={{ background: personColor(k.from) + '20' }}
+                                   title={`${k.from.split(' ')[0]} a dat ${k.emoji}`}>
+                                {k.emoji}
+                              </div>
+                            ))}
+                          </div>
+                          <span className="text-[10px] text-muted-foreground">
+                            {kudos.map(k => k.from.split(' ')[0]).join(', ')} {kudos.length === 1 ? 'a dat' : 'au dat'} kudos
+                          </span>
+                        </div>
+                      )}
+                      {!myKudo ? (
+                        <div className="flex gap-1">
+                          {KUDOS_REACTIONS.map(e => (
+                            <button key={e} onClick={() => handleCheer(name, e)}
+                              className="w-8 h-8 rounded-full hover:bg-muted hover:scale-110 active:scale-95 transition-all text-base flex items-center justify-center"
+                              title="Dă kudos!">
+                              {e}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                          <span className="text-base">{myKudo}</span> Ai dat kudos!
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
     </div>
   );
 }
