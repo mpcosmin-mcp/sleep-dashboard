@@ -101,18 +101,21 @@ export function ProgressHub({ user, data }: { user: string; data: SleepEntry[] }
         </button>
       </div>
 
-      {/* Info popover */}
+      {/* Info popover — fixed overlay for mobile compatibility */}
       {showInfo && (
-        <div className="absolute top-full left-0 right-0 mt-1 z-50 mx-3">
-          <div className="bg-card border rounded-xl shadow-lg p-3 text-xs space-y-1.5">
-            <div className="font-bold text-sm mb-1">Cum funcționează?</div>
-            <div>⚡ <b>Streak</b> — Câte zile la rând ai logat somnul. Vino zilnic!</div>
-            <div>😴 <b>Zi ratată?</b> — Dacă dormi bine a doua zi (scor ≥ 75), ești salvat automat. Dacă nu, 50 XP sau o iei de la zero.</div>
-            <div>✨ <b>XP</b> — Câștigi puncte logând zilnic și dormind bine. La 100 XP urci un nivel.</div>
-            <div>👏 <b>Kudos</b> — Încurajează-ți echipa! Fiecare kudos primit = 5 XP.</div>
-            <button onClick={() => setShowInfo(false)} className="text-[10px] text-muted-foreground hover:text-foreground mt-1">Închide</button>
+        <>
+          <div className="fixed inset-0 z-[999]" onClick={() => setShowInfo(false)} />
+          <div className="fixed left-3 right-3 z-[1000]" style={{ top: 'auto', bottom: 'auto', marginTop: '60px', top: '0' }}>
+            <div className="bg-card border rounded-xl shadow-2xl p-4 text-xs space-y-2 max-w-lg mx-auto">
+              <div className="font-bold text-sm mb-1">Cum funcționează?</div>
+              <div>⚡ <b>Streak</b> — Câte zile la rând ai logat somnul. Vino zilnic!</div>
+              <div>😴 <b>Zi ratată?</b> — Dacă dormi bine a doua zi (scor ≥ 75), ești salvat automat. Dacă nu, 50 XP sau o iei de la zero.</div>
+              <div>✨ <b>XP</b> — Câștigi puncte logând zilnic și dormind bine. La 100 XP urci un nivel.</div>
+              <div>👏 <b>Kudos</b> — Încurajează-ți echipa! Fiecare kudos primit = 5 XP.</div>
+              <button onClick={() => setShowInfo(false)} className="text-[11px] font-bold text-muted-foreground hover:text-foreground mt-2 px-3 py-1 rounded bg-muted">Închide</button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
