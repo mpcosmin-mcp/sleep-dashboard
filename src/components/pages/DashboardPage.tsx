@@ -231,7 +231,7 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
   }
 
   const sorted: AggEntry[] = view === 'daily' ? [...filtered].sort((a, b) => b.ss - a.ss) : aggregate(filtered);
-  const handleCheer = (to: string, emoji: string) => { if (!me) return; saveKudos(me, to, todayStr(), emoji); setCheerRefresh(c => c + 1); };
+  const handleCheer = (to: string, emoji: string) => { if (!me) return; saveKudos(me, to, activeDate, emoji); setCheerRefresh(c => c + 1); };
 
   if (!data.length) return <div className="text-center text-muted-foreground py-20 text-sm">Nicio înregistrare.</div>;
 
@@ -465,6 +465,95 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
         )}
       </Section>
 
+      {/* ═══ LEADERBOARD ═══ */}
+      <Section title="Leaderboard" icon="🏆" defaultOpen={true}
+              badge={<span className="text-[9px] text-muted-foreground">{subText}</span>}>
+        <div className="pt-2 space-y-2">
+          {leaderboard.map((p, i) => {
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+            const isMe = p.name === me;
+            const pc = personColor(p.name);
+            return (
+              <div key={p.name} className={`flex items-center gap-2.5 p-2 rounded-lg transition-colors ${isMe ? 'bg-muted/60 ring-1 ring-primary/10' : 'hover:bg-muted/30'}`}>
+                <span className="text-sm w-6 text-center">{medal}</span>
+                <Avi name={p.name} size="sm" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] font-bold truncate" style={{ color: pc }}>{p.name.split(' ')[0]} {p.name.split(' ').pop()}</span>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5" style={{ color: levelTier(p.level).color, background: levelTier(p.level).color + '15' }}>
+                      <span className="text-[10px]">{levelTier(p.level).icon}</span> Lv{p.level}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[9px] text-muted-foreground">
+                    <span style={{ color: levelTier(p.level).color }}>{levelTier(p.level).name} · {levelTitle(p.level)}</span>
+                    {p.streak > 0 && <span style={{ color: STREAK_COLOR }}>⚡{p.streak}d</span>}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="font-mono text-sm font-bold" style={{ color: XP_COLOR }}>{p.xp}</div>
+                </div>
+                {p.ss > 0 && (
+                  <div className="font-mono text-lg font-bold w-10 text-right" style={{ color: ssColor(p.ss) }}>
+                    <V>{p.ss}</V>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* ═══ ECHIPA — Kudos per selected date ═══ */}
+      <Section title="Echipa" icon="👥" defaultOpen={true}
+              badge={<span className="text-[9px] text-muted-foreground">kudos · {fmtDate(activeDate)}</span>}>
+        <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {NAMES.filter(n => n !== me).map(name => {
+            const pAgg = sorted.find(p => p.name === name);
+            const pTier = pAgg ? getTier(pAgg.ss) : null;
+            const kudos = getKudosFor(name, activeDate);
+            const myKudo = me ? getKudos(me, name, activeDate) : null;
+            const canKudo = me && !myKudo;
+            const pc = personColor(name);
+            return (
+              <Card key={name + cheerRefresh + activeDate} className="shadow-sm" style={{ borderLeft: `3px solid ${pc}` }}>
+                <CardContent className="py-3 px-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Avi name={name} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] font-bold truncate" style={{ color: pc }}>{name}</div>
+                      {pTier && <div className="text-[9px]" style={{ color: pTier.color }}>SS {pAgg?.ss}</div>}
+                    </div>
+                  </div>
+                  {kudos.length > 0 && (
+                    <div className="flex items-center gap-1 mb-2">
+                      {kudos.map((k, ki) => (
+                        <div key={ki} className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-card"
+                             style={{ background: personColor(k.from) + '20' }} title={`${k.from.split(' ')[0]}: ${k.emoji}`}>
+                          {k.emoji}
+                        </div>
+                      ))}
+                      <span className="text-[9px] text-muted-foreground ml-1">{kudos.map(k => k.from.split(' ')[0]).join(', ')}</span>
+                    </div>
+                  )}
+                  {canKudo ? (
+                    <div className="flex gap-1">
+                      {KUDOS_REACTIONS.map(e => (
+                        <button key={e} onClick={() => handleCheer(name, e)}
+                          className="w-7 h-7 rounded-full hover:bg-muted hover:scale-110 active:scale-95 transition-all text-sm flex items-center justify-center">
+                          {e}
+                        </button>
+                      ))}
+                    </div>
+                  ) : myKudo ? (
+                    <div className="text-[10px] text-muted-foreground"><span className="text-base">{myKudo}</span> Kudos dat!</div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </Section>
+
       {/* ═══ STREAK (expandable) ═══ */}
       <Section title={`Streak ${sr.days > 0 ? `⚡${sr.days}d` : '—'}`} icon="⚡"
               badge={sr.needsRepair ? <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-300 text-amber-600 bg-amber-50">⚠️ Streak în pericol</Badge> : undefined}>
@@ -475,41 +564,23 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
               <span className="font-mono font-bold text-green-600">+{sr.autoSaved}</span>
             </div>
           )}
-          {sr.xpSpentOnRepairs > 0 && (
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-muted-foreground">XP cheltuit pe reparații</span>
-              <span className="font-mono font-bold text-red-500">−{sr.xpSpentOnRepairs}</span>
-            </div>
-          )}
-
-          {/* Repair — only when 1-day gap + SS < 75 */}
           {sr.needsRepair && (
             <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-1">
-              <div className="text-[11px] font-bold text-amber-800 mb-1">
-                ⚠️ Ai ratat o zi și somnul e sub 75
-              </div>
+              <div className="text-[11px] font-bold text-amber-800 mb-1">⚠️ Ai ratat o zi și somnul e sub 75</div>
               <div className="flex gap-2 mt-2">
-                <button
-                  onClick={handleRepair}
-                  disabled={STREAK_REPAIR_COST > xp}
+                <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > xp}
                   className="text-[11px] font-bold px-3 py-1.5 rounded-md transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{ background: XP_COLOR, color: 'white' }}>
                   Salvează streak ({STREAK_REPAIR_COST} XP)
                 </button>
-                <span className="text-[10px] text-amber-700 self-center">
-                  sau streak revine la 0
-                </span>
+                <span className="text-[10px] text-amber-700 self-center">sau streak revine la 0</span>
               </div>
-              {STREAK_REPAIR_COST > xp && (
-                <div className="text-[9px] text-red-600 mt-1">Fonduri insuficiente ({xp} XP disponibil)</div>
-              )}
             </div>
           )}
-
           {!sr.needsRepair && sr.days > 0 && (
             <div className="text-[10px] text-muted-foreground text-center py-1">
-              {sr.days < 7 && <span>Încă <strong>{7 - sr.days}</strong> zile până la bonus <strong style={{ color: XP_COLOR }}>+50 XP</strong></span>}
-              {sr.days >= 7 && sr.days < 30 && <span>Încă <strong>{30 - sr.days}</strong> zile până la bonus <strong style={{ color: XP_COLOR }}>+200 XP</strong></span>}
+              {sr.days < 7 && <span>Încă <strong>{7 - sr.days}</strong> zile → <strong style={{ color: XP_COLOR }}>+50 XP</strong></span>}
+              {sr.days >= 7 && sr.days < 30 && <span>Încă <strong>{30 - sr.days}</strong> zile → <strong style={{ color: XP_COLOR }}>+200 XP</strong></span>}
               {sr.days >= 30 && <span style={{ color: XP_COLOR }}>🏆 Streak legendar!</span>}
             </div>
           )}
@@ -604,104 +675,7 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
         </div>
       </Section>
 
-      {/* ═══ LEADERBOARD (expandable, default open) ═══ */}
-      <Section title="Leaderboard" icon="🏆" defaultOpen={true}
-              badge={<span className="text-[9px] text-muted-foreground">{subText}</span>}>
-        <div className="pt-2 space-y-2">
-          {leaderboard.map((p, i) => {
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
-            const isMe = p.name === me;
-            const pc = personColor(p.name);
-            const pTier = getTier(p.ss);
-            return (
-              <div key={p.name} className={`flex items-center gap-2.5 p-2 rounded-lg transition-colors ${isMe ? 'bg-muted/60 ring-1 ring-primary/10' : 'hover:bg-muted/30'}`}>
-                <span className="text-sm w-6 text-center">{medal}</span>
-                <Avi name={p.name} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-bold truncate" style={{ color: pc }}>{p.name.split(' ')[0]} {p.name.split(' ').pop()}</span>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-0.5" style={{ color: levelTier(p.level).color, background: levelTier(p.level).color + '15' }}>
-                      <span className="text-[10px]">{levelTier(p.level).icon}</span> Lv{p.level}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[9px] text-muted-foreground">
-                    <span style={{ color: levelTier(p.level).color }}>{levelTier(p.level).name} · {levelTitle(p.level)}</span>
-                    {p.streak > 0 && <span style={{ color: STREAK_COLOR }}>⚡{p.streak}d</span>}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="font-mono text-sm font-bold" style={{ color: XP_COLOR }}>{p.xp}</div>
-                </div>
-                {p.ss > 0 && (
-                  <div className="font-mono text-lg font-bold w-10 text-right" style={{ color: ssColor(p.ss) }}>
-                    <V>{p.ss}</V>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </Section>
-
-      {/* ═══ ECHIPA — Kudos ═══ */}
-      <Section title="Echipa" icon="👥" defaultOpen={true}
-              badge={<span className="text-[9px] text-muted-foreground">dă kudos</span>}>
-        <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {NAMES.filter(n => n !== me).map(name => {
-            const pXP = calcXP(data, name);
-            const pSr = loggingStreak(data, name);
-            const pAgg = sorted.find(p => p.name === name);
-            const pTier = pAgg ? getTier(pAgg.ss) : null;
-            const kudos = getKudosFor(name, todayStr());
-            const myKudo = me ? getKudos(me, name, todayStr()) : null;
-            const canKudo = me && !myKudo;
-            const pc = personColor(name);
-
-            return (
-              <Card key={name + cheerRefresh} className="shadow-sm" style={{ borderLeft: `3px solid ${pc}` }}>
-                <CardContent className="py-3 px-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Avi name={name} />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-[11px] font-bold truncate" style={{ color: pc }}>{name}</div>
-                      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground">
-                        {pTier && <span style={{ color: pTier.color }}>SS {pAgg?.ss}</span>}
-                        <span style={{ color: XP_COLOR }}>{pXP} XP</span>
-                        {pSr.days > 0 && <span style={{ color: STREAK_COLOR }}>⚡{pSr.days}d</span>}
-                      </div>
-                    </div>
-                  </div>
-                  {/* Kudos given */}
-                  {kudos.length > 0 && (
-                    <div className="flex items-center gap-1 mb-2">
-                      {kudos.map((k, ki) => (
-                        <div key={ki} className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] border-2 border-card"
-                             style={{ background: personColor(k.from) + '20' }} title={`${k.from.split(' ')[0]}: ${k.emoji}`}>
-                          {k.emoji}
-                        </div>
-                      ))}
-                      <span className="text-[9px] text-muted-foreground ml-1">{kudos.map(k => k.from.split(' ')[0]).join(', ')}</span>
-                    </div>
-                  )}
-                  {/* Give kudos */}
-                  {canKudo ? (
-                    <div className="flex gap-1">
-                      {KUDOS_REACTIONS.map(e => (
-                        <button key={e} onClick={() => handleCheer(name, e)}
-                          className="w-7 h-7 rounded-full hover:bg-muted hover:scale-110 active:scale-95 transition-all text-sm flex items-center justify-center">
-                          {e}
-                        </button>
-                      ))}
-                    </div>
-                  ) : myKudo ? (
-                    <div className="text-[10px] text-muted-foreground"><span className="text-base">{myKudo}</span> Kudos dat!</div>
-                  ) : null}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </Section>
+      {/* Old leaderboard + echipa sections moved up */}
     </div>
   );
 }
