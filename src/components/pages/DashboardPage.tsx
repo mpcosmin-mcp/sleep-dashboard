@@ -535,13 +535,13 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                     </div>
                   )}
                   {canKudo ? (
-                    <button onClick={() => handleCheer(name, '👏')}
+                    <button onClick={() => handleCheer(name, '👍')}
                       className="text-[10px] font-bold px-3 py-1 rounded-md hover:scale-105 active:scale-95 transition-all"
                       style={{ background: personColor(me) + '15', color: personColor(me) }}>
-                      👏 Dă kudos
+                      👍 Like
                     </button>
                   ) : myKudo ? (
-                    <div className="text-[10px] text-muted-foreground">👏 Kudos dat!</div>
+                    <div className="text-[10px] text-muted-foreground">👍 Liked!</div>
                   ) : null}
                 </CardContent>
               </Card>
