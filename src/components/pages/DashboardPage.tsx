@@ -203,11 +203,20 @@ function calcTrend(data: SleepEntry[], name: string) {
 }
 
 /* ═══════════════════════════════════════════ */
-export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string | null }) {
+export function DashboardPage({ data, user, jumpDate, clearJump }: { data: SleepEntry[]; user: string | null; jumpDate?: string | null; clearJump?: () => void }) {
   const [view, setView] = useState<DashView>('daily');
   const [selDate, setSelDate] = useState('');
   const [cheerRefresh, setCheerRefresh] = useState(0);
   const [trackerRange, setTrackerRange] = useState<'7' | '30' | 'all'>('7');
+
+  // Handle jump from other pages (e.g. Charts)
+  if (jumpDate && jumpDate !== selDate) {
+    setSelDate(jumpDate);
+    setView('daily');
+    setTrackerRange('7');
+    if (clearJump) clearJump();
+    window.scrollTo(0, 0);
+  }
 
   const me = user || '';
   const dates = [...new Set(data.map(d => d.date))].sort();

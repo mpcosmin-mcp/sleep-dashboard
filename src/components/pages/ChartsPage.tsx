@@ -25,7 +25,7 @@ function latestValue(data: SleepEntry[], name: string, key: 'ss' | 'rhr' | 'hrv'
   return v != null ? String(v) : '—';
 }
 
-export function ChartsPage({ data, dark }: { data: SleepEntry[]; dark: boolean }) {
+export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; dark: boolean; onDateClick?: (date: string) => void }) {
   const [userFilter, setUserFilter] = useState('');
   const chartsRef = useRef<Record<string, any>>({});
 
@@ -90,6 +90,13 @@ export function ChartsPage({ data, dark }: { data: SleepEntry[]; dark: boolean }
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index' as const, intersect: false },
+      onClick: (_event: any, elements: any[]) => {
+        if (elements.length > 0 && onDateClick) {
+          const idx = elements[0].index;
+          const clickedDate = dates[idx];
+          if (clickedDate) onDateClick(clickedDate);
+        }
+      },
       animation: { duration: 500, easing: 'easeOutQuart' as const },
       plugins: {
         legend: { display: false },
@@ -160,7 +167,7 @@ export function ChartsPage({ data, dark }: { data: SleepEntry[]; dark: boolean }
           </div>
         </div>
         {/* Chart */}
-        <div style={{ height: h }}><canvas id={id}></canvas></div>
+        <div style={{ height: h }}><canvas id={id} className={onDateClick ? 'cursor-pointer' : ''}></canvas></div>
       </CardContent>
     </Card>
   );
