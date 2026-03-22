@@ -1,27 +1,28 @@
 # Next Session TODO
 
-## 1. Calendar View pe Dashboard Tracker
-- **30 zile**: Grid 7 coloane (Lu-Du) ca un calendar real, cu zilele colorate după SS
-- **Tot**: 12 luni overview (heatmap mini per lună), click pe lună → drill-down calendar
+## 1. Charts → Dashboard Smart Jump
+- Pass user filter from Charts to Dashboard (who's selected in evolution)
+- If all users selected → show all users' daily snapshot
+- If single user → show only that user's detailed snapshot
+- Full "day snapshot" view: all metrics per user, expanded, no accordion
+- Consider a dedicated "Day Detail" view/modal
 
-## 2. Extended Bonus XP System
-- 7 zile consecutive SS ≥ 75 → +50 XP
-- 30 zile consecutive SS ≥ 75 → +500 XP
-- Best weekly sleeper bonus
-- Best monthly sleeper bonus
-- Achievement badges (first 7d, first 30d, 1000 XP, etc.)
+## 2. Day Snapshot View
+- When jumping from Charts: full-screen daily detail
+- Each user with data: avatar + name + SS + RHR + HRV + like
+- No tracker/calendar clutter — pure daily comparison
+- Back button to return to Charts or normal Dashboard
 
-## 3. AI Weekly Analysis
-- Claude Haiku, local script
-- Pattern recognition pe date
-- Insights personalizate per user
+## 3. Design Polish
+- Mobile responsive audit
+- Animation on like toggle
+- Achievement badges (visual icons)
 
-## 4. Dashboard Extras
-- Personal view toggle (Echipă/Eu) cu drill-down complet
-- Profile page dedicată
-- Achievements/badges vizuale
+## 4. AI Weekly Analysis
+- Claude Haiku local script
+- Pattern recognition on data
+- Personalized insights per user
 
-## 5. Repo & Deploy
-- Connect la mpcosmin-mcp/sleep-dashboard
-- GitHub Pages deploy
-- CI/CD
+## 5. GitHub Pages CI/CD
+- Configure deploy workflow
+- Custom domain if needed
