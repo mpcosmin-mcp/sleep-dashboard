@@ -535,16 +535,13 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                     </div>
                   )}
                   {canKudo ? (
-                    <div className="flex gap-1">
-                      {KUDOS_REACTIONS.map(e => (
-                        <button key={e} onClick={() => handleCheer(name, e)}
-                          className="w-7 h-7 rounded-full hover:bg-muted hover:scale-110 active:scale-95 transition-all text-sm flex items-center justify-center">
-                          {e}
-                        </button>
-                      ))}
-                    </div>
+                    <button onClick={() => handleCheer(name, '👏')}
+                      className="text-[10px] font-bold px-3 py-1 rounded-md hover:scale-105 active:scale-95 transition-all"
+                      style={{ background: personColor(me) + '15', color: personColor(me) }}>
+                      👏 Dă kudos
+                    </button>
                   ) : myKudo ? (
-                    <div className="text-[10px] text-muted-foreground"><span className="text-base">{myKudo}</span> Kudos dat!</div>
+                    <div className="text-[10px] text-muted-foreground">👏 Kudos dat!</div>
                   ) : null}
                 </CardContent>
               </Card>
