@@ -51,11 +51,11 @@ export function rhrBg(rhr: number) { return rhrColor(rhr) + '12'; }
 export function hrvBg(hrv: number | null) { return hrvColor(hrv) + '12'; }
 
 export function getTier(ss: number) {
-  if (ss >= 90) return { label: 'Excelent', color: MC.elite };
-  if (ss >= 80) return { label: 'Foarte bine', color: MC.good };
-  if (ss >= 65) return { label: 'Bine', color: MC.ok };
-  if (ss >= 50) return { label: 'Mediu', color: MC.poor };
-  return { label: 'Slab', color: MC.bad };
+  if (ss >= 90) return { label: 'Excelent', color: SS.top };
+  if (ss >= 80) return { label: 'Foarte bine', color: SS.good };
+  if (ss >= 65) return { label: 'Bine', color: SS.ok };
+  if (ss >= 50) return { label: 'Mediu', color: SS.poor };
+  return { label: 'Slab', color: SS.bad };
 }
 
 export function getInsight(avgSS: number) {
