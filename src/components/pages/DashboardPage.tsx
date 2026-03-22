@@ -115,18 +115,14 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
         )}
       </div>
 
-      {/* Smart Insights */}
-      {insights.length > 0 && (
-        <div className="space-y-2 mb-5">
-          {insights.slice(0, 4).map((ins, i) => (
-            <Card key={i} className={`shadow-sm ${ins.type === 'team' ? 'border-primary/15' : 'border-transparent'}`}>
-              <CardContent className="py-3 px-4 flex items-start gap-3">
-                <span className="text-lg mt-0.5">{ins.emoji}</span>
-                <p className="text-sm leading-relaxed">{ins.text}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      {/* Daily roast — one funny insight */}
+      {insights[0] && (
+        <Card className="mb-5 shadow-sm border-primary/10">
+          <CardContent className="py-3 px-4 flex items-center gap-3">
+            <span className="text-xl">{insights[0].emoji}</span>
+            <p className="text-sm">{insights[0].text}</p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Stats */}

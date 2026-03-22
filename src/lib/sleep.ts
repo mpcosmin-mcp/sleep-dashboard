@@ -52,105 +52,46 @@ export function getInsight(avgSS: number) {
   return 'Sleep debt activ — doar task-uri esențiale, hidratare, culcare devreme.';
 }
 
-/* ── Smart Insights Engine ── */
+/* ── Smart Insight — one liner, funny, data-driven ── */
 export interface Insight { emoji: string; text: string; type: 'team' | 'person'; }
 
 export function generateInsights(data: SleepEntry[], filtered: SleepEntry[]): Insight[] {
-  const insights: Insight[] = [];
-  if (data.length < 2) return insights;
+  if (data.length < 2) return [];
 
-  const names = [...new Set(data.map(d => d.name))];
-  const dates = [...new Set(data.map(d => d.date))].sort();
-
-  // ── Team insights ──
   const agg = aggregate(filtered);
-  const teamAvgSS = agg.length ? Math.round(agg.reduce((s, a) => s + a.ss, 0) / agg.length) : 0;
+  if (!agg.length) return [];
 
-  // Team performance
-  if (teamAvgSS >= 90) {
-    insights.push({ emoji: '🏆', text: 'Echipa doarme ca niște olimpici. Serios, ați putea sponsoriza un pat.', type: 'team' });
-  } else if (teamAvgSS >= 80) {
-    insights.push({ emoji: '🎯', text: 'Echipa e în formă solidă. 1% mai mult consistență și sunteți pe podium.', type: 'team' });
-  } else if (teamAvgSS >= 65) {
-    insights.push({ emoji: '⚡', text: 'Echipa e pe pilot automat — nu rău, dar nici "best self". Telefonul seara e principalul suspect.', type: 'team' });
-  } else {
-    insights.push({ emoji: '😴', text: 'Sleep debt colectiv. Nimeni nu e la best self-ul lor. Netflix-ul nu e prieten de somn.', type: 'team' });
+  const teamAvgSS = Math.round(agg.reduce((s, a) => s + a.ss, 0) / agg.length);
+  const best = agg[0];
+  const worst = agg[agg.length - 1];
+  const gap = agg.length >= 2 ? best.ss - worst.ss : 0;
+
+  // Build pool of possible one-liners, pick one based on day
+  const pool: Insight[] = [];
+
+  // Team vibes
+  if (teamAvgSS >= 90) pool.push({ emoji: '👑', text: 'Echipa doarme ca regii. Cine v-a învățat?', type: 'team' });
+  if (teamAvgSS >= 80) pool.push({ emoji: '🎯', text: 'Solid! Încă 1% și sunteți pe podium.', type: 'team' });
+  if (teamAvgSS >= 65 && teamAvgSS < 80) pool.push({ emoji: '📱', text: 'Mediocru. Pariez că telefonul e ultimul lucru pe care-l atingeți seara.', type: 'team' });
+  if (teamAvgSS < 65) pool.push({ emoji: '🛋️', text: 'Netflix 1 — Echipa 0. Mergeți la culcare!', type: 'team' });
+  if (gap >= 20) pool.push({ emoji: '😬', text: `${best.name.split(' ')[0]} doarme regește, ${worst.name.split(' ')[0]} doarme pe bani. Gap de ${gap} puncte.`, type: 'team' });
+  if (gap <= 5 && agg.length >= 2) pool.push({ emoji: '🤜🤛', text: 'Toți dormiți la fel — asta-i bromance pe somn.', type: 'team' });
+
+  // Per-person zingers
+  for (const p of agg) {
+    const fn = p.name.split(' ')[0];
+    if (p.ss >= 95) pool.push({ emoji: '💎', text: `${fn} doarme ca un bebeluș bogat. SS ${p.ss}!`, type: 'person' });
+    if (p.ss >= 85 && p.ss < 95) pool.push({ emoji: '😎', text: `${fn} e fresh. Probabil visează strategii de business.`, type: 'person' });
+    if (p.ss < 50) pool.push({ emoji: '☕', text: `${fn}, ai dormit sau ai doar clipit? SS ${p.ss}... respect pentru curaj.`, type: 'person' });
+    if (p.rhr < 55) pool.push({ emoji: '🫀', text: `${fn} are inima de atlet — RHR ${p.rhr}. Ești sigur că nu ești robot?`, type: 'person' });
+    if (p.rhr > 70) pool.push({ emoji: '🍷', text: `${fn}, RHR ${p.rhr}? Fie e stres, fie a fost o seară interesantă.`, type: 'person' });
   }
 
-  // Spread check — is there a big gap between best and worst?
-  if (agg.length >= 2) {
-    const best = agg[0];
-    const worst = agg[agg.length - 1];
-    const gap = best.ss - worst.ss;
-    if (gap >= 20) {
-      insights.push({ emoji: '📊', text: `Diferență de ${gap} puncte între ${best.name.split(' ')[0]} și ${worst.name.split(' ')[0]}. Echipa nu doarme la fel de bine — sincronizați rutina de seară.`, type: 'team' });
-    } else if (gap <= 5 && agg.length >= 2) {
-      insights.push({ emoji: '🤝', text: 'Echipa doarme sincronizat — diferențe minime. Asta e team spirit!', type: 'team' });
-    }
-  }
+  if (!pool.length) pool.push({ emoji: '🦉', text: 'Logați date ca să primești roast-uri personalizate.', type: 'team' });
 
-  // ── Per-person insights ──
-  for (const name of names) {
-    const personData = data.filter(d => d.name === name).sort((a, b) => a.date.localeCompare(b.date));
-    if (personData.length < 2) continue;
-
-    const firstName = name.split(' ')[0];
-    const last3 = personData.slice(-3);
-    const prev3 = personData.slice(-6, -3);
-    const avgLast3 = Math.round(last3.reduce((s, e) => s + e.ss, 0) / last3.length);
-
-    // Trend detection
-    if (prev3.length >= 2) {
-      const avgPrev3 = Math.round(prev3.reduce((s, e) => s + e.ss, 0) / prev3.length);
-      const diff = avgLast3 - avgPrev3;
-      if (diff >= 10) {
-        insights.push({ emoji: '📈', text: `${firstName} e pe trend ascendent (+${diff} puncte). Whatever you're doing, keep it up!`, type: 'person' });
-      } else if (diff <= -10) {
-        insights.push({ emoji: '📉', text: `${firstName} a scăzut cu ${Math.abs(diff)} puncte. Noaptea trebuie prioritizată — nu e optional.`, type: 'person' });
-      }
-    }
-
-    // RHR anomaly
-    const avgRHR = Math.round(personData.reduce((s, e) => s + e.rhr, 0) / personData.length);
-    const lastRHR = personData[personData.length - 1].rhr;
-    if (lastRHR > avgRHR + 8) {
-      insights.push({ emoji: '💓', text: `RHR-ul lui ${firstName} e mai sus decât de obicei (+${lastRHR - avgRHR} bpm). Posibil stres, alcool, sau boală incoming.`, type: 'person' });
-    } else if (lastRHR < avgRHR - 5 && lastRHR < 55) {
-      insights.push({ emoji: '🧊', text: `${firstName} are RHR de atlet (${lastRHR} bpm). Corpul recuperează excelent.`, type: 'person' });
-    }
-
-    // HRV check
-    const hrvData = personData.filter(e => e.hrv !== null);
-    if (hrvData.length >= 3) {
-      const lastHRV = hrvData[hrvData.length - 1].hrv!;
-      const avgHRV = Math.round(hrvData.reduce((s, e) => s + (e.hrv || 0), 0) / hrvData.length);
-      if (lastHRV > avgHRV + 15) {
-        insights.push({ emoji: '🧘', text: `HRV-ul lui ${firstName} e peste medie (+${lastHRV - avgHRV}ms). Nervous system relaxat — zi bună pentru provocări.`, type: 'person' });
-      }
-    }
-
-    // Consistency champion
-    if (personData.length >= 7) {
-      const last7 = personData.slice(-7);
-      const allAbove80 = last7.every(e => e.ss >= 80);
-      if (allAbove80) {
-        insights.push({ emoji: '🔥', text: `${firstName} ține 7+ zile consecutiv peste 80. Consistența asta e secretul — respect!`, type: 'person' });
-      }
-    }
-
-    // Perfect day callout
-    const lastEntry = personData[personData.length - 1];
-    if (lastEntry.ss >= 95 && lastEntry.rhr < 55) {
-      insights.push({ emoji: '💎', text: `${firstName} a avut o zi de diamant: SS ${lastEntry.ss}, RHR ${lastEntry.rhr}. Asta e peak recovery.`, type: 'person' });
-    }
-
-    // Wake-up call
-    if (avgLast3 < 60) {
-      insights.push({ emoji: '🚨', text: `${firstName}, somnul ultimelor zile nu e OK. Fără ecrane după 22:00, fără scuze. Best self-ul tău te așteaptă.`, type: 'person' });
-    }
-  }
-
-  return insights;
+  // Pick 1 based on today's date (deterministic but changes daily)
+  const dayHash = new Date().getDate() + new Date().getMonth() * 31;
+  return [pool[dayHash % pool.length]];
 }
 
 export function initials(name: string) {
