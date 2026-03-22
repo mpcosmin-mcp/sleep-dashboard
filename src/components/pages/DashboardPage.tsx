@@ -356,7 +356,7 @@ export function DashboardPage({ data, user, jumpDate, clearJump }: { data: Sleep
       )}
 
       {/* ═══ TRACKER (7d / 30d calendar / 12mo heatmap) ═══ */}
-      <Section title={trackerRange === '7' ? 'Ultimele 7 zile' : trackerRange === '30' ? calMonth.monthLabel : 'Ultimele 12 luni'} icon="📅" defaultOpen={true}
+      <Section title={trackerRange === '7' ? 'Ultimele 7 zile' : trackerRange === '30' ? calMonth.monthLabel : 'Ultimele 12 luni'} icon="📅" defaultOpen={!jumpDate}
               badge={
                 <div className="flex gap-0.5">
                   {(['7', '30', 'all'] as const).map(r => (
@@ -510,6 +510,25 @@ export function DashboardPage({ data, user, jumpDate, clearJump }: { data: Sleep
                     {p.streak > 0 && <span style={{ color: STREAK_COLOR }}>⚡{p.streak}d</span>}
                   </div>
                 </div>
+                {/* Daily view: show RHR/HRV mini pills */}
+                {view === 'daily' && p.ss > 0 && (() => {
+                  const entry = filtered.find(e => e.name === p.name);
+                  return entry ? (
+                    <div className="flex gap-1 shrink-0">
+                      <div className="text-center px-1">
+                        <div className="text-[7px] text-muted-foreground">RHR</div>
+                        <div className="font-mono text-[9px] font-bold" style={{ color: rhrColor(entry.rhr) }}>{entry.rhr}</div>
+                      </div>
+                      {entry.hrv != null && (
+                        <div className="text-center px-1">
+                          <div className="text-[7px] text-muted-foreground">HRV</div>
+                          <div className="font-mono text-[9px] font-bold" style={{ color: hrvColor(entry.hrv) }}>{entry.hrv}</div>
+                        </div>
+                      )}
+                    </div>
+                  ) : null;
+                })()}
+                {/* XP + SS columns */}
                 <div className="text-right shrink-0 w-12">
                   <div className="font-mono text-[10px] font-bold" style={{ color: XP_COLOR }}>{p.xp} XP</div>
                 </div>
