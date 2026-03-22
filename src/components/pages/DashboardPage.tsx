@@ -495,14 +495,16 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                 <div className="font-mono text-lg font-bold w-10 text-right shrink-0" style={{ color: p.ss > 0 ? ssColor(p.ss) : '#e2e8f0' }}>
                   {p.ss > 0 ? <V>{p.ss}</V> : '—'}
                 </div>
-                {/* Like button — daily view only, not self */}
+                {/* Like button — daily view only, not self, has data */}
                 {view === 'daily' && !isMe && p.ss > 0 && (() => {
                   const myLike = me ? getKudos(me, p.name, activeDate) : null;
-                  const likes = getKudosFor(p.name, activeDate);
                   return myLike ? (
-                    <span className="text-[10px] w-5 text-center" title="Liked!">👍</span>
+                    <span className="text-sm shrink-0" title="Liked!">👍</span>
                   ) : me ? (
-                    <button onClick={() => handleCheer(p.name, '👍')} className="text-[10px] w-5 text-center opacity-30 hover:opacity-100 transition-opacity" title="Like">👍</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleCheer(p.name, '👍'); }}
+                      className="text-sm shrink-0 grayscale opacity-25 hover:grayscale-0 hover:opacity-100 active:scale-125 transition-all" title="Like">
+                      👍
+                    </button>
                   ) : null;
                 })()}
               </div>
