@@ -47,7 +47,7 @@ export function ProgressHub({ user, data }: { user: string; data: SleepEntry[] }
   const offset = circ - (pct / 100) * circ;
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-card/80 border shadow-sm mb-4">
+    <div className="relative flex items-center gap-3 px-3 py-2 rounded-xl bg-card/80 border shadow-sm mb-4" style={{ zIndex: showInfo ? 50 : undefined }}>
       {/* XP Progress Ring */}
       <div className="relative shrink-0" title={`${xp} XP · ${progress}/${XP_PER_LEVEL} → Lv ${level + 1}`}>
         <svg width="44" height="44" className="-rotate-90">
