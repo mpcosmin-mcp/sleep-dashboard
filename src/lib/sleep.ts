@@ -195,20 +195,116 @@ export async function submitEntry(entry: Record<string, any>) {
   await jsonp(`${API}?${params}`);
 }
 
-/** Consecutive days a person has logged data (backwards from today) */
-export function loggingStreak(data: SleepEntry[], name: string): number {
-  const personDates = new Set(data.filter(d => d.name === name).map(d => d.date));
-  if (!personDates.size) return 0;
+/* ── Streak with freeze (Duolingo-style) ── */
+export interface StreakResult {
+  days: number;
+  freezeUsed: boolean;       // free freeze (SS >= 75 after gap)
+  xpFreezeUsed: boolean;     // paid freeze (XP spent)
+}
+
+function dateStr(d: Date): string { return d.toISOString().split('T')[0]; }
+function prevDay(d: Date): Date { const n = new Date(d); n.setDate(n.getDate() - 1); return n; }
+
+export function loggingStreak(data: SleepEntry[], name: string): StreakResult {
+  const personEntries = data.filter(d => d.name === name);
+  const dateMap = new Map(personEntries.map(e => [e.date, e]));
+  if (!dateMap.size) return { days: 0, freezeUsed: false, xpFreezeUsed: false };
+
   let streak = 0;
+  let freezeUsed = false;
+  let xpFreezeUsed = false;
+  let freezeAvailable = true; // 1 freeze per streak
   const d = new Date();
   d.setHours(12, 0, 0, 0);
-  for (let i = 0; i < 365; i++) {
-    const ds = d.toISOString().split('T')[0];
-    if (personDates.has(ds)) { streak++; d.setDate(d.getDate() - 1); }
-    else if (i === 0) { d.setDate(d.getDate() - 1); } // today not logged yet — start from yesterday
-    else break;
+
+  // If today not logged, start from yesterday
+  if (!dateMap.has(dateStr(d))) {
+    const yesterday = prevDay(d);
+    if (!dateMap.has(dateStr(yesterday))) return { days: 0, freezeUsed: false, xpFreezeUsed: false };
+    d.setTime(yesterday.getTime());
   }
-  return streak;
+
+  for (let i = 0; i < 365; i++) {
+    const ds = dateStr(d);
+    if (dateMap.has(ds)) {
+      streak++;
+      d.setTime(prevDay(d).getTime());
+    } else if (freezeAvailable) {
+      // Gap day — check if next logged day after gap has SS >= 75 (free freeze)
+      // or if user has enough XP (paid freeze)
+      const dayAfterGap = new Date(d);
+      dayAfterGap.setDate(dayAfterGap.getDate() + 1);
+      const entryAfterGap = dateMap.get(dateStr(dayAfterGap));
+
+      if (entryAfterGap && entryAfterGap.ss >= 75) {
+        // Free freeze — good sleep after gap
+        freezeUsed = true;
+        freezeAvailable = false;
+        streak++; // count the frozen day
+        d.setTime(prevDay(d).getTime());
+      } else {
+        // Check XP for paid freeze (50 XP cost)
+        const xp = calcXP(data, name);
+        if (xp >= 50) {
+          xpFreezeUsed = true;
+          freezeAvailable = false;
+          streak++;
+          d.setTime(prevDay(d).getTime());
+        } else {
+          break; // no freeze available, streak ends
+        }
+      }
+    } else {
+      break; // already used freeze, streak ends
+    }
+  }
+  return { days: streak, freezeUsed, xpFreezeUsed };
+}
+
+/* ── XP System ── */
+export function calcXP(data: SleepEntry[], name: string): number {
+  const entries = data.filter(d => d.name === name);
+  let xp = 0;
+
+  // Base XP: +10 per logged day
+  xp += entries.length * 10;
+
+  // Bonus: +5 for SS >= 80, +10 for SS >= 90
+  for (const e of entries) {
+    if (e.ss >= 90) xp += 10;
+    else if (e.ss >= 80) xp += 5;
+  }
+
+  // Streak milestones (based on consecutive days, simplified)
+  const dates = [...new Set(entries.map(e => e.date))].sort();
+  let maxConsec = 0;
+  let curConsec = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const prev = new Date(dates[i - 1] + 'T12:00:00');
+    const curr = new Date(dates[i] + 'T12:00:00');
+    const diffDays = Math.round((curr.getTime() - prev.getTime()) / 86400000);
+    if (diffDays === 1) { curConsec++; }
+    else { maxConsec = Math.max(maxConsec, curConsec); curConsec = 1; }
+  }
+  maxConsec = Math.max(maxConsec, curConsec);
+  if (maxConsec >= 30) xp += 200;
+  else if (maxConsec >= 7) xp += 50;
+
+  // Kudos XP (+5 per kudos received) — read from localStorage
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('st_kudos_') && key.endsWith(`_${name}`)) xp += 5;
+    }
+  } catch {}
+
+  // Deduct spent XP for streak freezes (track in localStorage)
+  try {
+    const spent = parseInt(localStorage.getItem(`st_xp_spent_${name}`) || '0');
+    xp -= spent;
+  } catch {}
+
+  return Math.max(0, xp);
 }
 
 export function aggregate(data: SleepEntry[]): AggEntry[] {

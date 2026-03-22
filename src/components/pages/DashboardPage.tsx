@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor,
-  getTier, fmtDate, todayStr, aggregate, personColor, NAMES, generateInsights, loggingStreak,
+  getTier, fmtDate, todayStr, aggregate, personColor, NAMES, generateInsights, loggingStreak, calcXP,
 } from '@/lib/sleep';
 import { V } from '@/lib/hide';
 import { MVal } from '@/components/shared/MVal';
@@ -177,8 +177,8 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                         <div className="text-sm font-semibold">{p.name}</div>
                         <div className="flex items-center gap-1.5">
                           {p.entries && <span className="text-[10px] text-muted-foreground">{p.entries} zile</span>}
-                          {(() => { const s = loggingStreak(data, p.name); return s > 0 ? (
-                            <span className="text-[10px] text-muted-foreground">· ⚡{s}d streak</span>
+                          {(() => { const sr = loggingStreak(data, p.name); return sr.days > 0 ? (
+                            <span className="text-[10px] text-muted-foreground">· ⚡{sr.days}d streak</span>
                           ) : null; })()}
                         </div>
                       </div>
@@ -221,9 +221,14 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                 </div>
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <div className="font-bold text-sm">{p.name}</div>
-                  {(() => { const s = loggingStreak(data, p.name); return s > 0 ? (
+                  {(() => { const sr = loggingStreak(data, p.name); return sr.days > 0 ? (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground" title={sr.freezeUsed ? 'Streak salvat (somn bun)' : sr.xpFreezeUsed ? 'Streak salvat (XP)' : ''}>
+                      ⚡{sr.days}d{sr.freezeUsed ? ' ❄️' : sr.xpFreezeUsed ? ' 🎫' : ''}
+                    </span>
+                  ) : null; })()}
+                  {(() => { const xp = calcXP(data, p.name); return xp > 0 ? (
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      ⚡{s}d
+                      ✨ {xp} XP
                     </span>
                   ) : null; })()}
                   {(() => { const total = getTotalKudos(p.name); return total > 0 ? (
