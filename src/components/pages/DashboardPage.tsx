@@ -250,7 +250,7 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
   const tier = myData ? getTier(myData.ss) : getTier(0);
   const c = personColor(me);
 
-  // Leaderboard — all users sorted by Sleep Score (quality of sleep)
+  // Leaderboard — based on current view filter (Zi/7zile/Lună)
   const leaderboard = NAMES.map(n => {
     const pAgg = sorted.find(p => p.name === n);
     const pXP = calcXP(data, n);
@@ -605,7 +605,8 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
       </Section>
 
       {/* ═══ LEADERBOARD (expandable, default open) ═══ */}
-      <Section title="Leaderboard" icon="🏆" defaultOpen={true}>
+      <Section title="Leaderboard" icon="🏆" defaultOpen={true}
+              badge={<span className="text-[9px] text-muted-foreground">{subText}</span>}>
         <div className="pt-2 space-y-2">
           {leaderboard.map((p, i) => {
             const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';

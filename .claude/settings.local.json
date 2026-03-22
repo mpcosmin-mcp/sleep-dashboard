@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /c/AI_Projects/SleepTracker/src/components/pages/*.tsx /c/AI_Projects/SleepTracker/src/components/shared/*.tsx /c/AI_Projects/SleepTracker/src/lib/*.tsx /c/AI_Projects/SleepTracker/src/lib/*.ts)",
+      "Bash(xargs wc:*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(grep -E \"\\\\.tsx$\")",
+      "Bash(npx tsc:*)",
+      "Bash(npx -p typescript tsc --noEmit)",
+      "Bash(npx vite:*)",
+      "Bash(npm install:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(gh api:*)",
+      "Bash(where gh:*)",
+      "Read(//c/Program Files/GitHub CLI/**)",
+      "Bash(find C:AI_ProjectsSleepTracker -name *.md -type f)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -sL https://script.google.com/macros/s/AKfycbwNbyFuoNJV6XPAWbwANg1DOuW9rBshHlBrm3cLPcDeZORwu2L2k8N6VoHYNKdoyKhYtg/exec)",
+      "Bash(python3 -c \":*)"
+    ]
+  }
+}
