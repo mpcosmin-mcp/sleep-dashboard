@@ -489,14 +489,12 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                     {p.streak > 0 && <span style={{ color: STREAK_COLOR }}>⚡{p.streak}d</span>}
                   </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <div className="font-mono text-sm font-bold" style={{ color: XP_COLOR }}>{p.xp}</div>
+                <div className="text-right shrink-0 w-12">
+                  <div className="font-mono text-[10px] font-bold" style={{ color: XP_COLOR }}>{p.xp} XP</div>
                 </div>
-                {p.ss > 0 && (
-                  <div className="font-mono text-lg font-bold w-10 text-right" style={{ color: ssColor(p.ss) }}>
-                    <V>{p.ss}</V>
-                  </div>
-                )}
+                <div className="font-mono text-lg font-bold w-10 text-right shrink-0" style={{ color: p.ss > 0 ? ssColor(p.ss) : '#e2e8f0' }}>
+                  {p.ss > 0 ? <V>{p.ss}</V> : '—'}
+                </div>
               </div>
             );
           })}
@@ -510,9 +508,10 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
           {NAMES.filter(n => n !== me).map(name => {
             const pAgg = sorted.find(p => p.name === name);
             const pTier = pAgg ? getTier(pAgg.ss) : null;
+            const hasData = !!pAgg; // only show kudos if person has data in this period
             const kudos = getKudosFor(name, activeDate);
             const myKudo = me ? getKudos(me, name, activeDate) : null;
-            const canKudo = me && !myKudo;
+            const canKudo = me && !myKudo && hasData;
             const pc = personColor(name);
             return (
               <Card key={name + cheerRefresh + activeDate} className="shadow-sm" style={{ borderLeft: `3px solid ${pc}` }}>
@@ -521,7 +520,7 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                     <Avi name={name} />
                     <div className="flex-1 min-w-0">
                       <div className="text-[11px] font-bold truncate" style={{ color: pc }}>{name}</div>
-                      {pTier && <div className="text-[9px]" style={{ color: pTier.color }}>SS {pAgg?.ss}</div>}
+                      {pTier ? <div className="text-[9px]" style={{ color: pTier.color }}>SS {pAgg?.ss}</div> : <div className="text-[9px] text-muted-foreground">Fără date</div>}
                     </div>
                   </div>
                   {kudos.length > 0 && (
