@@ -511,38 +511,38 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
         </div>
       </Section>
 
-      {/* ═══ STREAK (expandable) ═══ */}
-      <Section title={`Streak ${sr.days > 0 ? `⚡${sr.days}d` : '—'}`} icon="⚡"
-              badge={sr.needsRepair ? <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-300 text-amber-600 bg-amber-50">⚠️ Streak în pericol</Badge> : undefined}>
-        <div className="pt-2 space-y-2">
-          {sr.autoSaved > 0 && (
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-muted-foreground">Zile salvate automat (SS ≥ 75)</span>
-              <span className="font-mono font-bold text-green-600">+{sr.autoSaved}</span>
-            </div>
-          )}
-          {sr.needsRepair && (
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-1">
-              <div className="text-[11px] font-bold text-amber-800 mb-1">⚠️ Ai ratat o zi și somnul e sub 75</div>
-              <div className="flex gap-2 mt-2">
-                <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > xp}
-                  className="text-[11px] font-bold px-3 py-1.5 rounded-md transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ background: XP_COLOR, color: 'white' }}>
-                  Salvează streak ({STREAK_REPAIR_COST} XP)
-                </button>
-                <span className="text-[10px] text-amber-700 self-center">sau streak revine la 0</span>
+      {/* ═══ STREAK — simple inline, no dropdown ═══ */}
+      {(sr.days > 0 || sr.needsRepair) && (
+        <Card className="mb-3 shadow-sm">
+          <CardContent className="py-2.5 px-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base">⚡</span>
+                <span className="text-[11px] font-bold" style={{ color: STREAK_COLOR }}>{sr.days}d streak</span>
+                {sr.autoSaved > 0 && <span className="text-[9px] text-green-600">+{sr.autoSaved} saved</span>}
               </div>
+              {!sr.needsRepair && sr.days > 0 && sr.days < 30 && (
+                <span className="text-[9px] text-muted-foreground">
+                  {sr.days < 7 ? `${7 - sr.days}d → ` : `${30 - sr.days}d → `}
+                  <strong style={{ color: XP_COLOR }}>{sr.days < 7 ? '+50' : '+200'} XP</strong>
+                </span>
+              )}
+              {sr.days >= 30 && <span className="text-[9px]" style={{ color: XP_COLOR }}>🏆 Legendar!</span>}
             </div>
-          )}
-          {!sr.needsRepair && sr.days > 0 && (
-            <div className="text-[10px] text-muted-foreground text-center py-1">
-              {sr.days < 7 && <span>Încă <strong>{7 - sr.days}</strong> zile → <strong style={{ color: XP_COLOR }}>+50 XP</strong></span>}
-              {sr.days >= 7 && sr.days < 30 && <span>Încă <strong>{30 - sr.days}</strong> zile → <strong style={{ color: XP_COLOR }}>+200 XP</strong></span>}
-              {sr.days >= 30 && <span style={{ color: XP_COLOR }}>🏆 Streak legendar!</span>}
-            </div>
-          )}
-        </div>
-      </Section>
+            {sr.needsRepair && (
+              <div className="flex items-center gap-2 mt-1.5 pt-1.5 border-t">
+                <span className="text-[10px] text-amber-700">⚠️ Somnul e sub 75</span>
+                <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > xp}
+                  className="text-[9px] font-bold px-2 py-0.5 rounded transition-all disabled:opacity-40"
+                  style={{ background: XP_COLOR, color: 'white' }}>
+                  Salvează ({STREAK_REPAIR_COST} XP)
+                </button>
+                <span className="text-[9px] text-muted-foreground">sau reset</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* ═══ XP & LEVEL (expandable) ═══ */}
       <Section title={`${xp} XP`} icon="✨"
