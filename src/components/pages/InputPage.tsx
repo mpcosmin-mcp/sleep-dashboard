@@ -22,15 +22,17 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
         <h2 className="text-2xl font-bold tracking-tight mb-1">Alege profilul</h2>
         <p className="text-muted-foreground text-sm mb-6">Selectează-ți contul pentru a loga datele de somn.</p>
         <div className="flex flex-col gap-2">
-          {NAMES.map(n => {
+          {[...NAMES].sort((a, b) => calcXP(data, b) - calcXP(data, a)).map((n, rank) => {
             const xp = calcXP(data, n);
             const sr = loggingStreak(data, n);
             const c = personColor(n);
+            const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : '🥉';
             return (
               <button key={n} onClick={() => pickUser(n)}
                 className="flex items-center rounded-xl border bg-card hover:scale-[1.01] active:scale-[0.99] transition-all text-left group overflow-hidden">
-                {/* Left section: avatar + name */}
+                {/* Left section: rank + avatar + name */}
                 <div className="flex items-center gap-3 flex-1 min-w-0 px-4 py-3">
+                  <span className="text-sm w-5 text-center shrink-0">{medal}</span>
                   <Avi name={n} size="md" />
                   <div className="flex-1 min-w-0">
                     <span className="font-semibold text-sm block truncate">{n}</span>
