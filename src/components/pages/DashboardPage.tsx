@@ -495,26 +495,28 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                 <div className="font-mono text-lg font-bold w-10 text-right shrink-0" style={{ color: p.ss > 0 ? ssColor(p.ss) : '#e2e8f0' }}>
                   {p.ss > 0 ? <V>{p.ss}</V> : '—'}
                 </div>
-                {/* Like column — fixed width, always present on daily */}
+                {/* Like column — fixed width, daily view, not self */}
                 {view === 'daily' && (() => {
-                  if (isMe || p.ss === 0) return <div className="w-8 shrink-0" />;
+                  if (isMe) return <div className="w-10 shrink-0" />;
+                  if (p.ss === 0) return <div className="w-10 shrink-0" />;
                   const likes = getKudosFor(p.name, activeDate);
                   const likeCount = likes.length;
                   const myLike = me ? getKudos(me, p.name, activeDate) : null;
+                  const handleToggle = (e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    if (myLike) {
+                      // Unlike — remove from localStorage
+                      try { localStorage.removeItem(`st_kudos_${activeDate}_${me}_${p.name}`); } catch {}
+                    } else {
+                      handleCheer(p.name, '👍');
+                    }
+                    setCheerRefresh(c => c + 1);
+                  };
                   return (
-                    <div className="w-8 shrink-0 flex items-center justify-end gap-0.5">
-                      {myLike ? (
-                        <>
-                          <span className="text-sm">🧡</span>
-                          {likeCount > 0 && <span className="text-[9px] font-bold" style={{ color: STREAK_COLOR }}>{likeCount}</span>}
-                        </>
-                      ) : (
-                        <button onClick={(e) => { e.stopPropagation(); handleCheer(p.name, '👍'); }}
-                          className="text-sm opacity-20 hover:opacity-100 active:scale-125 transition-all" title="Like">
-                          🤍
-                        </button>
-                      )}
-                    </div>
+                    <button onClick={handleToggle} className="w-10 shrink-0 flex items-center justify-end gap-0.5 hover:scale-110 active:scale-125 transition-all" title={myLike ? 'Unlike' : 'Like'}>
+                      <span className={`text-sm ${myLike ? '' : 'grayscale opacity-25'}`}>👍</span>
+                      {likeCount > 0 && <span className={`text-[9px] font-bold ${myLike ? '' : 'text-muted-foreground'}`} style={myLike ? { color: '#2563eb' } : undefined}>{likeCount}</span>}
+                    </button>
                   );
                 })()}
               </div>
