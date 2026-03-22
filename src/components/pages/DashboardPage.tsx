@@ -222,8 +222,9 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                 <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <div className="font-bold text-sm">{p.name}</div>
                   {(() => { const sr = loggingStreak(data, p.name); return sr.days > 0 ? (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground" title={sr.freezeUsed ? 'Streak salvat (somn bun)' : sr.xpFreezeUsed ? 'Streak salvat (XP)' : ''}>
-                      ⚡{sr.days}d{sr.freezeUsed ? ' ❄️' : sr.xpFreezeUsed ? ' 🎫' : ''}
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground"
+                      title={sr.freezesDays > 0 ? `${sr.freezesDays} zi${sr.freezesDays > 1 ? 'le' : ''} frozen${sr.freeFreeze ? ' (1 free)' : ''}${sr.xpSpent > 0 ? ` · ${sr.xpSpent} XP cheltuit` : ''}` : `${sr.days} zile consecutive`}>
+                      ⚡{sr.days}d{sr.freezesDays > 0 ? ` ❄️${sr.freezesDays}` : ''}
                     </span>
                   ) : null; })()}
                   {(() => { const xp = calcXP(data, p.name); return xp > 0 ? (

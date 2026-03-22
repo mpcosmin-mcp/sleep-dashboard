@@ -195,11 +195,16 @@ export async function submitEntry(entry: Record<string, any>) {
   await jsonp(`${API}?${params}`);
 }
 
-/* ── Streak with freeze (Duolingo-style) ── */
+/* ── Streak with freeze (Duolingo-style, max 3 gap days) ── */
+// Gap costs: 1 day = free (if SS>=75) or 50 XP, 2 days = 100 XP, 3 days = 300 XP
+// 4+ days gap = streak lost
+const GAP_XP_COST = [0, 50, 100, 300]; // index = gap days
+
 export interface StreakResult {
   days: number;
-  freezeUsed: boolean;       // free freeze (SS >= 75 after gap)
-  xpFreezeUsed: boolean;     // paid freeze (XP spent)
+  freezesDays: number;       // how many gap days were frozen
+  freeFreeze: boolean;       // first gap was saved by SS >= 75
+  xpSpent: number;           // total XP spent on freezes
 }
 
 function dateStr(d: Date): string { return d.toISOString().split('T')[0]; }
@@ -208,19 +213,23 @@ function prevDay(d: Date): Date { const n = new Date(d); n.setDate(n.getDate() -
 export function loggingStreak(data: SleepEntry[], name: string): StreakResult {
   const personEntries = data.filter(d => d.name === name);
   const dateMap = new Map(personEntries.map(e => [e.date, e]));
-  if (!dateMap.size) return { days: 0, freezeUsed: false, xpFreezeUsed: false };
+  const empty: StreakResult = { days: 0, freezesDays: 0, freeFreeze: false, xpSpent: 0 };
+  if (!dateMap.size) return empty;
 
   let streak = 0;
-  let freezeUsed = false;
-  let xpFreezeUsed = false;
-  let freezeAvailable = true; // 1 freeze per streak
+  let freezesDays = 0;
+  let freeFreeze = false;
+  let xpSpent = 0;
   const d = new Date();
   d.setHours(12, 0, 0, 0);
 
   // If today not logged, start from yesterday
   if (!dateMap.has(dateStr(d))) {
     const yesterday = prevDay(d);
-    if (!dateMap.has(dateStr(yesterday))) return { days: 0, freezeUsed: false, xpFreezeUsed: false };
+    if (!dateMap.has(dateStr(yesterday))) {
+      // Check if today is a gap day (1-3 days from last entry)
+      // We'll handle this in the main loop
+    }
     d.setTime(yesterday.getTime());
   }
 
@@ -229,36 +238,53 @@ export function loggingStreak(data: SleepEntry[], name: string): StreakResult {
     if (dateMap.has(ds)) {
       streak++;
       d.setTime(prevDay(d).getTime());
-    } else if (freezeAvailable) {
-      // Gap day — check if next logged day after gap has SS >= 75 (free freeze)
-      // or if user has enough XP (paid freeze)
+    } else {
+      // Count consecutive gap days
+      let gapSize = 0;
+      const gapStart = new Date(d);
+      while (gapSize < 4 && !dateMap.has(dateStr(gapStart))) {
+        gapSize++;
+        gapStart.setTime(prevDay(gapStart).getTime());
+      }
+
+      // 4+ gap = streak over
+      if (gapSize >= 4 || !dateMap.has(dateStr(gapStart))) break;
+
+      // First gap day: check free freeze (SS >= 75 on the day AFTER gap)
       const dayAfterGap = new Date(d);
       dayAfterGap.setDate(dayAfterGap.getDate() + 1);
       const entryAfterGap = dateMap.get(dateStr(dayAfterGap));
+      let firstDayFree = false;
 
-      if (entryAfterGap && entryAfterGap.ss >= 75) {
-        // Free freeze — good sleep after gap
-        freezeUsed = true;
-        freezeAvailable = false;
-        streak++; // count the frozen day
-        d.setTime(prevDay(d).getTime());
-      } else {
-        // Check XP for paid freeze (50 XP cost)
-        const xp = calcXP(data, name);
-        if (xp >= 50) {
-          xpFreezeUsed = true;
-          freezeAvailable = false;
-          streak++;
-          d.setTime(prevDay(d).getTime());
-        } else {
-          break; // no freeze available, streak ends
-        }
+      if (freezesDays === 0 && entryAfterGap && entryAfterGap.ss >= 75) {
+        firstDayFree = true;
+        freeFreeze = true;
       }
-    } else {
-      break; // already used freeze, streak ends
+
+      // Calculate XP cost for this gap
+      let totalCost = 0;
+      for (let g = 0; g < gapSize; g++) {
+        if (g === 0 && firstDayFree) continue; // first day is free
+        const costIdx = Math.min(g + (firstDayFree ? 0 : 1), GAP_XP_COST.length - 1);
+        totalCost += GAP_XP_COST[costIdx] || GAP_XP_COST[GAP_XP_COST.length - 1];
+      }
+
+      // Check if user has enough XP
+      const availableXP = calcXP(data, name) - xpSpent;
+      if (totalCost > 0 && availableXP < totalCost) break; // can't afford freeze
+
+      // Apply freeze
+      xpSpent += totalCost;
+      freezesDays += gapSize;
+      streak += gapSize; // frozen days count toward streak
+
+      // Skip past the gap
+      d.setTime(gapStart.getTime());
+      // Continue — the loop will now find the entry at gapStart
     }
   }
-  return { days: streak, freezeUsed, xpFreezeUsed };
+
+  return { days: streak, freezesDays, freeFreeze, xpSpent };
 }
 
 /* ── XP System ── */
