@@ -157,71 +157,56 @@ export function loggingStreak(data: SleepEntry[], name: string): StreakResult {
   const empty: StreakResult = { days: 0, freezesDays: 0, freeFreeze: false, xpSpent: 0 };
   if (!dateMap.size) return empty;
 
+  // Build sorted list of dates this person logged
+  const loggedDates = [...new Set(personEntries.map(e => e.date))].sort().reverse();
+
+  // Start from most recent logged date
   let streak = 0;
   let freezesDays = 0;
   let freeFreeze = false;
   let xpSpent = 0;
-  const d = new Date();
-  d.setHours(12, 0, 0, 0);
+  let usedFreeFreeze = false;
 
-  // If today not logged, start from yesterday
-  if (!dateMap.has(dateStr(d))) {
-    const yesterday = prevDay(d);
-    if (!dateMap.has(dateStr(yesterday))) {
-      // Check if today is a gap day (1-3 days from last entry)
-      // We'll handle this in the main loop
-    }
-    d.setTime(yesterday.getTime());
-  }
+  // Check that most recent entry is today or yesterday (otherwise streak is 0)
+  const today = dateStr(new Date());
+  const yesterday = dateStr(prevDay(new Date()));
+  if (loggedDates[0] !== today && loggedDates[0] !== yesterday) return empty;
 
-  for (let i = 0; i < 365; i++) {
-    const ds = dateStr(d);
-    if (dateMap.has(ds)) {
-      streak++;
-      d.setTime(prevDay(d).getTime());
-    } else {
-      // Count consecutive gap days
-      let gapSize = 0;
-      const gapStart = new Date(d);
-      while (gapSize < 4 && !dateMap.has(dateStr(gapStart))) {
-        gapSize++;
-        gapStart.setTime(prevDay(gapStart).getTime());
-      }
+  for (let i = 0; i < loggedDates.length; i++) {
+    streak++;
 
-      // 4+ gap = streak over
-      if (gapSize >= 4 || !dateMap.has(dateStr(gapStart))) break;
+    // Check gap to next (older) date
+    if (i + 1 < loggedDates.length) {
+      const curr = new Date(loggedDates[i] + 'T12:00:00');
+      const next = new Date(loggedDates[i + 1] + 'T12:00:00');
+      const gapDays = Math.round((curr.getTime() - next.getTime()) / 86400000) - 1;
 
-      // First gap day: check free freeze (SS >= 75 on the day AFTER gap)
-      const dayAfterGap = new Date(d);
-      dayAfterGap.setDate(dayAfterGap.getDate() + 1);
-      const entryAfterGap = dateMap.get(dateStr(dayAfterGap));
-      let firstDayFree = false;
+      if (gapDays === 0) continue; // consecutive, no gap
+      if (gapDays > 3) break; // too big, streak over
 
-      if (freezesDays === 0 && entryAfterGap && entryAfterGap.ss >= 75) {
-        firstDayFree = true;
+      // Try free freeze first (1 gap day, SS >= 75 on day after gap)
+      const entryAfterGap = dateMap.get(loggedDates[i]);
+      if (gapDays === 1 && !usedFreeFreeze && entryAfterGap && entryAfterGap.ss >= 75) {
         freeFreeze = true;
+        usedFreeFreeze = true;
+        freezesDays += 1;
+        streak += 1;
+        continue;
       }
 
-      // Calculate XP cost for this gap
-      let totalCost = 0;
-      for (let g = 0; g < gapSize; g++) {
-        if (g === 0 && firstDayFree) continue; // first day is free
-        const costIdx = Math.min(g + (firstDayFree ? 0 : 1), GAP_XP_COST.length - 1);
-        totalCost += GAP_XP_COST[costIdx] || GAP_XP_COST[GAP_XP_COST.length - 1];
+      // XP freeze
+      let cost = 0;
+      for (let g = 0; g < gapDays; g++) {
+        cost += GAP_XP_COST[Math.min(g + 1, GAP_XP_COST.length - 1)];
       }
-
-      // Check if user has enough XP
       const availableXP = calcXP(data, name) - xpSpent;
-      if (totalCost > 0 && availableXP < totalCost) break; // can't afford freeze
-
-      // Apply freeze
-      xpSpent += totalCost;
-      freezesDays += gapSize;
-      streak += gapSize; // frozen days count toward streak
-
-      // Skip past the gap
-      d.setTime(gapStart.getTime());
-      // Continue — the loop will now find the entry at gapStart
+      if (availableXP >= cost) {
+        xpSpent += cost;
+        freezesDays += gapDays;
+        streak += gapDays;
+      } else {
+        break; // can't afford
+      }
     }
   }
 
