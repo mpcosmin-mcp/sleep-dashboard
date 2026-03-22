@@ -367,7 +367,9 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                 const isToday = i === 6;
                 const dotColor = day.logged ? ssColor(day.ss) : isToday ? '#94a3b8' : '#e2e8f0';
                 return (
-                  <div key={i} className="flex flex-col items-center gap-1" title={day.logged ? `${fmtDate(day.date)} — SS ${day.ss}` : `${fmtDate(day.date)} — nelogat`}>
+                  <div key={i} className={`flex flex-col items-center gap-1 ${day.logged ? 'cursor-pointer' : ''}`}
+                   title={day.logged ? `${fmtDate(day.date)} — SS ${day.ss} (click)` : `${fmtDate(day.date)} — nelogat`}
+                   onClick={() => { if (day.logged) { setView('daily'); setSelDate(day.date); } }}>
                     <div className="text-[9px] text-muted-foreground font-medium">{day.label}</div>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isToday && !day.logged ? 'animate-pulse' : ''}`}
                          style={{ background: dotColor + (day.logged ? '20' : ''), border: isToday ? `2px solid ${c}` : '2px solid transparent' }}>
@@ -412,12 +414,22 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                   const dotColor = day.logged ? ssColor(day.ss) : '#f1f5f9';
                   return (
                     <div key={di}
-                      className={`h-9 rounded flex flex-col items-center justify-center ${day.isToday ? 'ring-1.5' : ''} ${!day.isCurrentMonth ? 'opacity-25' : ''}`}
+                      className={`h-9 rounded flex flex-col items-center justify-center ${day.isToday ? 'ring-1.5' : ''} ${!day.isCurrentMonth ? 'opacity-25' : ''} ${day.logged ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
                       style={{
                         background: day.logged ? dotColor + '18' : undefined,
                         ringColor: day.isToday ? c : undefined,
                       }}
-                      title={day.logged ? `${day.day} — SS ${day.ss}` : `${day.day}`}>
+                      onClick={() => {
+                        if (day.logged) {
+                          // Calendar date = sheet date + 1, so sheet date = calendar - 1
+                          const parts = day.date.split('-').map(Number);
+                          const sheet = new Date(parts[0], parts[1] - 1, parts[2] - 1);
+                          const sheetStr = localDateStr(sheet);
+                          setView('daily'); setSelDate(sheetStr); setTrackerRange('7');
+                          window.scrollTo(0, 0);
+                        }
+                      }}
+                      title={day.logged ? `${day.day} — SS ${day.ss} (click pt detalii)` : `${day.day}`}>
                       <span className="text-[7px] text-muted-foreground leading-none">{day.day}</span>
                       {day.logged ? (
                         <span className="text-[9px] font-bold leading-none" style={{ color: dotColor }}>{day.ss}</span>
