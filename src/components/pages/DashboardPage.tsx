@@ -495,17 +495,25 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
                 <div className="font-mono text-lg font-bold w-10 text-right shrink-0" style={{ color: p.ss > 0 ? ssColor(p.ss) : '#e2e8f0' }}>
                   {p.ss > 0 ? <V>{p.ss}</V> : '—'}
                 </div>
-                {/* Like button — daily view only, not self, has data */}
-                {view === 'daily' && !isMe && p.ss > 0 && (() => {
+                {/* Like — daily view, not self */}
+                {view === 'daily' && (() => {
+                  const likes = getKudosFor(p.name, activeDate);
+                  const likeCount = likes.length;
                   const myLike = me ? getKudos(me, p.name, activeDate) : null;
-                  return myLike ? (
-                    <span className="text-sm shrink-0" title="Liked!">👍</span>
-                  ) : me ? (
-                    <button onClick={(e) => { e.stopPropagation(); handleCheer(p.name, '👍'); }}
-                      className="text-sm shrink-0 grayscale opacity-25 hover:grayscale-0 hover:opacity-100 active:scale-125 transition-all" title="Like">
-                      👍
-                    </button>
-                  ) : null;
+                  const canLike = !isMe && p.ss > 0 && me && !myLike;
+                  return (
+                    <div className="flex items-center gap-0.5 shrink-0">
+                      {canLike ? (
+                        <button onClick={(e) => { e.stopPropagation(); handleCheer(p.name, '👍'); }}
+                          className="text-sm grayscale opacity-25 hover:grayscale-0 hover:opacity-100 active:scale-125 transition-all" title="Like">
+                          👍
+                        </button>
+                      ) : !isMe && p.ss > 0 ? (
+                        <span className="text-sm">👍</span>
+                      ) : null}
+                      {likeCount > 0 && <span className="text-[9px] font-bold text-muted-foreground">{likeCount}</span>}
+                    </div>
+                  );
                 })()}
               </div>
             );
@@ -513,37 +521,16 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
         </div>
       </Section>
 
-      {/* ═══ STREAK — simple inline, no dropdown ═══ */}
-      {(sr.days > 0 || sr.needsRepair) && (
-        <Card className="mb-3 shadow-sm">
-          <CardContent className="py-2.5 px-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-base">⚡</span>
-                <span className="text-[11px] font-bold" style={{ color: STREAK_COLOR }}>{sr.days}d streak</span>
-                {sr.autoSaved > 0 && <span className="text-[9px] text-green-600">+{sr.autoSaved} saved</span>}
-              </div>
-              {!sr.needsRepair && sr.days > 0 && sr.days < 30 && (
-                <span className="text-[9px] text-muted-foreground">
-                  {sr.days < 7 ? `${7 - sr.days}d → ` : `${30 - sr.days}d → `}
-                  <strong style={{ color: XP_COLOR }}>{sr.days < 7 ? '+50' : '+200'} XP</strong>
-                </span>
-              )}
-              {sr.days >= 30 && <span className="text-[9px]" style={{ color: XP_COLOR }}>🏆 Legendar!</span>}
-            </div>
-            {sr.needsRepair && (
-              <div className="flex items-center gap-2 mt-1.5 pt-1.5 border-t">
-                <span className="text-[10px] text-amber-700">⚠️ Somnul e sub 75</span>
-                <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > xp}
-                  className="text-[9px] font-bold px-2 py-0.5 rounded transition-all disabled:opacity-40"
-                  style={{ background: XP_COLOR, color: 'white' }}>
-                  Salvează ({STREAK_REPAIR_COST} XP)
-                </button>
-                <span className="text-[9px] text-muted-foreground">sau reset</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Streak repair alert — only when needed */}
+      {sr.needsRepair && (
+        <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-lg bg-amber-50 border border-amber-200">
+          <span className="text-[10px] text-amber-700">⚠️ Somnul e sub 75 — streak în pericol</span>
+          <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > xp}
+            className="text-[9px] font-bold px-2 py-0.5 rounded transition-all disabled:opacity-40 ml-auto"
+            style={{ background: XP_COLOR, color: 'white' }}>
+            Salvează ({STREAK_REPAIR_COST} XP)
+          </button>
+        </div>
       )}
 
       {/* ═══ XP & LEVEL (expandable) ═══ */}
