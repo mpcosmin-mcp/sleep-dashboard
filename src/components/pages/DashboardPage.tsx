@@ -207,44 +207,48 @@ export function DashboardPage({ data, user }: { data: SleepEntry[]; user: string
           const kudos = getKudosFor(p.name, todayStr());
           const myKudo = user ? getKudos(user, p.name, todayStr()) : null;
           const canKudo = user && user !== p.name && !myKudo;
+          const sr = loggingStreak(data, p.name);
+          const xp = calcXP(data, p.name);
+          const totalKudos = getTotalKudos(p.name);
+          const c = personColor(p.name);
           return (
             <Card key={p.name + i + cheerRefresh} className={`shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${p.ss >= 90 ? 'ring-1 ring-[#1a8c5e]/20' : ''}`}
                   style={{ animationDelay: `${i * 50}ms` }}>
               <CardContent className="py-4 px-4">
-                <div className="flex justify-between items-start mb-3">
+                {/* Header: avatar + name + score */}
+                <div className="flex items-center gap-3 mb-3">
                   <Avi name={p.name} size="md" />
-                  <MVal value={p.ss} color={ssColor(p.ss)} unit="/100" big />
-                </div>
-                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                  <div className="font-bold text-sm">{p.name}</div>
-                  {(() => { const sr = loggingStreak(data, p.name); return sr.days > 0 ? (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground"
-                      title={sr.freezesDays > 0 ? `${sr.freezesDays} zi${sr.freezesDays > 1 ? 'le' : ''} frozen${sr.freeFreeze ? ' (1 free)' : ''}${sr.xpSpent > 0 ? ` · ${sr.xpSpent} XP cheltuit` : ''}` : `${sr.days} zile consecutive`}>
-                      ⚡{sr.days}d{sr.freezesDays > 0 ? ` ❄️${sr.freezesDays}` : ''}
-                    </span>
-                  ) : null; })()}
-                  {(() => { const xp = calcXP(data, p.name); return xp > 0 ? (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      ✨ {xp} XP
-                    </span>
-                  ) : null; })()}
-                  {(() => { const total = getTotalKudos(p.name); return total > 0 ? (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                      👏 {total}
-                    </span>
-                  ) : null; })()}
-                </div>
-                <div className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: tier.color }}>
-                  {tier.label}
-                </div>
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div className="bg-muted rounded-md p-2 text-center">
-                    <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">RHR</div>
-                    <MVal value={p.rhr} color={rhrColor(p.rhr)} unit="bpm" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-sm truncate">{p.name}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: tier.color }}>{tier.label}</div>
                   </div>
-                  <div className="bg-muted rounded-md p-2 text-center">
-                    <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">HRV</div>
-                    <MVal value={p.hrv ?? '—'} color={hrvColor(p.hrv)} unit={p.hrv ? 'ms' : ''} />
+                  <div className="text-right shrink-0">
+                    <div className="font-mono text-2xl font-bold" style={{ color: ssColor(p.ss) }}>{p.ss}</div>
+                    <div className="text-[9px] text-muted-foreground">/100</div>
+                  </div>
+                </div>
+
+                {/* Metrics grid — each in its own cell */}
+                <div className="grid grid-cols-4 gap-1.5 mb-3">
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">RHR</div>
+                    <div className="font-mono text-sm font-bold mt-0.5" style={{ color: rhrColor(p.rhr) }}>{p.rhr}</div>
+                    <div className="text-[8px] text-muted-foreground">bpm</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">HRV</div>
+                    <div className="font-mono text-sm font-bold mt-0.5" style={{ color: hrvColor(p.hrv) }}>{p.hrv ?? '—'}</div>
+                    <div className="text-[8px] text-muted-foreground">ms</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">XP</div>
+                    <div className="font-mono text-sm font-bold mt-0.5" style={{ color: c }}>{xp}</div>
+                    <div className="text-[8px] text-muted-foreground">pts</div>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">Streak</div>
+                    <div className="font-mono text-sm font-bold mt-0.5">{sr.days > 0 ? `${sr.days}` : '—'}</div>
+                    <div className="text-[8px] text-muted-foreground">{sr.days > 0 ? 'zile' : ''}</div>
                   </div>
                 </div>
 

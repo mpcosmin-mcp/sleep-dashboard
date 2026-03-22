@@ -21,7 +21,7 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
         <div className="text-4xl mb-3">👋</div>
         <h2 className="text-2xl font-bold tracking-tight mb-1">Alege profilul</h2>
         <p className="text-muted-foreground text-sm mb-6">Selectează-ți contul pentru a loga datele de somn.</p>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {[...NAMES].sort((a, b) => calcXP(data, b) - calcXP(data, a)).map((n, rank) => {
             const xp = calcXP(data, n);
             const sr = loggingStreak(data, n);
@@ -29,24 +29,28 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
             const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : '🥉';
             return (
               <button key={n} onClick={() => pickUser(n)}
-                className="flex items-center rounded-xl border bg-card hover:scale-[1.01] active:scale-[0.99] transition-all text-left group overflow-hidden">
-                {/* Left section: rank + avatar + name */}
-                <div className="flex items-center gap-3 flex-1 min-w-0 px-4 py-3">
+                className="rounded-xl border bg-card hover:scale-[1.01] active:scale-[0.99] transition-all text-left overflow-hidden">
+                {/* Top: rank + avatar + name */}
+                <div className="flex items-center gap-3 px-4 pt-3 pb-2">
                   <span className="text-sm w-5 text-center shrink-0">{medal}</span>
                   <Avi name={n} size="md" />
-                  <div className="flex-1 min-w-0">
-                    <span className="font-semibold text-sm block truncate">{n}</span>
-                    {sr.days > 0 && <span className="text-[10px] text-muted-foreground">⚡{sr.days}d streak</span>}
+                  <span className="font-semibold text-sm truncate flex-1">{n}</span>
+                </div>
+                {/* Bottom: metrics row */}
+                <div className="flex gap-1 px-4 pb-3">
+                  <div className="flex-1 bg-muted rounded-md px-2 py-1.5 text-center">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">XP</div>
+                    <div className="font-mono text-xs font-bold" style={{ color: c }}>{xp}</div>
+                  </div>
+                  <div className="flex-1 bg-muted rounded-md px-2 py-1.5 text-center">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">Streak</div>
+                    <div className="font-mono text-xs font-bold">{sr.days > 0 ? `⚡${sr.days}d` : '—'}</div>
+                  </div>
+                  <div className="flex-1 bg-muted rounded-md px-2 py-1.5 text-center">
+                    <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground">Entries</div>
+                    <div className="font-mono text-xs font-bold">{data.filter(d => d.name === n).length}</div>
                   </div>
                 </div>
-                {/* Right section: XP pill */}
-                {xp > 0 && (
-                  <div className="flex items-center gap-1.5 px-4 py-3 border-l bg-muted/40 shrink-0"
-                       style={{ borderLeftColor: c + '20' }}>
-                    <span className="text-xs font-bold font-mono" style={{ color: c }}>{xp}</span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">XP</span>
-                  </div>
-                )}
               </button>
             );
           })}
