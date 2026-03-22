@@ -203,7 +203,7 @@ function calcTrend(data: SleepEntry[], name: string) {
 }
 
 /* ═══════════════════════════════════════════ */
-export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump }: { data: SleepEntry[]; user: string | null; jumpDate?: string | null; jumpUser?: string; clearJump?: () => void }) {
+export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack }: { data: SleepEntry[]; user: string | null; jumpDate?: string | null; jumpUser?: string; clearJump?: () => void; onBack?: () => void }) {
   const [view, setView] = useState<DashView>('daily');
   const [selDate, setSelDate] = useState('');
   const [cheerRefresh, setCheerRefresh] = useState(0);
@@ -281,7 +281,7 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump }: { d
   return (
     <div>
       {/* ═══ UNIFIED HEADER — name + all stats in one block ═══ */}
-      {myData ? (
+      {!snapshotMode && myData ? (
         <Card className="mb-3 shadow-sm" style={{ borderTop: `3px solid ${c}` }}>
           <CardContent className="py-3 px-4">
             {/* Row 1: Name + tier + SS */}
@@ -347,7 +347,7 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump }: { d
             </div>
           </CardContent>
         </Card>
-      ) : (
+      ) : !snapshotMode ? (
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <Tabs value={view} onValueChange={v => setView(v as DashView)}>
@@ -358,71 +358,86 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump }: { d
             </TabsList>
           </Tabs>
         </div>
+      ) : null}
+
+      {/* ═══ DAY SNAPSHOT — full-screen when coming from Charts ═══ */}
+      {snapshotMode && view === 'daily' && (
+        <div>
+          {/* Back button */}
+          <button onClick={() => { setSnapshotMode(false); if (onBack) onBack(); }}
+            className="flex items-center gap-1.5 mb-3 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors">
+            <span>←</span> Înapoi la Evoluție
+          </button>
+
+          <Card className="shadow-sm border-primary/20">
+            <CardContent className="py-4 px-4">
+              <div className="text-center mb-3">
+                <div className="text-lg font-bold">📊 {fmtDate(activeDate)}</div>
+                <div className="text-[10px] text-muted-foreground">
+                  {snapshotUser ? `${snapshotUser.split(' ')[0]}` : 'Toată echipa'}
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                {filtered
+                  .filter(e => !snapshotUser || e.name === snapshotUser)
+                  .sort((a, b) => b.ss - a.ss)
+                  .map((entry, i) => {
+                    const pc = personColor(entry.name);
+                    const entryTier = getTier(entry.ss);
+                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+                    return (
+                      <div key={entry.name} className="flex items-center gap-2.5 p-2.5 rounded-lg" style={{ background: pc + '08', borderLeft: `3px solid ${pc}` }}>
+                        <span className="text-sm w-5 text-center">{medal}</span>
+                        <Avi name={entry.name} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[12px] font-bold" style={{ color: pc }}>{entry.name}</div>
+                          <div className="text-[9px]" style={{ color: entryTier.color }}>{entryTier.label}</div>
+                        </div>
+                        <div className="flex gap-3 shrink-0">
+                          <div className="text-center">
+                            <div className="text-[7px] text-muted-foreground">SS</div>
+                            <div className="font-mono text-lg font-bold" style={{ color: ssColor(entry.ss) }}>{entry.ss}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-[7px] text-muted-foreground">RHR</div>
+                            <div className="font-mono text-sm font-bold" style={{ color: rhrColor(entry.rhr) }}>{entry.rhr}</div>
+                          </div>
+                          {entry.hrv != null && (
+                            <div className="text-center">
+                              <div className="text-[7px] text-muted-foreground">HRV</div>
+                              <div className="font-mono text-sm font-bold" style={{ color: hrvColor(entry.hrv) }}>{entry.hrv}</div>
+                            </div>
+                          )}
+                        </div>
+                        {/* Like in snapshot */}
+                        {entry.name !== me && (() => {
+                          const myLike = me ? getKudos(me, entry.name, activeDate) : null;
+                          const likes = getKudosFor(entry.name, activeDate);
+                          return (
+                            <button onClick={() => {
+                              if (myLike) { try { localStorage.removeItem(`st_kudos_${activeDate}_${me}_${entry.name}`); } catch {} }
+                              else { handleCheer(entry.name, '👍'); }
+                              setCheerRefresh(c => c + 1);
+                            }} className="shrink-0 flex items-center gap-0.5 hover:scale-110 transition-all">
+                              <span className={`text-base ${myLike ? '' : 'grayscale opacity-25'}`}>👍</span>
+                              {likes.length > 0 && <span className={`text-[10px] font-bold ${myLike ? '' : 'text-muted-foreground'}`} style={myLike ? { color: '#2563eb' } : undefined}>{likes.length}</span>}
+                            </button>
+                          );
+                        })()}
+                      </div>
+                    );
+                  })}
+                {filtered.filter(e => !snapshotUser || e.name === snapshotUser).length === 0 && (
+                  <div className="text-xs text-muted-foreground text-center py-4">Nicio înregistrare în această zi{snapshotUser ? ` pentru ${snapshotUser.split(' ')[0]}` : ''}</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-      {/* ═══ DAY SNAPSHOT — shown when coming from Charts ═══ */}
-      {snapshotMode && view === 'daily' && (
-        <Card className="mb-3 shadow-sm border-primary/20">
-          <CardContent className="py-3 px-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[11px] font-bold">📊 Snapshot — {fmtDate(activeDate)}</div>
-              <button onClick={() => setSnapshotMode(false)} className="text-[9px] text-muted-foreground hover:text-foreground">✕ Închide</button>
-            </div>
-            <div className="space-y-2">
-              {filtered
-                .filter(e => !snapshotUser || e.name === snapshotUser)
-                .sort((a, b) => b.ss - a.ss)
-                .map(entry => {
-                  const pc = personColor(entry.name);
-                  const entryTier = getTier(entry.ss);
-                  return (
-                    <div key={entry.name} className="flex items-center gap-2 p-2 rounded-lg" style={{ background: pc + '08', borderLeft: `3px solid ${pc}` }}>
-                      <Avi name={entry.name} size="sm" />
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[11px] font-bold" style={{ color: pc }}>{entry.name}</div>
-                        <div className="text-[9px]" style={{ color: entryTier.color }}>{entryTier.label}</div>
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <div className="text-center">
-                          <div className="text-[7px] text-muted-foreground">SS</div>
-                          <div className="font-mono text-sm font-bold" style={{ color: ssColor(entry.ss) }}>{entry.ss}</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-[7px] text-muted-foreground">RHR</div>
-                          <div className="font-mono text-xs font-bold" style={{ color: rhrColor(entry.rhr) }}>{entry.rhr}</div>
-                        </div>
-                        {entry.hrv != null && (
-                          <div className="text-center">
-                            <div className="text-[7px] text-muted-foreground">HRV</div>
-                            <div className="font-mono text-xs font-bold" style={{ color: hrvColor(entry.hrv) }}>{entry.hrv}</div>
-                          </div>
-                        )}
-                      </div>
-                      {/* Like in snapshot */}
-                      {entry.name !== me && (() => {
-                        const myLike = me ? getKudos(me, entry.name, activeDate) : null;
-                        const likes = getKudosFor(entry.name, activeDate);
-                        return (
-                          <button onClick={() => {
-                            if (myLike) { try { localStorage.removeItem(`st_kudos_${activeDate}_${me}_${entry.name}`); } catch {} }
-                            else { handleCheer(entry.name, '👍'); }
-                            setCheerRefresh(c => c + 1);
-                          }} className="shrink-0 flex items-center gap-0.5 hover:scale-110 transition-all">
-                            <span className={`text-sm ${myLike ? '' : 'grayscale opacity-25'}`}>👍</span>
-                            {likes.length > 0 && <span className={`text-[9px] font-bold ${myLike ? '' : 'text-muted-foreground'}`} style={myLike ? { color: '#2563eb' } : undefined}>{likes.length}</span>}
-                          </button>
-                        );
-                      })()}
-                    </div>
-                  );
-                })}
-              {filtered.filter(e => !snapshotUser || e.name === snapshotUser).length === 0 && (
-                <div className="text-[10px] text-muted-foreground text-center py-2">Nicio înregistrare în această zi{snapshotUser ? ` pentru ${snapshotUser.split(' ')[0]}` : ''}</div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* ═══ Normal dashboard sections — hidden in snapshot mode ═══ */}
+      {!snapshotMode && <>
 
       {/* ═══ TRACKER (7d / 30d calendar / 12mo heatmap) ═══ */}
       <Section title={trackerRange === '7' ? 'Ultimele 7 zile' : trackerRange === '30' ? calMonth.monthLabel : 'Ultimele 12 luni'} icon="📅" defaultOpen={!snapshotMode}
@@ -735,6 +750,7 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump }: { d
       </Section>
 
       {/* Old leaderboard + echipa sections moved up */}
+      </>}
     </div>
   );
 }
