@@ -34,6 +34,71 @@ export const XP_PER_LEVEL = 100;
 export function xpLevel(xp: number) { return Math.floor(xp / XP_PER_LEVEL) + 1; }
 export function xpProgress(xp: number) { return xp % XP_PER_LEVEL; } // 0-99
 
+// Level titles — fun + professional, up to 100
+const LEVEL_TITLES: Record<number, string> = {
+  1: 'Somnoros',
+  2: 'Începător',
+  3: 'Pui de somn',
+  4: 'Dormitor',
+  5: 'Nocturn',
+  6: 'Visător',
+  7: 'Moț de noapte',
+  8: 'Regulat',
+  9: 'Disciplinat',
+  10: 'Ritmic',
+  11: 'Consistent',
+  12: 'Insomniac vindecat',
+  13: 'Sleep Hacker',
+  14: 'Zen Master',
+  15: 'Night Owl Pro',
+  16: 'Circadian Boss',
+  17: 'Deep Sleeper',
+  18: 'REM Rider',
+  19: 'Sleep Scientist',
+  20: 'Melatonin King',
+  25: 'Dream Architect',
+  30: 'Pillow Professor',
+  35: 'Duvet Commander',
+  40: 'Sleep Sensei',
+  45: 'Mattress Maestro',
+  50: 'Legendary Sleeper',
+  60: 'Sandman',
+  70: 'Morpheus',
+  80: 'Sleep Deity',
+  90: 'Oniric Oracle',
+  100: 'Grand Master 💎',
+};
+
+// Tiers — every 5 levels
+interface LevelTier { name: string; color: string; icon: string; }
+const LEVEL_TIERS: { minLevel: number; tier: LevelTier }[] = [
+  { minLevel: 1,  tier: { name: 'Bronze',    color: '#cd7f32', icon: '🥉' } },
+  { minLevel: 5,  tier: { name: 'Silver',    color: '#94a3b8', icon: '🥈' } },
+  { minLevel: 10, tier: { name: 'Gold',      color: '#f59e0b', icon: '🥇' } },
+  { minLevel: 15, tier: { name: 'Platinum',  color: '#06b6d4', icon: '💠' } },
+  { minLevel: 20, tier: { name: 'Diamond',   color: '#8b5cf6', icon: '💎' } },
+  { minLevel: 30, tier: { name: 'Master',    color: '#ec4899', icon: '👑' } },
+  { minLevel: 40, tier: { name: 'Grandmaster', color: '#dc2626', icon: '🔥' } },
+  { minLevel: 50, tier: { name: 'Legend',    color: '#059669', icon: '🌟' } },
+  { minLevel: 75, tier: { name: 'Mythic',    color: '#7c3aed', icon: '⚡' } },
+  { minLevel: 100, tier: { name: 'Transcendent', color: '#f59e0b', icon: '✨' } },
+];
+
+export function levelTier(level: number): LevelTier {
+  for (let i = LEVEL_TIERS.length - 1; i >= 0; i--) {
+    if (level >= LEVEL_TIERS[i].minLevel) return LEVEL_TIERS[i].tier;
+  }
+  return LEVEL_TIERS[0].tier;
+}
+
+export function levelTitle(level: number): string {
+  const keys = Object.keys(LEVEL_TITLES).map(Number).sort((a, b) => b - a);
+  for (const k of keys) {
+    if (level >= k) return LEVEL_TITLES[k];
+  }
+  return 'Somnoros';
+}
+
 export function ssColor(ss: number) {
   if (ss >= 90) return SS.top; if (ss >= 80) return SS.good;
   if (ss >= 65) return SS.ok; if (ss >= 50) return SS.poor; return SS.bad;
@@ -152,81 +217,103 @@ export async function submitEntry(entry: Record<string, any>) {
   await jsonp(`${API}?${params}`);
 }
 
-/* ── Streak with freeze (Duolingo-style, max 3 gap days) ── */
-// Gap costs: 1 day = free (if SS>=75) or 50 XP, 2 days = 100 XP, 3 days = 300 XP
-// 4+ days gap = streak lost
-const GAP_XP_COST = [0, 50, 100, 300]; // index = gap days
+/* ── Streak — SIMPLE & PASSIVE ── */
+// Rules:
+// 1. Consecutive logged days = streak grows
+// 2. Miss 1 day + come back with SS >= 75 → AUTO SAFE, streak continues
+// 3. Miss 1 day + come back with SS < 75 → pay 50 XP or streak resets to 0
+// 4. Miss 2+ days in a row → streak lost, no option to repair
+// XP always stays intact regardless of streak resets.
+export const STREAK_REPAIR_COST = 50;
 
 export interface StreakResult {
-  days: number;
-  freezesDays: number;       // how many gap days were frozen
-  freeFreeze: boolean;       // first gap was saved by SS >= 75
-  xpSpent: number;           // total XP spent on freezes
+  days: number;           // total streak including auto-saved gaps
+  autoSaved: number;      // gaps auto-saved by good sleep (SS >= 75)
+  needsRepair: boolean;   // true = 1-day gap with SS < 75, waiting for user decision
+  repairDate?: string;    // date where the gap is (for localStorage key)
+  xpSpentOnRepairs: number; // total XP spent on past repairs
 }
 
 function dateStr(d: Date): string { return d.toISOString().split('T')[0]; }
 function prevDay(d: Date): Date { const n = new Date(d); n.setDate(n.getDate() - 1); return n; }
 
+// Repairs stored in localStorage: { [date]: true } means user paid 50 XP to save this gap
+function isRepaired(name: string, date: string): boolean {
+  try { return localStorage.getItem(`st_repair_${name}_${date}`) === '1'; } catch { return false; }
+}
+export function saveRepair(name: string, date: string) {
+  try {
+    localStorage.setItem(`st_repair_${name}_${date}`, '1');
+    const prev = parseInt(localStorage.getItem(`st_xp_spent_${name}`) || '0');
+    localStorage.setItem(`st_xp_spent_${name}`, String(prev + STREAK_REPAIR_COST));
+  } catch {}
+}
+
 export function loggingStreak(data: SleepEntry[], name: string): StreakResult {
   const personEntries = data.filter(d => d.name === name);
   const dateMap = new Map(personEntries.map(e => [e.date, e]));
-  const empty: StreakResult = { days: 0, freezesDays: 0, freeFreeze: false, xpSpent: 0 };
+  const empty: StreakResult = { days: 0, autoSaved: 0, needsRepair: false, xpSpentOnRepairs: 0 };
   if (!dateMap.size) return empty;
 
-  // Build sorted list of dates this person logged
   const loggedDates = [...new Set(personEntries.map(e => e.date))].sort().reverse();
 
-  // Start from most recent logged date
-  let streak = 0;
-  let freezesDays = 0;
-  let freeFreeze = false;
-  let xpSpent = 0;
-  let usedFreeFreeze = false;
-
-  // Sleep date = night before logging. If someone logs today (22nd),
-  // the sheet shows 21st. So "active" means most recent date >= 2 days ago.
+  // Sleep date = night before. Log on 22nd → sheet date 21st.
+  // "Active" = most recent date >= yesterday
   const twoDaysAgo = dateStr(prevDay(prevDay(new Date())));
   if (loggedDates[0] < twoDaysAgo) return empty;
+
+  let streak = 0;
+  let autoSaved = 0;
+  let xpSpentOnRepairs = 0;
+
+  // Count all past repairs XP
+  try {
+    xpSpentOnRepairs = parseInt(localStorage.getItem(`st_xp_spent_${name}`) || '0');
+  } catch {}
 
   for (let i = 0; i < loggedDates.length; i++) {
     streak++;
 
-    // Check gap to next (older) date
     if (i + 1 < loggedDates.length) {
       const curr = new Date(loggedDates[i] + 'T12:00:00');
       const next = new Date(loggedDates[i + 1] + 'T12:00:00');
       const gapDays = Math.round((curr.getTime() - next.getTime()) / 86400000) - 1;
 
-      if (gapDays === 0) continue; // consecutive, no gap
-      if (gapDays > 3) break; // too big, streak over
+      if (gapDays === 0) continue; // consecutive
 
-      // Try free freeze first (1 gap day, SS >= 75 on day after gap)
+      // 2+ day gap → streak lost, no option
+      if (gapDays >= 2) break;
+
+      // Exactly 1 day gap — check what happened
+      // The entry AFTER the gap (= loggedDates[i], the more recent one) determines fate
       const entryAfterGap = dateMap.get(loggedDates[i]);
-      if (gapDays === 1 && !usedFreeFreeze && entryAfterGap && entryAfterGap.ss >= 75) {
-        freeFreeze = true;
-        usedFreeFreeze = true;
-        freezesDays += 1;
+      const ssAfter = entryAfterGap?.ss ?? 0;
+
+      // Was this gap already repaired by user paying XP?
+      if (isRepaired(name, loggedDates[i])) {
         streak += 1;
         continue;
       }
 
-      // XP freeze
-      let cost = 0;
-      for (let g = 0; g < gapDays; g++) {
-        cost += GAP_XP_COST[Math.min(g + 1, GAP_XP_COST.length - 1)];
+      // SS >= 75 → auto saved, streak continues
+      if (ssAfter >= 75) {
+        streak += 1;
+        autoSaved += 1;
+        continue;
       }
-      const availableXP = calcXP(data, name) - xpSpent;
-      if (availableXP >= cost) {
-        xpSpent += cost;
-        freezesDays += gapDays;
-        streak += gapDays;
-      } else {
-        break; // can't afford
-      }
+
+      // SS < 75, not repaired → streak pauses here, show repair option
+      return {
+        days: streak,
+        autoSaved,
+        needsRepair: true,
+        repairDate: loggedDates[i],
+        xpSpentOnRepairs,
+      };
     }
   }
 
-  return { days: streak, freezesDays, freeFreeze, xpSpent };
+  return { days: streak, autoSaved, needsRepair: false, xpSpentOnRepairs };
 }
 
 /* ── XP System ── */
@@ -243,20 +330,21 @@ export function calcXP(data: SleepEntry[], name: string): number {
     else if (e.ss >= 80) xp += 5;
   }
 
-  // Streak milestones (based on consecutive days, simplified)
-  const dates = [...new Set(entries.map(e => e.date))].sort();
-  let maxConsec = 0;
-  let curConsec = 1;
-  for (let i = 1; i < dates.length; i++) {
-    const prev = new Date(dates[i - 1] + 'T12:00:00');
-    const curr = new Date(dates[i] + 'T12:00:00');
-    const diffDays = Math.round((curr.getTime() - prev.getTime()) / 86400000);
-    if (diffDays === 1) { curConsec++; }
-    else { maxConsec = Math.max(maxConsec, curConsec); curConsec = 1; }
+  // Streak bonuses — based on CURRENT active streak only (resets when streak is lost)
+  const sr = loggingStreak(data, name);
+  if (sr.days >= 30) xp += 200;
+  else if (sr.days >= 7) xp += 50;
+
+  // Good sleep bonus — count consecutive SS >= 75 within current streak only
+  // Walk current streak entries and count good sleep run
+  const streakEntries = entries.sort((a, b) => b.date.localeCompare(a.date)).slice(0, sr.days);
+  let goodSleepRun = 0;
+  for (const e of streakEntries) {
+    if (e.ss >= 75) goodSleepRun++;
+    else break; // stop at first bad sleep within streak
   }
-  maxConsec = Math.max(maxConsec, curConsec);
-  if (maxConsec >= 30) xp += 200;
-  else if (maxConsec >= 7) xp += 50;
+  if (goodSleepRun >= 30) xp += 500;
+  else if (goodSleepRun >= 7) xp += 50;
 
   // Kudos XP (+5 per kudos received) — read from localStorage
   try {

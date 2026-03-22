@@ -106,10 +106,10 @@ export function ProgressHub({ user, data }: { user: string; data: SleepEntry[] }
         <div className="absolute top-full left-0 right-0 mt-1 z-50 mx-3">
           <div className="bg-card border rounded-xl shadow-lg p-3 text-xs space-y-1.5">
             <div className="font-bold text-sm mb-1">Cum funcționează?</div>
-            <div>🔥 <b>Streak</b> — Loghează zilnic și menține seria. Poți rata max 3 zile (costă XP).</div>
-            <div>✨ <b>XP</b> — +10 per log, +5 bonus SS≥80, +10 bonus SS≥90. 100 XP = 1 Level.</div>
-            <div>❄️ <b>Freeze</b> — Ratezi 1 zi cu SS≥75 pe ziua de după? Gratis! Altfel: 50/100/300 XP.</div>
-            <div>👏 <b>Kudos</b> — Dă reactions colegilor, +5 XP per kudos primit.</div>
+            <div>⚡ <b>Streak</b> — Câte zile la rând ai logat somnul. Vino zilnic!</div>
+            <div>😴 <b>Zi ratată?</b> — Dacă dormi bine a doua zi (scor ≥ 75), ești salvat automat. Dacă nu, 50 XP sau o iei de la zero.</div>
+            <div>✨ <b>XP</b> — Câștigi puncte logând zilnic și dormind bine. La 100 XP urci un nivel.</div>
+            <div>👏 <b>Kudos</b> — Încurajează-ți echipa! Fiecare kudos primit = 5 XP.</div>
             <button onClick={() => setShowInfo(false)} className="text-[10px] text-muted-foreground hover:text-foreground mt-1">Închide</button>
           </div>
         </div>

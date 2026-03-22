@@ -1,35 +1,27 @@
 # Next Session TODO
 
-## 1. Dashboard Personal View
-- User se poate selecta pe sine (tab/buton) pe Dashboard
-- Vede tot statusul personal:
-  - XP total + câte mai are până la level up (progress bar)
-  - Current streak + situația (ex: "mai ai 2 zile pt bonusul de 50 XP la 7d")
-  - Sleep Score patterns (ultimele 7 zile mini-chart)
-  - Next possible bonuses
-- Dashboard rămâne default pe "echipă", dar user-ul poate toggle pe "Eu"
+## 1. Calendar View pe Dashboard Tracker
+- **30 zile**: Grid 7 coloane (Lu-Du) ca un calendar real, cu zilele colorate după SS
+- **Tot**: 12 luni overview (heatmap mini per lună), click pe lună → drill-down calendar
 
 ## 2. Extended Bonus XP System
-### Sleep Score Bonuses
-- 7 zile consecutive SS >= 75 → **+50 XP**
-- 30 zile consecutive SS >= 75 → **+500 XP**
+- 7 zile consecutive SS ≥ 75 → +50 XP
+- 30 zile consecutive SS ≥ 75 → +500 XP
+- Best weekly sleeper bonus
+- Best monthly sleeper bonus
+- Achievement badges (first 7d, first 30d, 1000 XP, etc.)
 
-### Logging Streak Bonuses
-- 7 zile consecutive logged → **+50 XP** (existing)
-- 30 zile consecutive logged → **+500 XP** (upgrade from 200)
+## 3. AI Weekly Analysis
+- Claude Haiku, local script
+- Pattern recognition pe date
+- Insights personalizate per user
 
-### Milestone Ideas
-- First 7d streak → achievement badge
-- First 30d streak → achievement badge
-- 1000 XP total → achievement badge
+## 4. Dashboard Extras
+- Personal view toggle (Echipă/Eu) cu drill-down complet
+- Profile page dedicată
+- Achievements/badges vizuale
 
-## 3. Full XP Calculation MD
-- Separate `XP_CALCULATIONS.md` with all formulas
-- Every bonus documented with conditions
-- Examples with real numbers
-
-## 4. Other Pending
-- [ ] AI weekly analysis (Claude Haiku, local script)
-- [ ] Profile page dedicated
-- [ ] Achievements/badges system
-- [ ] Infopoint tooltips pe Dashboard metrics
+## 5. Repo & Deploy
+- Connect la mpcosmin-mcp/sleep-dashboard
+- GitHub Pages deploy
+- CI/CD
