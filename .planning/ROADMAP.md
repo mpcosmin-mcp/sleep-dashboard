@@ -29,7 +29,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Navigating from Charts to Dashboard via click-to-snapshot does not cause render loops or console errors
   4. The Anthropic API key does not appear anywhere in the client JavaScript bundle (verified by searching built output)
   5. The app recovers gracefully from a component crash (Error Boundary catches and displays fallback instead of white screen)
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 01-01-PLAN.md — Extract gamify.ts and kudos.ts modules, unify XP logic
+- [ ] 01-02-PLAN.md — Fix setState-during-render, secure API key, add Error Boundary
+- [ ] 01-03-PLAN.md — Decompose DashboardPage into section components with memoization
+- [ ] 01-04-PLAN.md — Replace `any` types, remove unused shadcn/ui components and dependencies
 
 ### Phase 2: Badges and Goals
 **Goal**: Users have things to collect (badges) and targets to chase (sleep goals), deepening daily engagement
@@ -73,7 +78,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Refactor | 0/TBD | Not started | - |
+| 1. Foundation Refactor | 0/4 | Planning complete | - |
 | 2. Badges and Goals | 0/TBD | Not started | - |
 | 3. AI Analysis and English Migration | 0/TBD | Not started | - |
 | 4. Mobile UX Polish | 0/TBD | Not started | - |
