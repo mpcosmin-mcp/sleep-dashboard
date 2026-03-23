@@ -15,9 +15,7 @@ export interface TeamAnalysis {
 
 export async function analyzeTeam(data: SleepEntry[]): Promise<TeamAnalysis | null> {
   const proxyUrl = import.meta.env.VITE_AI_PROXY_URL;
-  const apiKey = import.meta.env.VITE_ANTHROPIC_KEY;
-
-  if (!proxyUrl || !apiKey) return null;
+  if (!proxyUrl) return null;
 
   const names = [...new Set(data.map(d => d.name))];
   const last30 = data.filter(d => {
@@ -60,7 +58,7 @@ Reguli:
   try {
     const resp = await fetch(proxyUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1024,
@@ -81,5 +79,5 @@ Reguli:
 }
 
 export function isAIConfigured(): boolean {
-  return !!(import.meta.env.VITE_AI_PROXY_URL && import.meta.env.VITE_ANTHROPIC_KEY);
+  return !!import.meta.env.VITE_AI_PROXY_URL;
 }

@@ -1,10 +1,19 @@
 // Cloudflare Worker — CORS proxy for Anthropic API
 // Deploy: npx wrangler deploy worker/proxy.js --name sleep-ai-proxy
+// Setup: npx wrangler secret put ANTHROPIC_KEY
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
+    const allowedOrigins = [
+      'https://petrica-moga.github.io',
+      'http://localhost:5173',
+      'http://localhost:4173',
+    ];
+    const origin = request.headers.get('Origin') || '';
+    const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+
     const corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
+      'Access-Control-Allow-Origin': corsOrigin,
+      'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
     };
 
@@ -12,10 +21,18 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    const apiKey = request.headers.get('X-API-Key');
+    // Reject non-allowed origins
+    if (!allowedOrigins.includes(origin)) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const apiKey = env.ANTHROPIC_KEY;
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: 'Missing API key' }), {
-        status: 401,
+      return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
