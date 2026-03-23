@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The app recovers gracefully from a component crash (Error Boundary catches and displays fallback instead of white screen)
 **Plans:** 4 plans
 Plans:
-- [ ] 01-01-PLAN.md — Extract gamify.ts and kudos.ts modules, unify XP logic
+- [x] 01-01-PLAN.md — Extract gamify.ts and kudos.ts modules, unify XP logic
 - [x] 01-02-PLAN.md — Fix setState-during-render, secure API key, add Error Boundary
 - [ ] 01-03-PLAN.md — Decompose DashboardPage into section components with memoization
 - [ ] 01-04-PLAN.md — Replace `any` types, remove unused shadcn/ui components and dependencies

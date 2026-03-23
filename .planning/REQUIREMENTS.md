@@ -10,7 +10,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Architecture Refactor
 
 - [ ] **ARCH-01**: DashboardPage is decomposed from 750 lines into a thin orchestrator (~100 lines) composing focused section components
-- [ ] **ARCH-02**: XP calculation logic exists in a single source of truth (`gamify.ts`), eliminating duplication between `calcXP` and `calcXPBreakdown`
+- [x] **ARCH-02**: XP calculation logic exists in a single source of truth (`gamify.ts`), eliminating duplication between `calcXP` and `calcXPBreakdown`
 - [x] **ARCH-03**: setState-during-render anti-pattern in jump logic (lines 216-224) is replaced with proper useEffect
 - [x] **ARCH-04**: Anthropic API key is removed from client bundle and stored as Cloudflare Worker secret
 - [x] **ARCH-05**: React Error Boundary wraps the app for graceful crash containment
@@ -96,7 +96,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ARCH-01 | Phase 1 | Pending |
-| ARCH-02 | Phase 1 | Pending |
+| ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Complete |
 | ARCH-05 | Phase 1 | Complete |
