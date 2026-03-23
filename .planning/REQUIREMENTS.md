@@ -9,13 +9,13 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Architecture Refactor
 
-- [ ] **ARCH-01**: DashboardPage is decomposed from 750 lines into a thin orchestrator (~100 lines) composing focused section components
+- [x] **ARCH-01**: DashboardPage is decomposed from 750 lines into a thin orchestrator (~100 lines) composing focused section components
 - [x] **ARCH-02**: XP calculation logic exists in a single source of truth (`gamify.ts`), eliminating duplication between `calcXP` and `calcXPBreakdown`
 - [x] **ARCH-03**: setState-during-render anti-pattern in jump logic (lines 216-224) is replaced with proper useEffect
 - [x] **ARCH-04**: Anthropic API key is removed from client bundle and stored as Cloudflare Worker secret
 - [x] **ARCH-05**: React Error Boundary wraps the app for graceful crash containment
 - [ ] **ARCH-06**: `any` types in core modules (sleep.ts, ChartsPage.tsx) are replaced with proper TypeScript types
-- [ ] **ARCH-07**: Expensive computations (calcXP, loggingStreak, leaderboard building) are memoized with useMemo
+- [x] **ARCH-07**: Expensive computations (calcXP, loggingStreak, leaderboard building) are memoized with useMemo
 - [ ] **ARCH-08**: Unused shadcn/ui components (~33 files) and unused npm dependencies are removed
 
 ### Achievement Badges
@@ -95,13 +95,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ARCH-01 | Phase 1 | Pending |
+| ARCH-01 | Phase 1 | Complete |
 | ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Complete |
 | ARCH-05 | Phase 1 | Complete |
 | ARCH-06 | Phase 1 | Pending |
-| ARCH-07 | Phase 1 | Pending |
+| ARCH-07 | Phase 1 | Complete |
 | ARCH-08 | Phase 1 | Pending |
 | BADGE-01 | Phase 2 | Pending |
 | BADGE-02 | Phase 2 | Pending |
