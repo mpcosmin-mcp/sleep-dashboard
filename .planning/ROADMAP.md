@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 4 plans
 Plans:
 - [ ] 01-01-PLAN.md — Extract gamify.ts and kudos.ts modules, unify XP logic
-- [ ] 01-02-PLAN.md — Fix setState-during-render, secure API key, add Error Boundary
+- [x] 01-02-PLAN.md — Fix setState-during-render, secure API key, add Error Boundary
 - [ ] 01-03-PLAN.md — Decompose DashboardPage into section components with memoization
 - [ ] 01-04-PLAN.md — Replace `any` types, remove unused shadcn/ui components and dependencies
 
