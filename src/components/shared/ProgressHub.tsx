@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { type SleepEntry, calcXP, loggingStreak, xpLevel, xpProgress, XP_PER_LEVEL, XP_COLOR, STREAK_COLOR, personColor } from '@/lib/sleep';
+import { type SleepEntry, personColor } from '@/lib/sleep';
+import { calcXP, loggingStreak, xpLevel, xpProgress, XP_PER_LEVEL, XP_COLOR, STREAK_COLOR } from '@/lib/gamify';
 import { Avi } from './Avi';
 
 function getLast7Days(data: SleepEntry[], name: string): (0 | 1 | 'today')[] {
