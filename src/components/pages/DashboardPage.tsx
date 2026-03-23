@@ -5,9 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import {
   type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor, ssBg, rhrBg, hrvBg,
   getTier, fmtDate, todayStr, aggregate, personColor, NAMES, generateInsights,
-  loggingStreak, calcXP, xpLevel, xpProgress, XP_PER_LEVEL, saveRepair, STREAK_REPAIR_COST,
-  XP_COLOR, STREAK_COLOR, levelTitle, levelTier,
 } from '@/lib/sleep';
+import {
+  loggingStreak, calcXP, calcXPBreakdown, xpLevel, xpProgress, XP_PER_LEVEL,
+  saveRepair, STREAK_REPAIR_COST, XP_COLOR, STREAK_COLOR, levelTitle, levelTier,
+} from '@/lib/gamify';
+import { KUDOS_REACTIONS, kudosKey, getKudos, saveKudos, getKudosFor, getTotalKudos } from '@/lib/kudos';
 import { V } from '@/lib/hide';
 import { Avi } from '@/components/shared/Avi';
 
@@ -31,53 +34,6 @@ function Section({ title, icon, badge, children, defaultOpen = false }: {
       {open && <div className="px-4 pb-3 border-t">{children}</div>}
     </Card>
   );
-}
-
-/* ── Kudos system ── */
-const KUDOS_REACTIONS = ['👏', '🔥', '💪', '🚀', '😴', '🏆'];
-function kudosKey(from: string, to: string, date: string) { return `st_kudos_${date}_${from}_${to}`; }
-function getKudos(from: string, to: string, date: string): string | null {
-  try { return localStorage.getItem(kudosKey(from, to, date)); } catch { return null; }
-}
-function saveKudos(from: string, to: string, date: string, emoji: string) {
-  try { localStorage.setItem(kudosKey(from, to, date), emoji); } catch {}
-}
-function getKudosFor(to: string, date: string): { from: string; emoji: string }[] {
-  const result: { from: string; emoji: string }[] = [];
-  for (const n of NAMES) { const k = getKudos(n, to, date); if (k) result.push({ from: n, emoji: k }); }
-  return result;
-}
-function getTotalKudos(to: string): number {
-  let c = 0;
-  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('st_kudos_') && k.endsWith(`_${to}`)) c++; } } catch {}
-  return c;
-}
-
-/* ── Helpers ── */
-function calcXPBreakdown(data: SleepEntry[], name: string) {
-  const entries = data.filter(d => d.name === name);
-  const base = entries.length * 10;
-  let bonusSS = 0;
-  for (const e of entries) { if (e.ss >= 90) bonusSS += 10; else if (e.ss >= 80) bonusSS += 5; }
-  const dates = [...new Set(entries.map(e => e.date))].sort();
-  let maxC = 0, curC = 1;
-  for (let i = 1; i < dates.length; i++) {
-    const diff = Math.round((new Date(dates[i] + 'T12:00:00').getTime() - new Date(dates[i-1] + 'T12:00:00').getTime()) / 86400000);
-    if (diff === 1) curC++; else { maxC = Math.max(maxC, curC); curC = 1; }
-  }
-  // Streak bonuses based on CURRENT active streak
-  const sr2 = loggingStreak(data, name);
-  const streakBonus = sr2.days >= 30 ? 200 : sr2.days >= 7 ? 50 : 0;
-  // Good sleep within current streak
-  const streakE = [...entries].sort((a, b) => b.date.localeCompare(a.date)).slice(0, sr2.days);
-  let gsRun = 0;
-  for (const e of streakE) { if (e.ss >= 75) gsRun++; else break; }
-  const goodSleepBonus = gsRun >= 30 ? 500 : gsRun >= 7 ? 50 : 0;
-  let kudosXP = 0;
-  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('st_kudos_') && k.endsWith(`_${name}`)) kudosXP += 5; } } catch {}
-  let spent = 0;
-  try { spent = parseInt(localStorage.getItem(`st_xp_spent_${name}`) || '0'); } catch {}
-  return { base, bonusSS, streakBonus, goodSleepBonus, kudosXP, spent, total: Math.max(0, base + bonusSS + streakBonus + goodSleepBonus + kudosXP - spent) };
 }
 
 /* ── 7-day simple dots ── */
