@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { type SleepEntry, fetchAllData } from '@/lib/sleep';
 import { HideCtx } from '@/lib/hide';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Toast } from '@/components/shared/Toast';
 import { InputPage } from '@/components/pages/InputPage';
 import { DashboardPage } from '@/components/pages/DashboardPage';
@@ -86,6 +87,7 @@ export default function App() {
     : 'linear-gradient(135deg, hsl(28 55% 40%), hsl(32 45% 52%))';
 
   return (
+    <ErrorBoundary>
     <HideCtx.Provider value={hidden}>
     <TooltipProvider>
       <div className="flex flex-col lg:flex-row min-h-screen">
@@ -182,5 +184,6 @@ export default function App() {
       </div>
     </TooltipProvider>
     </HideCtx.Provider>
+    </ErrorBoundary>
   );
 }
