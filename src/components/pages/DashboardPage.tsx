@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -213,15 +213,17 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
   const [snapshotUser, setSnapshotUser] = useState<string | undefined>(undefined);
 
   // Handle jump from other pages (e.g. Charts)
-  if (jumpDate && jumpDate !== selDate) {
-    setSelDate(jumpDate);
-    setView('daily');
-    setTrackerRange('7');
-    setSnapshotMode(true);
-    setSnapshotUser(jumpUser);
-    if (clearJump) clearJump();
-    window.scrollTo(0, 0);
-  }
+  useEffect(() => {
+    if (jumpDate) {
+      setSelDate(jumpDate);
+      setView('daily');
+      setTrackerRange('7');
+      setSnapshotMode(true);
+      setSnapshotUser(jumpUser);
+      clearJump?.();
+      window.scrollTo(0, 0);
+    }
+  }, [jumpDate, jumpUser, clearJump]);
 
   const me = user || '';
   const dates = [...new Set(data.map(d => d.date))].sort();
