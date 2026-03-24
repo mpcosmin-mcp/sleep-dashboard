@@ -51,7 +51,7 @@ Plans:
   8. Existing gamification (XP ring, streak dots, leaderboard, kudos) continues to work correctly
 **Plans:** 3 plans
 Plans:
-- [ ] 02-01-PLAN.md — Challenge engine, goals module, kudos comment extension, XP integration
+- [x] 02-01-PLAN.md — Challenge engine, goals module, kudos comment extension, XP integration
 - [ ] 02-02-PLAN.md — ChallengeSection UI, GoalTracker in HeroCard, confetti Toast, DashboardPage wiring
 - [ ] 02-03-PLAN.md — Leaderboard expansion (multi-metric, goals, flair), highlight reel, visual verification
 

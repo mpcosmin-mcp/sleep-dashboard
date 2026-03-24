@@ -22,21 +22,21 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 > **Note:** This section was originally "Achievement Badges" (BADGE-01 through BADGE-07 described a static badge system). The badge system was reverted and replaced with social competitions (weekly challenges, expanded leaderboard, highlight reel, kudos comments) per the Phase 2 pivot decision (2026-03-24). Requirement IDs are preserved for traceability.
 
-- [ ] **BADGE-01**: Weekly challenge engine provides a rotating challenge (from a pool of 8+) seeded by week number so all users see the same challenge each week
-- [ ] **BADGE-02**: Challenge pool includes a mix of individual challenges ("log every day this week", "beat your weekly SS average") and team challenges ("team average SS 80+", "everyone logs 5 days")
+- [x] **BADGE-01**: Weekly challenge engine provides a rotating challenge (from a pool of 8+) seeded by week number so all users see the same challenge each week
+- [x] **BADGE-02**: Challenge pool includes a mix of individual challenges ("log every day this week", "beat your weekly SS average") and team challenges ("team average SS 80+", "everyone logs 5 days")
 - [ ] **BADGE-03**: Leaderboard supports multi-metric sorting via toggle chips (SS, streak length, XP, improvement trend)
 - [ ] **BADGE-04**: Weekly highlight reel card shows team superlatives (best sleep, most consistent, biggest improvement, most active) computed from data
 - [ ] **BADGE-05**: User sees the weekly challenge with progress bar and XP reward in the dashboard (ChallengeSection replaces BonusSection)
 - [ ] **BADGE-06**: Challenge completion triggers a celebratory toast notification with CSS confetti animation and a flair icon in the leaderboard
-- [ ] **BADGE-07**: Challenge XP integrates into the existing XP system through gamify.ts calcXPBreakdown, not as a parallel reward system
+- [x] **BADGE-07**: Challenge XP integrates into the existing XP system through gamify.ts calcXPBreakdown, not as a parallel reward system
 
 ### Social Enhancements
 
-- [ ] **KUDOS-01**: Kudos system extended with optional short text comments alongside emoji reactions, visible as speech bubbles in the leaderboard
+- [x] **KUDOS-01**: Kudos system extended with optional short text comments alongside emoji reactions, visible as speech bubbles in the leaderboard
 
 ### Sleep Goals
 
-- [ ] **GOAL-01**: User can set a personal monthly SS target (e.g., "average SS >= 85 this month")
+- [x] **GOAL-01**: User can set a personal monthly SS target (e.g., "average SS >= 85 this month")
 - [ ] **GOAL-02**: User can see progress toward their goal with on-track/behind/ahead status and trajectory visualization; goal status is visible in leaderboard rows for all users
 
 ### Weekly AI Analysis
@@ -109,15 +109,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ARCH-06 | Phase 1 | Complete |
 | ARCH-07 | Phase 1 | Complete |
 | ARCH-08 | Phase 1 | Complete |
-| BADGE-01 | Phase 2 | Pending |
-| BADGE-02 | Phase 2 | Pending |
+| BADGE-01 | Phase 2 | Complete |
+| BADGE-02 | Phase 2 | Complete |
 | BADGE-03 | Phase 2 | Pending |
 | BADGE-04 | Phase 2 | Pending |
 | BADGE-05 | Phase 2 | Pending |
 | BADGE-06 | Phase 2 | Pending |
-| BADGE-07 | Phase 2 | Pending |
-| KUDOS-01 | Phase 2 | Pending |
-| GOAL-01 | Phase 2 | Pending |
+| BADGE-07 | Phase 2 | Complete |
+| KUDOS-01 | Phase 2 | Complete |
+| GOAL-01 | Phase 2 | Complete |
 | GOAL-02 | Phase 2 | Pending |
 | AI-01 | Phase 3 | Pending |
 | AI-02 | Phase 3 | Pending |
