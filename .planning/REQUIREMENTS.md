@@ -24,8 +24,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **BADGE-02**: User can earn quality badges: Sweet Dreams (SS >= 90 single day), Dream Week (7 consecutive days SS >= 85), Personal Best (new all-time high SS, lowest RHR, highest HRV)
 - [x] **BADGE-03**: User can earn social badges: First Kudos (give first kudos), Cheerleader (30 kudos given), Fan Favorite (50 kudos received), Team MVP (most kudos received in a month)
 - [x] **BADGE-04**: User can earn fun/surprise badges: Night Owl (SS < 60 three times in a week), Comeback Kid (SS improves 15+ points week-over-week), Weekend Warrior (best SS consistently on weekends), Steady Eddie (SS within 3-point range for 7 days)
-- [ ] **BADGE-05**: User sees a badge collection/gallery showing earned and locked badges
-- [ ] **BADGE-06**: User receives a celebratory notification (toast + confetti) when unlocking a new badge
+- [x] **BADGE-05**: User sees a badge collection/gallery showing earned and locked badges
+- [x] **BADGE-06**: User receives a celebratory notification (toast + confetti) when unlocking a new badge
 - [x] **BADGE-07**: Badge XP integrates into the existing XP system through gamify.ts, not as a parallel reward system
 
 ### Sleep Goals
