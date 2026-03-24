@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { calcXPBreakdown } from '@/lib/gamify';
 import { getEarnedBadgeIds, saveEarnedBadge } from '@/lib/badges';
 import { entry } from './setup';

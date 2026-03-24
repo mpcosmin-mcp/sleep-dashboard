@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { BADGE_DEFS, checkBadges, getEarnedBadgeIds, saveEarnedBadge } from '@/lib/badges';
 import { entry, consecutiveDays } from './setup';
 
@@ -165,8 +165,12 @@ describe('Social badges', () => {
   });
 
   it('cheerleader: not earned with 29 kudos given', () => {
+    // Use unique dates across 2 months to avoid key collisions
     for (let i = 0; i < 29; i++) {
-      localStorage.setItem(`st_kudos_2025-01-${(10 + i % 20).toString().padStart(2, '0')}_${NAME}_Cornel-Gabriel Meleru`, '👏');
+      const month = Math.floor(i / 28) + 1;
+      const day = (i % 28) + 1;
+      const date = `2025-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      localStorage.setItem(`st_kudos_${date}_${NAME}_Cornel-Gabriel Meleru`, '👏');
     }
     const status = checkById('cheerleader', [], NAME);
     expect(status.earned).toBe(false);
