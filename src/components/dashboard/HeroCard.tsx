@@ -1,144 +1,14 @@
-import { useState, useMemo } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
 import {
   type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor, rhrBg, hrvBg,
   fmtDate, personColor, XP_PER_LEVEL, XP_COLOR, STREAK_COLOR, levelTitle, levelTier,
 } from '@/lib/sleep';
-import { getGoal, setGoal, clearGoal, computeGoalStatus, currentMonthAvg, currentMonth } from '@/lib/goals';
 import { V } from '@/lib/hide';
 import { Avi } from '@/components/shared/Avi';
 import { type GameState } from '@/hooks/useGameState';
 
 export type DashView = 'daily' | 'weekly' | 'monthly';
-
-/* ── Goal Set Dialog ── */
-function GoalSetDialog({ open, onOpenChange, currentGoal, lastMonthAvg, onSave, onClear }: {
-  open: boolean; onOpenChange: (open: boolean) => void;
-  currentGoal: number | null; lastMonthAvg: number;
-  onSave: (target: number) => void; onClear: () => void;
-}) {
-  const defaultVal = currentGoal ?? Math.min(95, Math.max(60, Math.round(lastMonthAvg)));
-  const [value, setValue] = useState(defaultVal);
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xs">
-        <DialogHeader>
-          <DialogTitle className="text-sm font-bold">Obiectiv lunar Sleep Score</DialogTitle>
-        </DialogHeader>
-        <div className="py-4">
-          <div className="text-center mb-4">
-            <span className="text-xl font-bold" style={{ color: 'hsl(var(--primary))' }}>{value}</span>
-          </div>
-          <Slider
-            min={60}
-            max={95}
-            step={1}
-            defaultValue={[defaultVal]}
-            onValueChange={(vals) => setValue(vals[0])}
-            className="mb-2"
-          />
-          <div className="text-[11px] text-muted-foreground text-center">
-            Media lunii curente: {lastMonthAvg}
-          </div>
-        </div>
-        <DialogFooter className="flex gap-2">
-          {currentGoal != null && (
-            <Button variant="ghost" size="sm" className="text-destructive text-xs" onClick={onClear}>
-              Sterge obiectivul
-            </Button>
-          )}
-          <Button size="sm" className="text-xs ml-auto" onClick={() => onSave(value)}>
-            Seteaza obiectiv
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-/* ── Goal Tracker Row ── */
-function GoalTracker({ user, data }: { user: string; data: SleepEntry[] }) {
-  const [goalOpen, setGoalOpen] = useState(false);
-  const month = currentMonth();
-  const [, refresh] = useState(0);
-
-  const goal = getGoal(user, month);
-  const avg = useMemo(() => currentMonthAvg(data, user), [data, user]);
-
-  const handleSave = (target: number) => {
-    setGoal(user, month, target);
-    setGoalOpen(false);
-    refresh(c => c + 1);
-  };
-  const handleClear = () => {
-    clearGoal(user, month);
-    setGoalOpen(false);
-    refresh(c => c + 1);
-  };
-
-  const status = goal && avg != null ? computeGoalStatus(
-    data.filter(d => d.name === user && d.date.startsWith(month)),
-    goal
-  ) : null;
-
-  const statusColor = status === 'ahead' ? '#16a34a' : status === 'on-track' ? 'hsl(var(--primary))' : status === 'behind' ? '#dc2626' : undefined;
-  const statusLabel = status === 'ahead' ? 'Inaintea planului' : status === 'on-track' ? 'Pe drumul cel bun' : status === 'behind' ? 'In urma' : '';
-
-  return (
-    <>
-      <div
-        className="mt-2 pt-2 border-t"
-        onClick={() => setGoalOpen(true)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setGoalOpen(true); }}
-        style={{ cursor: 'pointer', minHeight: '44px', display: 'flex', alignItems: 'center' }}
-      >
-        {goal && avg != null ? (
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-medium">Obiectiv: SS {goal}</span>
-                {statusLabel && (
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md" style={{ color: statusColor, background: (statusColor ?? '') + '15' }}>
-                    {statusLabel}
-                  </span>
-                )}
-              </div>
-              <span className="font-mono text-xs font-bold" style={{ color: ssColor(avg) }}>
-                {avg} / {goal}
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-500" style={{
-                width: `${Math.min(100, (avg / goal) * 100)}%`,
-                background: statusColor ?? 'hsl(var(--primary))',
-              }} />
-            </div>
-          </div>
-        ) : (
-          <span className="text-[11px] text-primary hover:underline transition-colors">
-            Seteaza un obiectiv lunar &rarr;
-          </span>
-        )}
-      </div>
-
-      <GoalSetDialog
-        open={goalOpen}
-        onOpenChange={setGoalOpen}
-        currentGoal={goal}
-        lastMonthAvg={avg ?? 80}
-        onSave={handleSave}
-        onClear={handleClear}
-      />
-    </>
-  );
-}
 
 /* ── Trend helpers ── */
 function TrendArrow({ value, inverted }: { value: number; inverted?: boolean }) {
@@ -225,8 +95,6 @@ export function HeroCard({ user, data, gameState, myData, view, onViewChange, ac
             {sr.autoSaved > 0 && <div className="text-[7px] text-green-600">+{sr.autoSaved} saved</div>}
           </div>
         </div>
-        {/* Goal Tracker — between Row 2 and Row 3 */}
-        <GoalTracker user={user} data={data} />
         {/* Row 3: View tabs + date picker */}
         <div className="flex items-center gap-2 mt-2 pt-2 border-t">
           <Tabs value={view} onValueChange={v => onViewChange(v as DashView)}>

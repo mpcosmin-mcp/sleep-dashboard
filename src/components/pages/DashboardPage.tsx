@@ -6,7 +6,7 @@ import { SnapshotView } from '@/components/dashboard/SnapshotView';
 import { Tracker } from '@/components/dashboard/Tracker';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { XPBreakdown } from '@/components/dashboard/XPBreakdown';
-import { BadgeSection } from '@/components/dashboard/BadgeSection';
+import { BonusSection } from '@/components/dashboard/BonusSection';
 
 export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack }: {
   data: SleepEntry[]; user: string | null; jumpDate?: string | null; jumpUser?: string; clearJump?: () => void; onBack?: () => void;
@@ -94,7 +94,7 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
       )}
 
       <XPBreakdown gameState={gameState} />
-      <BadgeSection data={data} user={me} />
+      <BonusSection gameState={gameState} data={data} user={me} />
     </div>
   );
 }

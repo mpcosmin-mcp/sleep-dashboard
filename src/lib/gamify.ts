@@ -179,20 +179,8 @@ export interface XPBreakdown {
   streakBonus: number;
   goodSleepBonus: number;
   kudosXP: number;
-  badgeXP: number;
   spent: number;
   total: number;
-}
-
-// Read earned badge ids directly from localStorage to avoid circular import with badges.ts
-function readEarnedBadgeIds(user: string): string[] {
-  try {
-    const raw = localStorage.getItem(`st_badges_${user}`);
-    if (!raw) return [];
-    return JSON.parse(raw) as string[];
-  } catch {
-    return [];
-  }
 }
 
 export function calcXPBreakdown(data: SleepEntry[], name: string): XPBreakdown {
@@ -214,14 +202,10 @@ export function calcXPBreakdown(data: SleepEntry[], name: string): XPBreakdown {
   // Kudos XP — use getTotalKudos instead of inline localStorage scanning
   const kudosXP = getTotalKudos(name) * 5;
 
-  // Badge XP — 25 XP per earned badge (reads from localStorage to avoid circular dep with badges.ts)
-  const earnedBadgeIds = readEarnedBadgeIds(name);
-  const badgeXP = earnedBadgeIds.length * 25;
-
   let spent = 0;
   try { spent = parseInt(localStorage.getItem(`st_xp_spent_${name}`) || '0'); } catch {}
 
-  return { base, bonusSS, streakBonus, goodSleepBonus, kudosXP, badgeXP, spent, total: Math.max(0, base + bonusSS + streakBonus + goodSleepBonus + kudosXP + badgeXP - spent) };
+  return { base, bonusSS, streakBonus, goodSleepBonus, kudosXP, spent, total: Math.max(0, base + bonusSS + streakBonus + goodSleepBonus + kudosXP - spent) };
 }
 
 export function calcXP(data: SleepEntry[], name: string): number {

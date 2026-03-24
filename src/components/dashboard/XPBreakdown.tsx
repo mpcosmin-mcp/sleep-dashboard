@@ -40,10 +40,6 @@ export function XPBreakdown({ gameState }: { gameState: GameState }) {
             <span className="text-muted-foreground">👏 Echipa ți-a dat {Math.round(breakdown.kudosXP / 5)} kudos</span>
             <span className="font-mono font-bold">+{breakdown.kudosXP}</span>
           </div>}
-          {breakdown.badgeXP > 0 && <div className="flex justify-between text-[11px]">
-            <span className="text-muted-foreground">🏅 Insigne ({breakdown.badgeXP / 25} castigate)</span>
-            <span className="font-mono font-bold">+{breakdown.badgeXP}</span>
-          </div>}
           {breakdown.spent > 0 && <div className="flex justify-between text-[11px]">
             <span className="text-muted-foreground">🔧 Ai reparat streak-ul</span>
             <span className="font-mono font-bold text-red-500">−{breakdown.spent}</span>
