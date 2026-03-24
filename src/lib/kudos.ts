@@ -25,3 +25,32 @@ export function getTotalKudos(to: string): number {
   try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k?.startsWith('st_kudos_') && k.endsWith(`_${to}`)) c++; } } catch {}
   return c;
 }
+
+export function getTotalKudosGiven(from: string): number {
+  let c = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k?.startsWith('st_kudos_')) {
+        // Key format: st_kudos_{date}_{from}_{to}
+        // parts[0]='st', parts[1]='kudos', parts[2]=date
+        const parts = k.split('_');
+        const datePrefix = `st_kudos_${parts[2]}_`;
+        const rest = k.slice(datePrefix.length);
+        if (rest.startsWith(from + '_') || rest === from) c++;
+      }
+    }
+  } catch {}
+  return c;
+}
+
+export function getMonthlyKudosReceived(to: string, yearMonth: string): number {
+  let c = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k?.startsWith(`st_kudos_${yearMonth}`) && k.endsWith(`_${to}`)) c++;
+    }
+  } catch {}
+  return c;
+}
