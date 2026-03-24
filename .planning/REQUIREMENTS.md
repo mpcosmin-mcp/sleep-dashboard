@@ -18,20 +18,26 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **ARCH-07**: Expensive computations (calcXP, loggingStreak, leaderboard building) are memoized with useMemo
 - [x] **ARCH-08**: Unused shadcn/ui components (~33 files) and unused npm dependencies are removed
 
-### Achievement Badges
+### Social Competitions
 
-- [x] **BADGE-01**: User can earn consistency badges: First Log, Week Warrior (7d streak), Month Master (30d streak), Quarter Legend (90d streak)
-- [x] **BADGE-02**: User can earn quality badges: Sweet Dreams (SS >= 90 single day), Dream Week (7 consecutive days SS >= 85), Personal Best (new all-time high SS, lowest RHR, highest HRV)
-- [x] **BADGE-03**: User can earn social badges: First Kudos (give first kudos), Cheerleader (30 kudos given), Fan Favorite (50 kudos received), Team MVP (most kudos received in a month)
-- [x] **BADGE-04**: User can earn fun/surprise badges: Night Owl (SS < 60 three times in a week), Comeback Kid (SS improves 15+ points week-over-week), Weekend Warrior (best SS consistently on weekends), Steady Eddie (SS within 3-point range for 7 days)
-- [x] **BADGE-05**: User sees a badge collection/gallery showing earned and locked badges
-- [x] **BADGE-06**: User receives a celebratory notification (toast + confetti) when unlocking a new badge
-- [x] **BADGE-07**: Badge XP integrates into the existing XP system through gamify.ts, not as a parallel reward system
+> **Note:** This section was originally "Achievement Badges" (BADGE-01 through BADGE-07 described a static badge system). The badge system was reverted and replaced with social competitions (weekly challenges, expanded leaderboard, highlight reel, kudos comments) per the Phase 2 pivot decision (2026-03-24). Requirement IDs are preserved for traceability.
+
+- [ ] **BADGE-01**: Weekly challenge engine provides a rotating challenge (from a pool of 8+) seeded by week number so all users see the same challenge each week
+- [ ] **BADGE-02**: Challenge pool includes a mix of individual challenges ("log every day this week", "beat your weekly SS average") and team challenges ("team average SS 80+", "everyone logs 5 days")
+- [ ] **BADGE-03**: Leaderboard supports multi-metric sorting via toggle chips (SS, streak length, XP, improvement trend)
+- [ ] **BADGE-04**: Weekly highlight reel card shows team superlatives (best sleep, most consistent, biggest improvement, most active) computed from data
+- [ ] **BADGE-05**: User sees the weekly challenge with progress bar and XP reward in the dashboard (ChallengeSection replaces BonusSection)
+- [ ] **BADGE-06**: Challenge completion triggers a celebratory toast notification with CSS confetti animation and a flair icon in the leaderboard
+- [ ] **BADGE-07**: Challenge XP integrates into the existing XP system through gamify.ts calcXPBreakdown, not as a parallel reward system
+
+### Social Enhancements
+
+- [ ] **KUDOS-01**: Kudos system extended with optional short text comments alongside emoji reactions, visible as speech bubbles in the leaderboard
 
 ### Sleep Goals
 
 - [ ] **GOAL-01**: User can set a personal monthly SS target (e.g., "average SS >= 85 this month")
-- [ ] **GOAL-02**: User can see progress toward their goal with on-track/behind/ahead status and trajectory visualization
+- [ ] **GOAL-02**: User can see progress toward their goal with on-track/behind/ahead status and trajectory visualization; goal status is visible in leaderboard rows for all users
 
 ### Weekly AI Analysis
 
@@ -57,9 +63,9 @@ Deferred to future release. Tracked but not in current roadmap.
 
 - **GOAL-03**: User receives contextual goal nudges ("you need SS 88+ for remaining 3 days to hit your monthly target")
 
-### Badge Expansion
+### Badge System (Deferred)
 
-- **BADGE-08**: Additional surprise/fun badges added monthly to keep collection fresh
+- **BADGE-08**: Static badge/achievement system with collectible badges across categories (consistency, quality, social, fun) — originally planned for Phase 2, deferred in favor of social competitions
 - **BADGE-09**: Dedicated badge gallery page with filtering by category
 
 ### AI Enhancement
@@ -69,7 +75,7 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ### Team Features
 
-- **TEAM-01**: Team challenges (e.g., "team averages SS 80+ this week")
+- **TEAM-01**: Team challenges with multi-week tracking (beyond weekly rotation)
 
 ## Out of Scope
 
@@ -103,13 +109,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ARCH-06 | Phase 1 | Complete |
 | ARCH-07 | Phase 1 | Complete |
 | ARCH-08 | Phase 1 | Complete |
-| BADGE-01 | Phase 2 | Complete |
-| BADGE-02 | Phase 2 | Complete |
-| BADGE-03 | Phase 2 | Complete |
-| BADGE-04 | Phase 2 | Complete |
+| BADGE-01 | Phase 2 | Pending |
+| BADGE-02 | Phase 2 | Pending |
+| BADGE-03 | Phase 2 | Pending |
+| BADGE-04 | Phase 2 | Pending |
 | BADGE-05 | Phase 2 | Pending |
 | BADGE-06 | Phase 2 | Pending |
-| BADGE-07 | Phase 2 | Complete |
+| BADGE-07 | Phase 2 | Pending |
+| KUDOS-01 | Phase 2 | Pending |
 | GOAL-01 | Phase 2 | Pending |
 | GOAL-02 | Phase 2 | Pending |
 | AI-01 | Phase 3 | Pending |
@@ -121,10 +128,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ENG-01 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 24 total
-- Mapped to phases: 24
+- v1 requirements: 25 total
+- Mapped to phases: 25
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-23*
-*Last updated: 2026-03-23 after roadmap creation*
+*Last updated: 2026-03-24 after Phase 2 pivot from badges to social competitions*

@@ -39,7 +39,7 @@ Plans:
 ### Phase 2: Social Competitions and Goals
 **Goal**: Users engage through weekly challenges, an expanded competitive leaderboard, social highlights, and personal sleep score targets
 **Depends on**: Phase 1
-**Requirements**: BADGE-01, BADGE-02, BADGE-03, BADGE-04, BADGE-05, BADGE-06, BADGE-07, GOAL-01, GOAL-02
+**Requirements**: BADGE-01, BADGE-02, BADGE-03, BADGE-04, BADGE-05, BADGE-06, BADGE-07, KUDOS-01, GOAL-01, GOAL-02
 **Success Criteria** (what must be TRUE):
   1. User sees a weekly challenge (rotating from a pool of 8+) with progress tracking and XP reward upon completion
   2. Challenge completion triggers a celebratory toast notification with confetti animation
@@ -54,7 +54,6 @@ Plans:
 - [ ] 02-01-PLAN.md — Challenge engine, goals module, kudos comment extension, XP integration
 - [ ] 02-02-PLAN.md — ChallengeSection UI, GoalTracker in HeroCard, confetti Toast, DashboardPage wiring
 - [ ] 02-03-PLAN.md — Leaderboard expansion (multi-metric, goals, flair), highlight reel, visual verification
-**UI hint**: yes
 
 ### Phase 3: AI Analysis and English Migration
 **Goal**: The team gets a weekly AI-generated sleep report and the entire UI speaks English
