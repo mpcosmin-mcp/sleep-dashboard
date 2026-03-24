@@ -42,7 +42,7 @@ export default function App() {
     setJumpUser(userFilter);
     setPage('dashboard');
   }, []);
-  const [toast, setToast] = useState({ msg: '', show: false });
+  const [toast, setToast] = useState({ msg: '', show: false, confetti: false });
   const [dark, setDark] = useState(() => {
     try { return localStorage.getItem('st_dark') === '1'; } catch { return false; }
   });
@@ -58,9 +58,9 @@ export default function App() {
   }, [dark]);
 
   // Toast
-  const showToast = useCallback((msg: string) => {
-    setToast({ msg, show: true });
-    setTimeout(() => setToast(t => ({ ...t, show: false })), 2500);
+  const showToast = useCallback((msg: string, opts?: { confetti?: boolean; duration?: number }) => {
+    setToast({ msg, show: true, confetti: opts?.confetti ?? false });
+    setTimeout(() => setToast(t => ({ ...t, show: false })), opts?.duration ?? 2500);
   }, []);
 
   // Load data
@@ -157,7 +157,7 @@ export default function App() {
             <>
               {user && !loading && <div className="relative"><ProgressHub user={user} data={data} /></div>}
               {page === 'input' && <InputPage data={data} setData={setData} user={user} pickUser={pickUser} logout={logout} showToast={showToast} />}
-              {page === 'dashboard' && <DashboardPage data={data} user={user} jumpDate={jumpDate} jumpUser={jumpUser} clearJump={() => { setJumpDate(null); setJumpUser(undefined); }} onBack={() => setPage('charts')} />}
+              {page === 'dashboard' && <DashboardPage data={data} user={user} jumpDate={jumpDate} jumpUser={jumpUser} clearJump={() => { setJumpDate(null); setJumpUser(undefined); }} onBack={() => setPage('charts')} showToast={showToast} />}
               {page === 'charts' && <ChartsPage data={data} dark={dark} onDateClick={navigateToDashDate} />}
               {page === 'history' && <HistoryPage data={data} />}
               {page === 'habits' && <HabitPage user={user} pickUser={pickUser} logout={logout} />}
@@ -180,7 +180,7 @@ export default function App() {
           </div>
         </nav>
 
-        <Toast msg={toast.msg} show={toast.show} />
+        <Toast msg={toast.msg} show={toast.show} confetti={toast.confetti} />
       </div>
     </TooltipProvider>
     </HideCtx.Provider>

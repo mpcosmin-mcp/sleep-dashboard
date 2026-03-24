@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { type SleepEntry, fmtDate, todayStr, aggregate, saveRepair, STREAK_REPAIR_COST, XP_COLOR } from '@/lib/sleep';
 import { useGameState } from '@/hooks/useGameState';
+import { getWeekNumber } from '@/lib/challenges';
 import { HeroCard, type DashView } from '@/components/dashboard/HeroCard';
 import { SnapshotView } from '@/components/dashboard/SnapshotView';
 import { Tracker } from '@/components/dashboard/Tracker';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { XPBreakdown } from '@/components/dashboard/XPBreakdown';
-import { BonusSection } from '@/components/dashboard/BonusSection';
+import { ChallengeSection } from '@/components/dashboard/ChallengeSection';
 
-export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack }: {
+export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack, showToast }: {
   data: SleepEntry[]; user: string | null; jumpDate?: string | null; jumpUser?: string; clearJump?: () => void; onBack?: () => void;
+  showToast: (msg: string, opts?: { confetti?: boolean; duration?: number }) => void;
 }) {
   const [view, setView] = useState<DashView>('daily');
   const [selDate, setSelDate] = useState('');
@@ -56,6 +58,17 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
   const gameState = useGameState(data, me);
   const myData = sorted.find(p => p.name === me);
 
+  // Challenge completion celebration — once per week
+  useEffect(() => {
+    if (!gameState.challenge?.status.completed || !me) return;
+    const weekKey = `st_challenge_celebrated_${me}_${getWeekNumber()}`;
+    try {
+      if (localStorage.getItem(weekKey)) return;
+      localStorage.setItem(weekKey, '1');
+      showToast(`\uD83C\uDFC6 ${gameState.challenge.def.name} — completat! +${gameState.challenge.def.xp} XP`, { confetti: true, duration: 4500 });
+    } catch {}
+  }, [gameState.challenge?.status.completed, me, showToast]);
+
   if (!data.length) return <div className="text-center text-muted-foreground py-20 text-sm">Nicio înregistrare.</div>;
 
   // Snapshot mode
@@ -94,7 +107,7 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
       )}
 
       <XPBreakdown gameState={gameState} />
-      <BonusSection gameState={gameState} data={data} user={me} />
+      <ChallengeSection gameState={gameState} data={data} user={me} />
     </div>
   );
 }
