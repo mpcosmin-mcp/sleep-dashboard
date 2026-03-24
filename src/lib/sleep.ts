@@ -197,8 +197,9 @@ export function jsonp(url: string): Promise<unknown> {
     const cb = 'cb_' + Date.now() + Math.floor(Math.random() * 1000);
     const s = document.createElement('script');
     s.src = url + '&callback=' + cb;
-    (window as Record<string, unknown>)[cb] = (d: unknown) => { delete (window as Record<string, unknown>)[cb]; document.body.removeChild(s); res(d); };
-    s.onerror = () => { delete (window as Record<string, unknown>)[cb]; document.body.removeChild(s); rej(new Error('Net')); };
+    const w = window as unknown as Record<string, unknown>;
+    w[cb] = (d: unknown) => { delete w[cb]; document.body.removeChild(s); res(d); };
+    s.onerror = () => { delete w[cb]; document.body.removeChild(s); rej(new Error('Net')); };
     document.body.appendChild(s);
   });
 }
