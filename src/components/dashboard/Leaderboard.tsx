@@ -1,27 +1,14 @@
 import { useState, useMemo } from 'react';
 import {
   type SleepEntry, type AggEntry, ssColor, rhrColor, hrvColor, rhrBg, hrvBg,
-  personColor, NAMES, calcXP, loggingStreak, xpLevel,
+  personColor, calcXP, loggingStreak, xpLevel,
   XP_COLOR, STREAK_COLOR, levelTier,
 } from '@/lib/sleep';
+import { getKudos, saveKudos, getKudosFor } from '@/lib/kudos';
 import { V } from '@/lib/hide';
 import { Avi } from '@/components/shared/Avi';
 import { Section } from './Section';
 import { type DashView } from './HeroCard';
-
-/* ── Kudos helpers (localStorage) ── */
-function kudosKey(from: string, to: string, date: string) { return `st_kudos_${date}_${from}_${to}`; }
-function getKudos(from: string, to: string, date: string): string | null {
-  try { return localStorage.getItem(kudosKey(from, to, date)); } catch { return null; }
-}
-function saveKudos(from: string, to: string, date: string, emoji: string) {
-  try { localStorage.setItem(kudosKey(from, to, date), emoji); } catch {}
-}
-function getKudosFor(to: string, date: string): { from: string; emoji: string }[] {
-  const result: { from: string; emoji: string }[] = [];
-  for (const n of NAMES) { const k = getKudos(n, to, date); if (k) result.push({ from: n, emoji: k }); }
-  return result;
-}
 
 export function Leaderboard({ data, filtered, sorted, user, view, activeDate, subText }: {
   data: SleepEntry[]; filtered: SleepEntry[]; sorted: AggEntry[]; user: string; view: DashView; activeDate: string; subText: string;
