@@ -14,19 +14,19 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **ARCH-03**: setState-during-render anti-pattern in jump logic (lines 216-224) is replaced with proper useEffect
 - [x] **ARCH-04**: Anthropic API key is removed from client bundle and stored as Cloudflare Worker secret
 - [x] **ARCH-05**: React Error Boundary wraps the app for graceful crash containment
-- [ ] **ARCH-06**: `any` types in core modules (sleep.ts, ChartsPage.tsx) are replaced with proper TypeScript types
+- [x] **ARCH-06**: `any` types in core modules (sleep.ts, ChartsPage.tsx) are replaced with proper TypeScript types
 - [x] **ARCH-07**: Expensive computations (calcXP, loggingStreak, leaderboard building) are memoized with useMemo
-- [ ] **ARCH-08**: Unused shadcn/ui components (~33 files) and unused npm dependencies are removed
+- [x] **ARCH-08**: Unused shadcn/ui components (~33 files) and unused npm dependencies are removed
 
 ### Achievement Badges
 
-- [ ] **BADGE-01**: User can earn consistency badges: First Log, Week Warrior (7d streak), Month Master (30d streak), Quarter Legend (90d streak)
-- [ ] **BADGE-02**: User can earn quality badges: Sweet Dreams (SS >= 90 single day), Dream Week (7 consecutive days SS >= 85), Personal Best (new all-time high SS, lowest RHR, highest HRV)
-- [ ] **BADGE-03**: User can earn social badges: First Kudos (give first kudos), Cheerleader (30 kudos given), Fan Favorite (50 kudos received), Team MVP (most kudos received in a month)
-- [ ] **BADGE-04**: User can earn fun/surprise badges: Night Owl (SS < 60 three times in a week), Comeback Kid (SS improves 15+ points week-over-week), Weekend Warrior (best SS consistently on weekends), Steady Eddie (SS within 3-point range for 7 days)
+- [x] **BADGE-01**: User can earn consistency badges: First Log, Week Warrior (7d streak), Month Master (30d streak), Quarter Legend (90d streak)
+- [x] **BADGE-02**: User can earn quality badges: Sweet Dreams (SS >= 90 single day), Dream Week (7 consecutive days SS >= 85), Personal Best (new all-time high SS, lowest RHR, highest HRV)
+- [x] **BADGE-03**: User can earn social badges: First Kudos (give first kudos), Cheerleader (30 kudos given), Fan Favorite (50 kudos received), Team MVP (most kudos received in a month)
+- [x] **BADGE-04**: User can earn fun/surprise badges: Night Owl (SS < 60 three times in a week), Comeback Kid (SS improves 15+ points week-over-week), Weekend Warrior (best SS consistently on weekends), Steady Eddie (SS within 3-point range for 7 days)
 - [ ] **BADGE-05**: User sees a badge collection/gallery showing earned and locked badges
 - [ ] **BADGE-06**: User receives a celebratory notification (toast + confetti) when unlocking a new badge
-- [ ] **BADGE-07**: Badge XP integrates into the existing XP system through gamify.ts, not as a parallel reward system
+- [x] **BADGE-07**: Badge XP integrates into the existing XP system through gamify.ts, not as a parallel reward system
 
 ### Sleep Goals
 
@@ -100,16 +100,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ARCH-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Complete |
 | ARCH-05 | Phase 1 | Complete |
-| ARCH-06 | Phase 1 | Pending |
+| ARCH-06 | Phase 1 | Complete |
 | ARCH-07 | Phase 1 | Complete |
-| ARCH-08 | Phase 1 | Pending |
-| BADGE-01 | Phase 2 | Pending |
-| BADGE-02 | Phase 2 | Pending |
-| BADGE-03 | Phase 2 | Pending |
-| BADGE-04 | Phase 2 | Pending |
+| ARCH-08 | Phase 1 | Complete |
+| BADGE-01 | Phase 2 | Complete |
+| BADGE-02 | Phase 2 | Complete |
+| BADGE-03 | Phase 2 | Complete |
+| BADGE-04 | Phase 2 | Complete |
 | BADGE-05 | Phase 2 | Pending |
 | BADGE-06 | Phase 2 | Pending |
-| BADGE-07 | Phase 2 | Pending |
+| BADGE-07 | Phase 2 | Complete |
 | GOAL-01 | Phase 2 | Pending |
 | GOAL-02 | Phase 2 | Pending |
 | AI-01 | Phase 3 | Pending |

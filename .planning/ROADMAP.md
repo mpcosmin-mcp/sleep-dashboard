@@ -46,9 +46,9 @@ Plans:
   3. Badge XP appears in the existing XP breakdown — earning a badge visibly increases the user's XP total and can affect level/tier
   4. User can set a monthly sleep score target and see whether they are on-track, behind, or ahead with a visual progress indicator
   5. Existing gamification (XP ring, streak dots, leaderboard, kudos) continues to work correctly with badges and goals integrated
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
-- [ ] 02-01-PLAN.md — Test infra, badge definitions and check logic, XP integration, kudos extension
+- [x] 02-01-PLAN.md — Test infra, badge definitions and check logic, XP integration, kudos extension
 - [ ] 02-02-PLAN.md — Badge collection UI, unlock celebration toast with confetti, XP display
 - [ ] 02-03-PLAN.md — Goal logic module, goal tracker in HeroCard with slider dialog
 **UI hint**: yes
@@ -83,6 +83,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Refactor | 0/4 | Planning complete | - |
-| 2. Badges and Goals | 0/3 | Planning complete | - |
+| 2. Badges and Goals | 1/3 | In Progress|  |
 | 3. AI Analysis and English Migration | 0/TBD | Not started | - |
 | 4. Mobile UX Polish | 0/TBD | Not started | - |
