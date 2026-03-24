@@ -157,7 +157,7 @@ export default function App() {
             <>
               {user && !loading && <div className="relative"><ProgressHub user={user} data={data} /></div>}
               {page === 'input' && <InputPage data={data} setData={setData} user={user} pickUser={pickUser} logout={logout} showToast={showToast} />}
-              {page === 'dashboard' && <DashboardPage data={data} user={user} jumpDate={jumpDate} jumpUser={jumpUser} clearJump={() => { setJumpDate(null); setJumpUser(undefined); }} onBack={() => setPage('charts')} />}
+              {page === 'dashboard' && <DashboardPage data={data} user={user} jumpDate={jumpDate} jumpUser={jumpUser} clearJump={() => { setJumpDate(null); setJumpUser(undefined); }} onBack={() => setPage('charts')} showToast={showToast} />}
               {page === 'charts' && <ChartsPage data={data} dark={dark} onDateClick={navigateToDashDate} />}
               {page === 'history' && <HistoryPage data={data} />}
               {page === 'habits' && <HabitPage user={user} pickUser={pickUser} logout={logout} />}
