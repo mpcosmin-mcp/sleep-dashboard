@@ -8,6 +8,7 @@ import { Tracker } from '@/components/dashboard/Tracker';
 import { Leaderboard } from '@/components/dashboard/Leaderboard';
 import { XPBreakdown } from '@/components/dashboard/XPBreakdown';
 import { ChallengeSection } from '@/components/dashboard/ChallengeSection';
+import { HighlightReel } from '@/components/dashboard/HighlightReel';
 
 export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack, showToast }: {
   data: SleepEntry[]; user: string | null; jumpDate?: string | null; jumpUser?: string; clearJump?: () => void; onBack?: () => void;
@@ -92,6 +93,7 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
       <Tracker data={data} user={me} trackerRange={trackerRange} onTrackerRangeChange={setTrackerRange}
                onDateSelect={handleDateSelect} snapshotMode={snapshotMode} />
 
+      <HighlightReel data={data} />
       <Leaderboard data={data} filtered={filtered} sorted={sorted} user={me} view={view} activeDate={activeDate} subText={subText} />
 
       {/* Streak repair alert — only when needed */}
