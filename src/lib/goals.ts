@@ -40,3 +40,17 @@ export function computeGoalStatus(entries: SleepEntry[], target: number): GoalSt
   if (avg >= target - 3) return 'on-track';
   return 'behind';
 }
+
+// Current month string for localStorage key (YYYY-MM)
+export function currentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// Compute current month average SS for a user
+export function currentMonthAvg(data: SleepEntry[], user: string): number | null {
+  const prefix = currentMonth();
+  const monthEntries = data.filter(d => d.name === user && d.date.startsWith(prefix));
+  if (!monthEntries.length) return null;
+  return Math.round(monthEntries.reduce((s, e) => s + e.ss, 0) / monthEntries.length);
+}
