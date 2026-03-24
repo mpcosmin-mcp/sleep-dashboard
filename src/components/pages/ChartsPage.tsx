@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { type SleepEntry, personColor, NAMES } from '@/lib/sleep';
-import { Chart, registerables } from 'chart.js';
+import { Chart, type ActiveElement, type ChartEvent, type TooltipItem, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -27,7 +27,7 @@ function latestValue(data: SleepEntry[], name: string, key: 'ss' | 'rhr' | 'hrv'
 
 export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; dark: boolean; onDateClick?: (date: string, userFilter?: string) => void }) {
   const [userFilter, setUserFilter] = useState('');
-  const chartsRef = useRef<Record<string, any>>({});
+  const chartsRef = useRef<Record<string, Chart<'line'>>>({});
 
   const allNames = [...new Set(data.map(d => d.name))];
   const sourceData = userFilter ? data.filter(d => d.name === userFilter) : data;
@@ -36,11 +36,11 @@ export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; da
   const labels = miniLabels(dates);
 
   useEffect(() => {
-    Object.values(chartsRef.current).forEach((c: any) => c.destroy?.());
+    Object.values(chartsRef.current).forEach(c => c.destroy());
     chartsRef.current = {};
     if (!dates.length) return;
 
-    const mkGrad = (ctx: any, hex: string, h: number) => {
+    const mkGrad = (ctx: CanvasRenderingContext2D, hex: string, h: number) => {
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, hex + '30');
       g.addColorStop(0.7, hex + '08');
@@ -61,7 +61,7 @@ export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; da
           label: n.split(' ')[0],
           data: dates.map(d => {
             const e = dataMap.get(`${d}|${n}`);
-            return e ? (key === 'hrv' ? e.hrv : (e as any)[key]) : null;
+            return e ? (key === 'hrv' ? e.hrv : e[key]) : null;
           }),
           borderColor: color,
           backgroundColor: mkGrad(ctx, color, h),
@@ -90,7 +90,7 @@ export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; da
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index' as const, intersect: false },
-      onClick: (_event: any, elements: any[]) => {
+      onClick: (_event: ChartEvent, elements: ActiveElement[]) => {
         if (elements.length > 0 && onDateClick) {
           const idx = elements[0].index;
           const clickedDate = dates[idx];
@@ -107,7 +107,7 @@ export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; da
           bodyFont: { size: 11, family: 'Geist Mono' },
           displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, usePointStyle: true,
           callbacks: {
-            title: (items: any[]) => {
+            title: (items: TooltipItem<'line'>[]) => {
               if (!items.length) return '';
               const idx = items[0].dataIndex;
               return dates[idx] ? (() => {
@@ -138,7 +138,7 @@ export function ChartsPage({ data, dark, onDateClick }: { data: SleepEntry[]; da
     chartsRef.current.rhr = new Chart(document.getElementById('ch-rhr')!, { type: 'line', data: { labels, datasets: mkDS('rhr', 'ch-rhr', 180) }, options: opts(180) });
     chartsRef.current.hrv = new Chart(document.getElementById('ch-hrv')!, { type: 'line', data: { labels, datasets: mkDS('hrv', 'ch-hrv', 180) }, options: opts(180) });
 
-    return () => { Object.values(chartsRef.current).forEach((c: any) => c.destroy?.()); };
+    return () => { Object.values(chartsRef.current).forEach(c => c.destroy()); };
   }, [data, userFilter, dark, dates.join(','), names.join(',')]);
 
   if (!data.length) return <div className="text-center text-muted-foreground py-20 text-sm">Insuficiente date.</div>;

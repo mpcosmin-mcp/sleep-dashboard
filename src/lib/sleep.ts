@@ -192,27 +192,37 @@ export function fmtDate(d: string) {
 }
 export function todayStr() { return new Date().toISOString().split('T')[0]; }
 
-export function jsonp(url: string): Promise<any> {
+export function jsonp(url: string): Promise<unknown> {
   return new Promise((res, rej) => {
     const cb = 'cb_' + Date.now() + Math.floor(Math.random() * 1000);
     const s = document.createElement('script');
     s.src = url + '&callback=' + cb;
-    (window as any)[cb] = (d: any) => { delete (window as any)[cb]; document.body.removeChild(s); res(d); };
-    s.onerror = () => { delete (window as any)[cb]; document.body.removeChild(s); rej(new Error('Net')); };
+    (window as Record<string, unknown>)[cb] = (d: unknown) => { delete (window as Record<string, unknown>)[cb]; document.body.removeChild(s); res(d); };
+    s.onerror = () => { delete (window as Record<string, unknown>)[cb]; document.body.removeChild(s); rej(new Error('Net')); };
     document.body.appendChild(s);
   });
 }
 
+interface RawSheetRow {
+  date?: string;
+  name?: string;
+  sleep_score?: string | number;
+  rhr?: string | number;
+  hrv?: string | number | null | '';
+}
+
 export async function fetchAllData(): Promise<SleepEntry[]> {
-  const json = await jsonp(API + '?v=' + Date.now());
-  return (json.data || []).map((r: any) => ({
-    date: String(r.date || '').trim().slice(0, 10), name: String(r.name || '').trim(),
-    ss: parseFloat(r.sleep_score) || 0, rhr: parseFloat(r.rhr) || 0,
-    hrv: r.hrv !== '' && r.hrv != null ? parseFloat(r.hrv) : null,
+  const json = await jsonp(API + '?v=' + Date.now()) as { data?: RawSheetRow[] };
+  return (json.data || []).map((r: RawSheetRow) => ({
+    date: String(r.date || '').trim().slice(0, 10),
+    name: String(r.name || '').trim(),
+    ss: parseFloat(String(r.sleep_score)) || 0,
+    rhr: parseFloat(String(r.rhr)) || 0,
+    hrv: r.hrv !== '' && r.hrv != null ? parseFloat(String(r.hrv)) : null,
   })).filter((r: SleepEntry) => r.date && r.name);
 }
 
-export async function submitEntry(entry: Record<string, any>) {
+export async function submitEntry(entry: Record<string, string | number>) {
   const params = new URLSearchParams({ action: 'write', ...entry });
   await jsonp(`${API}?${params}`);
 }
@@ -363,14 +373,23 @@ export function calcXP(data: SleepEntry[], name: string): number {
   return Math.max(0, xp);
 }
 
+interface AggAccumulator {
+  name: string;
+  n: number;
+  ss: number;
+  rhr: number;
+  hrv: number;
+  hrvN: number;
+}
+
 export function aggregate(data: SleepEntry[]): AggEntry[] {
-  const grp: Record<string, any> = {};
+  const grp: Record<string, AggAccumulator> = {};
   data.forEach(e => {
     if (!grp[e.name]) grp[e.name] = { name: e.name, n: 0, ss: 0, rhr: 0, hrv: 0, hrvN: 0 };
     grp[e.name].n++; grp[e.name].ss += e.ss; grp[e.name].rhr += e.rhr;
     if (e.hrv !== null) { grp[e.name].hrv += e.hrv; grp[e.name].hrvN++; }
   });
-  return Object.values(grp).map((g: any) => ({
+  return Object.values(grp).map((g) => ({
     name: g.name, date: '', ss: Math.round(g.ss / g.n), rhr: Math.round(g.rhr / g.n),
     hrv: g.hrvN > 0 ? Math.round(g.hrv / g.hrvN) : null, entries: g.n,
   })).sort((a, b) => b.ss - a.ss);
