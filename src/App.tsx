@@ -4,6 +4,7 @@ import { type SleepEntry, fetchAllData } from '@/lib/sleep';
 import { HideCtx } from '@/lib/hide';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Toast } from '@/components/shared/Toast';
+import { BADGE_DEFS, getEarnedBadgeIds, saveEarnedBadge } from '@/lib/badges';
 import { InputPage } from '@/components/pages/InputPage';
 import { DashboardPage } from '@/components/pages/DashboardPage';
 import { ChartsPage } from '@/components/pages/ChartsPage';
@@ -42,7 +43,7 @@ export default function App() {
     setJumpUser(userFilter);
     setPage('dashboard');
   }, []);
-  const [toast, setToast] = useState({ msg: '', show: false });
+  const [toast, setToast] = useState({ msg: '', show: false, confetti: false });
   const [dark, setDark] = useState(() => {
     try { return localStorage.getItem('st_dark') === '1'; } catch { return false; }
   });
@@ -58,10 +59,27 @@ export default function App() {
   }, [dark]);
 
   // Toast
-  const showToast = useCallback((msg: string) => {
-    setToast({ msg, show: true });
-    setTimeout(() => setToast(t => ({ ...t, show: false })), 2500);
+  const showToast = useCallback((msg: string, opts?: { duration?: number; confetti?: boolean }) => {
+    setToast({ msg, show: true, confetti: opts?.confetti ?? false });
+    setTimeout(() => setToast(t => ({ ...t, show: false })), opts?.duration ?? 2500);
   }, []);
+
+  // Badge unlock detection
+  useEffect(() => {
+    if (!user || !data.length) return;
+    const previouslyEarned = new Set(getEarnedBadgeIds(user));
+    const nowEarned = BADGE_DEFS
+      .filter(def => def.check(data, user).earned)
+      .map(def => def.id);
+    const newlyEarned = nowEarned.filter(id => !previouslyEarned.has(id));
+    newlyEarned.forEach((id, i) => {
+      setTimeout(() => {
+        const def = BADGE_DEFS.find(d => d.id === id)!;
+        saveEarnedBadge(user, id);
+        showToast(`${def.icon} ${def.name} deblocat! +25 XP`, { duration: 4500, confetti: true });
+      }, i * 1200);
+    });
+  }, [data, user, showToast]);
 
   // Load data
   const load = useCallback(async () => {
@@ -180,7 +198,7 @@ export default function App() {
           </div>
         </nav>
 
-        <Toast msg={toast.msg} show={toast.show} />
+        <Toast msg={toast.msg} show={toast.show} confetti={toast.confetti} />
       </div>
     </TooltipProvider>
     </HideCtx.Provider>
