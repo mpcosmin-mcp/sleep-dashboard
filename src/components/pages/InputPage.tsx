@@ -17,7 +17,7 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
 
   if (!user) {
     return (
-      <div className="max-w-md mx-auto mt-6 lg:mt-16 text-center">
+      <div className="max-w-md lg:max-w-lg mx-auto mt-6 lg:mt-16 text-center">
         <div className="text-4xl mb-3">👋</div>
         <h2 className="text-2xl font-bold tracking-tight mb-1">Alege profilul</h2>
         <p className="text-muted-foreground text-sm mb-6">Selectează-ți contul pentru a loga datele de somn.</p>
@@ -60,7 +60,7 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
   if (todayEntry) {
     const tier = getTier(todayEntry.ss);
     return (
-      <div className="max-w-md mx-auto mt-4 lg:mt-12 text-center">
+      <div className="max-w-md lg:max-w-lg mx-auto mt-4 lg:mt-12 text-center">
         <div className="text-3xl mb-2">✓</div>
         <h2 className="text-xl font-bold tracking-tight mb-1">Date salvate, {user.split(' ')[0]}!</h2>
         <p className="text-muted-foreground text-sm mb-5">Parametrii de azi sunt înregistrați.</p>
@@ -110,7 +110,7 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
   };
 
   return (
-    <div className="max-w-md mx-auto mt-4 lg:mt-12 text-center">
+    <div className="max-w-md lg:max-w-lg mx-auto mt-4 lg:mt-12 text-center">
       <div className="text-3xl mb-2">🌙</div>
       <h2 className="text-xl font-bold tracking-tight mb-1">Bună dimineața, {user.split(' ')[0]}</h2>
       <p className="text-muted-foreground text-sm mb-6">Introdu metricile de somn de aseară.</p>
@@ -125,7 +125,7 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
               <div key={f.label} className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{f.label}</label>
                 <input ref={f.ref} type="number" placeholder={f.ph}
-                  className="font-mono text-xl font-bold text-center py-3 rounded-lg bg-muted border-2 border-transparent focus:border-primary/30 focus:bg-background outline-none transition-all w-full" />
+                  className="font-mono text-xl lg:text-2xl font-bold text-center py-3 lg:py-4 rounded-lg bg-muted border-2 border-transparent focus:border-primary/30 focus:bg-background outline-none transition-all w-full" />
                 <span className="text-[10px] text-muted-foreground text-center">{f.hint}</span>
               </div>
             ))}

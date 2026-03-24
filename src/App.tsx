@@ -93,7 +93,7 @@ export default function App() {
       <div className="flex flex-col lg:flex-row min-h-screen">
 
         {/* ── Desktop Sidebar ── */}
-        <aside className="hidden lg:flex w-56 shrink-0 border-r bg-card/60 flex-col p-4 gap-5 sticky top-0 h-screen">
+        <aside className="hidden lg:flex w-60 shrink-0 border-r bg-card/60 flex-col p-5 gap-5 sticky top-0 h-screen">
           <button onClick={() => { logout(); setPage('input'); }} className="flex items-center gap-2.5 px-1 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shadow-sm"
                  style={{ background: brandGrad, color: '#fff' }}>🦉</div>
@@ -102,8 +102,9 @@ export default function App() {
           <nav className="flex flex-col gap-0.5">
             {NAV.map(n => (
               <button key={n.id} onClick={() => setPage(n.id)}
-                className={`text-left px-3 py-2 rounded-md text-[13px] font-semibold transition-all duration-150
+                className={`text-left px-3 py-2 rounded-md text-[13px] font-semibold transition-all duration-150 flex items-center gap-2.5
                   ${page === n.id ? 'bg-primary/10 text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-accent'}`}>
+                <span className="text-sm w-5 text-center">{NAV_ICONS[n.id]}</span>
                 {n.label}
               </button>
             ))}
@@ -147,7 +148,7 @@ export default function App() {
         </header>
 
         {/* ── Main Content ── */}
-        <main className="flex-1 p-4 lg:p-8 overflow-y-auto pb-24 lg:pb-8 min-h-0">
+        <main className="flex-1 p-4 lg:px-10 lg:py-8 overflow-y-auto pb-24 lg:pb-8 min-h-0 lg:max-w-6xl">
           {loading ? (
             <div className="flex items-center justify-center h-64 text-muted-foreground text-sm gap-2">
               <div className="w-4 h-4 border-2 border-border border-t-primary rounded-full animate-spin" />

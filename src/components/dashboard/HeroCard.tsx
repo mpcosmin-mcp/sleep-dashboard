@@ -183,7 +183,7 @@ export function HeroCard({ user, data, gameState, myData, view, onViewChange, ac
           const xpToNext = XP_PER_LEVEL - (xp % XP_PER_LEVEL);
           return (
             <>
-              <div className="grid grid-cols-3 gap-1.5 mb-1.5">
+              <div className="grid grid-cols-3 gap-1.5 lg:gap-2.5 mb-1.5">
                 <div className="rounded-md p-1.5 text-center" style={{ background: rhrBg(myData.rhr) }}>
                   <div className="text-[7px] font-bold uppercase" style={{ color: rhrColor(myData.rhr), opacity: 0.7 }}>RHR</div>
                   <div className="font-mono text-xs font-bold" style={{ color: rhrColor(myData.rhr) }}><V>{myData.rhr}</V></div>

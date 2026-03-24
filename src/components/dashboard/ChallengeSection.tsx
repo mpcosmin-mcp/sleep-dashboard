@@ -5,7 +5,7 @@ import { type GameState } from '@/hooks/useGameState';
 import { getWeekStart, getWeekEnd } from '@/lib/challenges';
 import {
   getActiveMiniChallenge, checkMiniChallenge,
-  getActiveDuel, createDuel, removeDuel, getDuelResult,
+  getActiveDuels, createDuel, dismissDuel, getDuelResult,
   DUEL_TYPES, type ActiveDuel, type DuelParticipant,
 } from '@/lib/mini-challenges';
 import { Avi } from '@/components/shared';
@@ -355,6 +355,8 @@ function DuelCard({ duel, data, user, onDismiss }: {
   const iLost = finished && winnerName !== null && winnerName !== user;
   const isTie = finished && winnerName === null;
   const label = participants.length === 2 ? 'Duel 1v1' : `Provocare ${participants.length} jucatori`;
+  const isChallenged = duel.createdBy !== user;
+  const challengerName = shortName(duel.createdBy);
 
   return (
     <div className={`rounded-xl overflow-hidden shadow-sm ${
@@ -374,7 +376,10 @@ function DuelCard({ duel, data, user, onDismiss }: {
                 {finished ? 'Terminat' : `${remaining} ${remaining === 1 ? 'zi' : 'zile'} ramase`}
               </span>
             </div>
-            <div className="text-[10px] text-muted-foreground">{duelType.name} — {formatDate(duel.startDate)} → {formatDate(duel.endDate)}</div>
+            <div className="text-[10px] text-muted-foreground">
+              {duelType.name} — {formatDate(duel.startDate)} → {formatDate(duel.endDate)}
+              {isChallenged && <span className="ml-1.5 font-bold text-red-500">⚔️ {challengerName} te-a provocat!</span>}
+            </div>
           </div>
           <span className="text-sm font-bold font-mono shrink-0" style={{ color: '#ef4444' }}>+{duelType.xp} XP</span>
         </div>
@@ -468,13 +473,18 @@ function CreateDuelSection({ user, onCreated }: { user: string; onCreated: () =>
     );
   }
 
-  const handleCreate = () => {
-    if (!selOpponents.length || !selType) return;
-    createDuel(user, selType, selOpponents);
-    setOpen(false);
-    setSelOpponents([]);
-    setSelType('');
-    onCreated();
+  const [saving, setSaving] = useState(false);
+  const handleCreate = async () => {
+    if (!selOpponents.length || !selType || saving) return;
+    setSaving(true);
+    try {
+      await createDuel(user, selType, selOpponents);
+      setOpen(false);
+      setSelOpponents([]);
+      setSelType('');
+      onCreated();
+    } catch { /* toast? */ }
+    setSaving(false);
   };
 
   const label = selOpponents.length === 0 ? '' : selOpponents.length === 1 ? 'Duel 1v1' : `Provocare ${selOpponents.length + 1} jucatori`;
@@ -526,10 +536,10 @@ function CreateDuelSection({ user, onCreated }: { user: string; onCreated: () =>
           ))}
         </div>
 
-        <button onClick={handleCreate} disabled={!selOpponents.length || !selType}
+        <button onClick={handleCreate} disabled={!selOpponents.length || !selType || saving}
           className="w-full py-2 rounded-lg text-xs font-bold text-white transition-all disabled:opacity-30 hover:scale-[1.01] active:scale-[0.99]"
           style={{ background: '#ef4444' }}>
-          {selOpponents.length > 1 ? 'Lanseaza provocarea!' : 'Lanseaza duelul!'}
+          {saving ? 'Se trimite...' : selOpponents.length > 1 ? 'Lanseaza provocarea!' : 'Lanseaza duelul!'}
         </button>
       </div>
     </div>
@@ -607,65 +617,69 @@ function MiniChallengeCard({ data, user }: { data: SleepEntry[]; user: string })
 export function ChallengeSection({ gameState, data, user }: { gameState: GameState; data: SleepEntry[]; user: string }) {
   const [, setRefresh] = useState(0);
   const ch = gameState.challenge;
-  const duel = user ? getActiveDuel(user) : null;
+  const duels = user ? getActiveDuels(user) : [];
 
-  const handleDismiss = () => { if (user) { removeDuel(user); setRefresh(c => c + 1); } };
+  const handleDismiss = (duel: ActiveDuel) => { if (user) { dismissDuel(user, duel); setRefresh(c => c + 1); } };
   const handleCreated = () => setRefresh(c => c + 1);
 
   // Nothing to show
-  if (!ch && !duel) return null;
+  if (!ch && !duels.length) return null;
 
   return (
-    <div className="mt-3 space-y-3">
-      {/* Weekly challenge */}
-      {ch && (() => {
-        const { def, status } = ch;
-        const pct = status.target > 0 ? Math.min(100, (status.progress / status.target) * 100) : 0;
-        const detail = getDetailRows(def.id, data, user);
+    <div className="mt-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:items-start space-y-3 lg:space-y-0">
+      {/* Left: Weekly challenge */}
+      <div>
+        {ch && (() => {
+          const { def, status } = ch;
+          const pct = status.target > 0 ? Math.min(100, (status.progress / status.target) * 100) : 0;
+          const detail = getDetailRows(def.id, data, user);
 
-        return (
-          <div className={`rounded-xl overflow-hidden shadow-sm ${status.completed ? 'bg-green-50 dark:bg-green-950/20 ring-1 ring-green-200 dark:ring-green-800/30' : 'bg-card ring-1 ring-border'}`}>
-            <div className="h-1" style={{ background: status.completed ? '#16a34a' : XP_COLOR }} />
-            <div className="px-4 py-3">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-lg">{def.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Provocarea saptamanii</span>
-                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
-                      def.type === 'team' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'
-                    }`}>
-                      {def.type === 'team' ? 'Echipa' : 'Individual'}
-                    </span>
+          return (
+            <div className={`rounded-xl overflow-hidden shadow-sm ${status.completed ? 'bg-green-50 dark:bg-green-950/20 ring-1 ring-green-200 dark:ring-green-800/30' : 'bg-card ring-1 ring-border'}`}>
+              <div className="h-1" style={{ background: status.completed ? '#16a34a' : XP_COLOR }} />
+              <div className="px-4 py-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">{def.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Provocarea saptamanii</span>
+                      <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${
+                        def.type === 'team' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'
+                      }`}>
+                        {def.type === 'team' ? 'Echipa' : 'Individual'}
+                      </span>
+                    </div>
                   </div>
+                  <span className={`text-sm font-bold font-mono shrink-0 ${status.completed ? 'text-green-600' : ''}`}
+                        style={{ color: status.completed ? undefined : XP_COLOR }}>
+                    +{def.xp} XP
+                  </span>
                 </div>
-                <span className={`text-sm font-bold font-mono shrink-0 ${status.completed ? 'text-green-600' : ''}`}
-                      style={{ color: status.completed ? undefined : XP_COLOR }}>
-                  +{def.xp} XP
-                </span>
+                <div className="text-sm font-bold mb-0.5">{def.name}</div>
+                <div className="text-[10px] text-muted-foreground mb-2">{def.description}</div>
+                <ProgressBar pct={pct} progress={status.progress} target={status.target} completed={status.completed} color={XP_COLOR} />
+                {detail.type !== 'none' && (
+                  <div className="mt-2 pt-2 border-t border-border/50">
+                    <div className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5">Detalii</div>
+                    <DetailView detail={detail} />
+                  </div>
+                )}
               </div>
-              <div className="text-sm font-bold mb-0.5">{def.name}</div>
-              <div className="text-[10px] text-muted-foreground mb-2">{def.description}</div>
-              <ProgressBar pct={pct} progress={status.progress} target={status.target} completed={status.completed} color={XP_COLOR} />
-              {detail.type !== 'none' && (
-                <div className="mt-2 pt-2 border-t border-border/50">
-                  <div className="text-[9px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5">Detalii</div>
-                  <DetailView detail={detail} />
-                </div>
-              )}
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
+      </div>
 
-      {/* Mini challenge (Wed-Sat) */}
-      <MiniChallengeCard data={data} user={user} />
-
-      {/* Active 1v1 duel */}
-      {duel && <DuelCard duel={duel} data={data} user={user} onDismiss={handleDismiss} />}
-
-      {/* Create duel button (only if no active duel) */}
-      {user && !duel && <CreateDuelSection user={user} onCreated={handleCreated} />}
+      {/* Right: Mini challenge + Duels */}
+      <div className="space-y-3">
+        <MiniChallengeCard data={data} user={user} />
+        {duels.map(duel => (
+          <DuelCard key={`${duel.createdBy}_${duel.typeId}_${duel.startDate}`}
+                    duel={duel} data={data} user={user}
+                    onDismiss={() => handleDismiss(duel)} />
+        ))}
+        {user && <CreateDuelSection user={user} onCreated={handleCreated} />}
+      </div>
     </div>
   );
 }

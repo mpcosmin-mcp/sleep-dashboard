@@ -1,4 +1,4 @@
-import { type SleepEntry, NAMES } from '@/lib/sleep';
+import { type SleepEntry, NAMES, type SharedDuel, getDuelsForUser, submitSharedDuel } from '@/lib/sleep';
 
 // ════════════════════════════════════════════════════════════════
 // Mini Challenges — short 2-3 day challenges that appear mid-week
@@ -241,32 +241,24 @@ export function checkMiniChallenge(def: MiniChallengeDef, data: SleepEntry[], na
   return def.check(data, name, startDate, endDate);
 }
 
-// ── 1v1 Duel localStorage persistence ──
-const DUEL_KEY = (user: string) => `st_duel_${user}`;
+// ── Shared Duel persistence (via Google Sheets) ──
 
-export function getActiveDuel(user: string): ActiveDuel | null {
-  try {
-    const raw = localStorage.getItem(DUEL_KEY(user));
-    if (!raw) return null;
-    const duel: ActiveDuel = JSON.parse(raw);
-    // Migrate old format (single opponent string → array)
-    if (!duel.opponents && (duel as any).opponent) { duel.opponents = [(duel as any).opponent]; }
-    // Check if expired
-    const today = new Date().toISOString().split('T')[0];
-    if (duel.endDate < today) {
-      // Keep it for one extra day so user can see result
-      const endPlusOne = new Date(duel.endDate + 'T12:00:00');
-      endPlusOne.setDate(endPlusOne.getDate() + 1);
-      if (endPlusOne.toISOString().split('T')[0] < today) {
-        localStorage.removeItem(DUEL_KEY(user));
-        return null;
-      }
-    }
-    return duel;
-  } catch { return null; }
+/** Get all active duels for a user (created by them or challenged) */
+export function getActiveDuels(user: string): ActiveDuel[] {
+  const dismissed = getDismissedDuels(user);
+  return getDuelsForUser(user)
+    .filter(d => !dismissed.has(duelKey(d)))
+    .map(d => ({ ...d }));
 }
 
-export function createDuel(user: string, typeId: string, opponents: string[]): ActiveDuel {
+/** Get single active duel (first non-dismissed) — backward compat */
+export function getActiveDuel(user: string): ActiveDuel | null {
+  const duels = getActiveDuels(user);
+  return duels.length > 0 ? duels[0] : null;
+}
+
+/** Create and submit a duel to Google Sheets */
+export async function createDuel(user: string, typeId: string, opponents: string[]): Promise<ActiveDuel> {
   const today = new Date().toISOString().split('T')[0];
   const duelType = DUEL_TYPES.find(d => d.id === typeId)!;
   const endD = new Date(today + 'T12:00:00');
@@ -278,12 +270,29 @@ export function createDuel(user: string, typeId: string, opponents: string[]): A
     endDate: endD.toISOString().split('T')[0],
     createdBy: user,
   };
-  try { localStorage.setItem(DUEL_KEY(user), JSON.stringify(duel)); } catch {}
+  await submitSharedDuel(duel);
   return duel;
 }
 
-export function removeDuel(user: string): void {
-  try { localStorage.removeItem(DUEL_KEY(user)); } catch {}
+/** Dismiss a duel locally (hide from UI after completion) */
+export function dismissDuel(user: string, duel: ActiveDuel): void {
+  try {
+    const key = `st_duel_dismissed_${user}`;
+    const existing = JSON.parse(localStorage.getItem(key) || '[]') as string[];
+    existing.push(duelKey(duel));
+    localStorage.setItem(key, JSON.stringify(existing));
+  } catch {}
+}
+
+function duelKey(d: ActiveDuel | SharedDuel): string {
+  return `${d.createdBy}_${d.typeId}_${d.startDate}`;
+}
+
+function getDismissedDuels(user: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(`st_duel_dismissed_${user}`);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch { return new Set(); }
 }
 
 export interface DuelParticipant {

@@ -133,8 +133,8 @@ export function Tracker({ data, user, trackerRange, onTrackerRangeChange, onDate
                 <div key={i} className={`flex flex-col items-center gap-1 ${day.logged ? 'cursor-pointer' : ''}`}
                  title={day.logged ? `${fmtDate(day.date)} — SS ${day.ss} (click)` : `${fmtDate(day.date)} — nelogat`}
                  onClick={() => { if (day.logged) { onDateSelect(day.date); } }}>
-                  <div className="text-[9px] text-muted-foreground font-medium">{day.label}</div>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isToday && !day.logged ? 'animate-pulse' : ''}`}
+                  <div className="text-[9px] lg:text-[11px] text-muted-foreground font-medium">{day.label}</div>
+                  <div className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center ${isToday && !day.logged ? 'animate-pulse' : ''}`}
                        style={{ background: dotColor + (day.logged ? '20' : ''), border: isToday ? `2px solid ${c}` : '2px solid transparent' }}>
                     {day.logged ? (
                       <span className="text-[9px] font-bold" style={{ color: dotColor }}>{day.ss}</span>
@@ -175,7 +175,7 @@ export function Tracker({ data, user, trackerRange, onTrackerRangeChange, onDate
                 const dotColor = day.logged ? ssColor(day.ss) : '#f1f5f9';
                 return (
                   <div key={di}
-                    className={`h-9 rounded flex flex-col items-center justify-center ${day.isToday ? 'ring-1.5' : ''} ${!day.isCurrentMonth ? 'opacity-25' : ''} ${day.isCurrentMonth ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
+                    className={`h-9 lg:h-11 rounded flex flex-col items-center justify-center ${day.isToday ? 'ring-1.5' : ''} ${!day.isCurrentMonth ? 'opacity-25' : ''} ${day.isCurrentMonth ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
                     style={{
                       background: day.logged ? dotColor + '18' : undefined,
                       ringColor: day.isToday ? c : undefined,

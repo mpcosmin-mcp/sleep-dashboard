@@ -144,15 +144,72 @@ interface RawSheetRow {
   hrv?: string | number | null | '';
 }
 
+// Marker prefix for shared duel rows stored in the sheet
+export const DUEL_ROW_MARKER = '__DUEL__';
+
+// Cached raw rows from last fetch (used by fetchSharedDuels)
+let _lastRawRows: RawSheetRow[] = [];
+
 export async function fetchAllData(): Promise<SleepEntry[]> {
   const json = await jsonp(API + '?v=' + Date.now()) as { data?: RawSheetRow[] };
-  return (json.data || []).map((r: RawSheetRow) => ({
-    date: String(r.date || '').trim().slice(0, 10),
-    name: String(r.name || '').trim(),
-    ss: parseFloat(String(r.sleep_score)) || 0,
-    rhr: parseFloat(String(r.rhr)) || 0,
-    hrv: r.hrv !== '' && r.hrv != null ? parseFloat(String(r.hrv)) : null,
-  })).filter((r: SleepEntry) => r.date && r.name);
+  const rows = json.data || [];
+  _lastRawRows = rows; // cache for duel parsing
+  return rows
+    .filter((r: RawSheetRow) => !String(r.name || '').startsWith(DUEL_ROW_MARKER))
+    .map((r: RawSheetRow) => ({
+      date: String(r.date || '').trim().slice(0, 10),
+      name: String(r.name || '').trim(),
+      ss: parseFloat(String(r.sleep_score)) || 0,
+      rhr: parseFloat(String(r.rhr)) || 0,
+      hrv: r.hrv !== '' && r.hrv != null ? parseFloat(String(r.hrv)) : null,
+    })).filter((r: SleepEntry) => r.date && r.name);
+}
+
+export interface SharedDuel {
+  typeId: string;
+  opponents: string[];
+  startDate: string;
+  endDate: string;
+  createdBy: string;
+}
+
+/** Parse shared duels from cached sheet rows */
+export function getSharedDuels(): SharedDuel[] {
+  const today = new Date().toISOString().split('T')[0];
+  const duels: SharedDuel[] = [];
+  for (const r of _lastRawRows) {
+    const name = String(r.name || '');
+    if (!name.startsWith(DUEL_ROW_MARKER)) continue;
+    try {
+      const json = String(r.sleep_score || '');
+      const duel: SharedDuel = JSON.parse(json);
+      // Keep if not expired (+ 1 day grace to see results)
+      const grace = new Date(duel.endDate + 'T12:00:00');
+      grace.setDate(grace.getDate() + 1);
+      if (grace.toISOString().split('T')[0] >= today) {
+        duels.push(duel);
+      }
+    } catch { /* skip malformed rows */ }
+  }
+  return duels;
+}
+
+/** Get duels relevant to a specific user (created by them or they're an opponent) */
+export function getDuelsForUser(user: string): SharedDuel[] {
+  return getSharedDuels().filter(d =>
+    d.createdBy === user || d.opponents.includes(user)
+  );
+}
+
+/** Write a duel to Google Sheets so all users can see it */
+export async function submitSharedDuel(duel: SharedDuel): Promise<void> {
+  await submitEntry({
+    date: duel.startDate,
+    name: DUEL_ROW_MARKER,
+    sleep_score: JSON.stringify(duel),
+    rhr: '0',
+    hrv: '',
+  });
 }
 
 export async function submitEntry(entry: Record<string, string | number>) {

@@ -75,33 +75,48 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
 
   return (
     <div>
-      <HeroCard user={me} data={data} gameState={gameState} myData={myData} view={dummyView} onViewChange={noop}
-                activeDate={activeDate} dates={dates} onDateChange={setSelDate} subText="" />
+      {/* ── Desktop: 2-column layout. Mobile: stacked ── */}
+      <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-5 lg:items-start">
 
-      <Tracker data={data} user={me} trackerRange={trackerRange} onTrackerRangeChange={setTrackerRange}
-               onDateSelect={handleDateSelect} snapshotMode={snapshotMode} />
+        {/* Left column: personal stats + tracker */}
+        <div>
+          <HeroCard user={me} data={data} gameState={gameState} myData={myData} view={dummyView} onViewChange={noop}
+                    activeDate={activeDate} dates={dates} onDateChange={setSelDate} subText="" />
 
-      {/* Desktop: side-by-side leaderboards. Mobile: stacked */}
-      <div className="lg:grid lg:grid-cols-2 lg:gap-3">
-        <TodayLeaderboard data={data} user={me} />
-        <PeriodLeaderboard data={data} user={me} />
+          <Tracker data={data} user={me} trackerRange={trackerRange} onTrackerRangeChange={setTrackerRange}
+                   onDateSelect={handleDateSelect} snapshotMode={snapshotMode} />
+
+          {/* Streak repair alert */}
+          {gameState.streak.needsRepair && (
+            <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
+              <span className="text-[10px] text-amber-700 dark:text-amber-400">⚠️ Somnul e sub 75 — streak în pericol</span>
+              <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > gameState.xp}
+                className="text-[9px] font-bold px-2 py-0.5 rounded transition-all disabled:opacity-40 ml-auto"
+                style={{ background: XP_COLOR, color: 'white' }}>
+                Salvează ({STREAK_REPAIR_COST} XP)
+              </button>
+            </div>
+          )}
+
+          {/* Desktop: highlight reel under tracker */}
+          <div className="hidden lg:block">
+            <HighlightReel data={data} />
+          </div>
+        </div>
+
+        {/* Right column: leaderboards (sticky on desktop) */}
+        <div className="lg:sticky lg:top-8 space-y-3">
+          <TodayLeaderboard data={data} user={me} />
+          <PeriodLeaderboard data={data} user={me} />
+        </div>
       </div>
 
-      <HighlightReel data={data} />
+      {/* Mobile: highlight reel below leaderboards */}
+      <div className="lg:hidden">
+        <HighlightReel data={data} />
+      </div>
 
-      {/* Streak repair alert */}
-      {gameState.streak.needsRepair && (
-        <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-lg bg-amber-50 border border-amber-200">
-          <span className="text-[10px] text-amber-700">⚠️ Somnul e sub 75 — streak în pericol</span>
-          <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > gameState.xp}
-            className="text-[9px] font-bold px-2 py-0.5 rounded transition-all disabled:opacity-40 ml-auto"
-            style={{ background: XP_COLOR, color: 'white' }}>
-            Salvează ({STREAK_REPAIR_COST} XP)
-          </button>
-        </div>
-      )}
-
-      {/* Weekly challenge — detailed breakdown at bottom */}
+      {/* Full-width bottom: challenges */}
       <ChallengeSection gameState={gameState} data={data} user={me} />
 
       {/* Bonusuri popup button */}
