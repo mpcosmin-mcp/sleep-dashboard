@@ -1,134 +1,165 @@
-# Phase 2: Badges and Goals - Discussion Log
+# Phase 2: Social Competitions + Goals - Discussion Log
 
 > **Audit trail only.** Do not use as input to planning, research, or execution agents.
 > Decisions are captured in CONTEXT.md — this log preserves the alternatives considered.
 
 **Date:** 2026-03-24
-**Phase:** 02-badges-and-goals
-**Areas discussed:** Badge presentation, Unlock celebrations, Goal setting & tracking UX
+**Phase:** 02-badges-and-goals (pivoted from badges to social competitions)
+**Areas discussed:** Leaderboard expansion, BonusSection evolution, Social reactions & fun facts, Goal setting & tracking
 
 ---
 
-## Badge Presentation
-
-### Where should the badge collection live?
+## Phase Pivot
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Replace BonusSection | BonusSection becomes a full Badge Collection section in the dashboard. BONUS_DEFS evolves into badge definitions. | ✓ |
-| Separate badge page | New page in the nav bar dedicated to badge gallery. Dashboard keeps a small badge summary. | |
-| Both — dashboard section + expandable detail | Compact badge grid in dashboard. Tapping opens modal/drawer with full gallery. | |
+| Yes, full pivot | Drop badges and goals entirely. Phase 2 becomes social competitions. | |
+| Mostly pivot | Keep sleep goals but replace badges with social competitions | ✓ |
+| Let me explain | Different vision | |
 
-**User's choice:** Replace BonusSection (Recommended)
-
-### How should badges be laid out in the section?
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Compact grid | Small circular/square badge icons in a grid (3-4 per row). Earned colorful, locked greyed. Tap for tooltip. | ✓ |
-| Category rows | One row per category (Consistency, Quality, Social, Fun) with horizontal badges. | |
-| List with progress bars | Vertical list like current BonusSection, with all badges showing progress bars. | |
-
-**User's choice:** Compact grid (Recommended)
-
-### Should badge XP be a new line in the existing XP breakdown?
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| New XP breakdown line | Add a 'Badge XP' row in XPBreakdown section showing total XP earned from badges. | ✓ |
-| Silent integration | Badge XP just adds to total without a separate line. | |
-
-**User's choice:** New XP breakdown line (Recommended)
-
-### How much XP should each badge be worth?
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Flat 25 XP per badge | Every badge earns 25 XP regardless of difficulty. 16 badges = 400 XP max. | ✓ |
-| Tiered by difficulty | Easy = 10 XP, medium = 25 XP, hard = 50 XP. | |
-| You decide | Claude picks a balanced XP scheme. | |
-
-**User's choice:** Flat 25 XP per badge (Recommended)
+**User's choice:** Mostly pivot — keep goals (GOAL-01, GOAL-02), replace badges with social competitions
 
 ---
 
-## Unlock Celebrations
+## Leaderboard Expansion
 
-### What kind of celebration when a badge is unlocked?
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Toast + confetti burst | Custom toast with badge icon, name, '+25 XP'. Confetti particles. CSS animations, no npm dep. | ✓ |
-| Full-screen celebration | Full-screen overlay with large badge reveal, confetti rain, sound effect option. | |
-| Subtle toast only | Standard toast notification, no confetti or extra animation. | |
-
-**User's choice:** Toast + confetti burst (Recommended)
-
-### When should badge unlock checks happen?
+### Time-based leaderboards
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| On data load + after submit | Check all badge conditions on app load and after entry submit. Compare against localStorage. | ✓ |
-| Real-time reactive | Check after every data change (kudos, streak repair, etc). | |
-| You decide | Claude picks the right timing. | |
+| Tab-based periods | Add tabs (This Week / This Month / All Time) | |
+| Weekly spotlight only | Keep existing + add "This Week's Winner" highlight | |
+| Rotating automatic | Auto-shows most relevant period | ✓ |
 
-**User's choice:** On data load + after submit (Recommended)
+### Streak competition
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Streak race indicator | Visual race bar | |
+| Streak milestone callouts | Toast notifications at milestones | |
+| Both race + milestones | Race visual + milestone toasts | |
+| You decide | Claude picks best approach | ✓ |
+
+### Sorting
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| SS only (current) | Keep sorting by Sleep Score only | |
+| Multi-metric toggle | Sortable by SS, streak, XP, improvement | ✓ |
+| SS + weekly improvement | Two views: Best Score and Most Improved | |
+
+### Manual switch
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Auto only | Fully automatic rotation | |
+| Auto + manual override | Auto-selects but chips let you switch | ✓ |
 
 ---
 
-## Goal Setting & Tracking UX
+## BonusSection Evolution
 
-### Where should the goal tracker live?
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Inside HeroCard | Small progress indicator in existing hero card. Shows target, avg, status at a glance. | ✓ |
-| New dashboard section | Separate expandable section like Streak or XP. | |
-| Both — compact in hero + detail section | Small indicator in hero card plus expandable detail section below. | |
-
-**User's choice:** Inside HeroCard (Recommended)
-
-### How should the user set their monthly target?
+### What happens to BonusSection
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Tap target area in HeroCard | Tapping goal area opens popover with slider (60-95). Default based on last month avg. | ✓ |
-| Settings/profile area | Goal setting in a settings section or profile page. | |
-| You decide | Claude picks the best interaction pattern. | |
+| Keep as milestones | Rebrand to "Milestones" with English text | |
+| Merge into leaderboard | Remove section, merge into leaderboard/XP | |
+| Evolve into challenges | Rotating weekly challenges, social and time-limited | ✓ |
 
-**User's choice:** Tap target area in HeroCard (Recommended)
-
-### How should on-track/behind/ahead status be shown?
+### Challenge rotation
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Color-coded progress bar + text | Progress bar with green/amber/red and short text label. | |
-| Emoji + text only | Just emoji status and number, no progress bar. | |
-| You decide | Claude designs the best visual indicator. | ✓ |
+| Hardcoded rotation | Fixed pool, rotate by week number | |
+| AI-generated | Claude Haiku picks based on data | |
+| Random from pool | Random selection, seeded by date | ✓ |
 
-**User's choice:** You decide
-
-### What happens if no goal is set for the current month?
+### Challenge type
 
 | Option | Description | Selected |
 |--------|-------------|----------|
-| Show 'Set a target' prompt | Subtle 'Set a monthly target →' link in HeroCard goal area. | ✓ |
-| Hide goal area entirely | Don't show goal section until user sets one. | |
-| Auto-suggest based on history | Suggest target based on last month avg with one-tap accept. | |
+| Mix of both | Individual + team challenges | ✓ |
+| Team only | All challenges are team goals | |
+| Individual only | Personal challenges only | |
 
-**User's choice:** Show 'Set a target' prompt (Recommended)
+### Rewards
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| XP bonus | Flat XP reward | |
+| XP + visual flair | XP bonus + icon next to name in leaderboard | ✓ |
+| Bragging rights only | No XP, just visual | |
+
+---
+
+## Social Reactions & Fun Facts
+
+### Like/reaction evolution
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Keep as-is | Current kudos works fine | |
+| Expand reactions | Multiple reaction types per day | |
+| Reaction + comment | Emoji + optional short text | ✓ |
+
+### Fun facts
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Auto-generated stats | Daily rotating fun facts | |
+| Weekly highlight reel | Single weekly summary card with superlatives | ✓ |
+| Both daily + weekly | Daily snippets + weekly highlight card | |
+
+### Highlight placement
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Top card | Prominent card above leaderboard | ✓ |
+| Inside leaderboard | Header within leaderboard component | |
+| Separate section | New collapsible Section | |
+
+---
+
+## Goal Setting & Tracking
+
+### Goal UI location
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Yes, HeroCard | Goal tracker in HeroCard with slider dialog | |
+| Separate goal card | Standalone card below HeroCard | |
+| Leaderboard integration | Goal progress visible in leaderboard rows | ✓ |
+
+### Goal-setting initiation
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Tap own row | Tap leaderboard row to set goal | |
+| HeroCard prompt | HeroCard shows set target prompt | |
+| Settings/profile area | Goal setting in settings menu | ✓ |
+
+### Goal display in leaderboard
+
+| Option | Description | Selected |
+|--------|-------------|----------|
+| Small progress chip | Tiny indicator next to name | |
+| Sub-row | Second line under stats | |
+| You decide | Claude picks best compact approach | ✓ |
 
 ---
 
 ## Claude's Discretion
 
-- Badge progress hints for locked badges
-- Goal status visual design
-- Badge icon/emoji choices
-- Confetti animation details
-- Badge popup/tooltip design
-- Badge definition code structure
+- Streak competition design (race bars, milestones, or hybrid)
+- Goal progress display format in leaderboard
+- Challenge pool content and XP amounts
+- Highlight reel design and superlative categories
+- Reaction comment UI details
+- Settings/profile area access pattern
 
 ## Deferred Ideas
 
-None — discussion stayed within phase scope
+- Badge system (17 achievements) — reverted, could be future phase
+- AI-generated challenges based on team data — static pool for now
+- Multi-week team challenges — keep weekly for simplicity

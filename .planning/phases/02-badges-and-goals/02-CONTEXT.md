@@ -1,48 +1,50 @@
-# Phase 2: Badges and Goals - Context
+# Phase 2: Social Competitions + Goals - Context
 
-**Gathered:** 2026-03-24
+**Gathered:** 2026-03-24 (updated — pivot from badges to social competitions)
 **Status:** Ready for planning
 
 <domain>
 ## Phase Boundary
 
-Achievement badge system with unlock celebrations and personal sleep score targets. Users earn badges across four categories (consistency, quality, social, fun), see them in a collection grid, get celebratory notifications on unlock, and can set/track monthly SS goals. Existing gamification (XP, streaks, leaderboard, kudos) continues to work with badges and goals integrated.
+Social competition features and personal sleep score targets. Users engage through an expanded leaderboard (multi-metric, time-period rotation), weekly challenges (replacing static bonuses), enhanced reactions with optional comments, a weekly highlight reel, and personal monthly SS goals visible in the leaderboard. Existing gamification (XP, streaks, kudos) continues to work with new features integrated.
 
 </domain>
 
 <decisions>
 ## Implementation Decisions
 
-### Badge Presentation
-- **D-01:** BonusSection is replaced by a full Badge Collection section in the dashboard — BONUS_DEFS evolves into badge definitions
-- **D-02:** Compact grid layout — small circular/square badge icons, 4 per row. Earned badges are colorful, locked are greyed out
-- **D-03:** Tapping a badge shows name + progress in a tooltip or small popup
-- **D-04:** Section header shows earned count (e.g., "Badges (4/16 earned)")
+### Leaderboard Expansion
+- **D-01:** Leaderboard automatically rotates to the most relevant time period (weekly on weekdays, monthly near month-end) with manual override chips (This Week / This Month / All Time)
+- **D-02:** Leaderboard supports multi-metric sorting via small toggle chips: SS, streak length, XP, improvement trend
+- **D-03:** Streak competition design is Claude's discretion (race bars, milestone callouts, or hybrid)
 
-### Badge XP Integration
-- **D-05:** Badge XP appears as a new line in the existing XP breakdown ("Badge XP +75")
-- **D-06:** Flat 25 XP per badge regardless of difficulty — 16 badges = 400 XP max (~4 extra levels)
-- **D-07:** Badge XP integrates into gamify.ts via calcXPBreakdown, not as a parallel system
+### Weekly Challenges (BonusSection Evolution)
+- **D-04:** BonusSection is replaced by a rotating weekly challenge system — random selection from a pool of ~8-10 challenges, seeded by week number so all users see the same challenge
+- **D-05:** Challenge pool includes a mix of individual challenges ("log every day this week", "beat your weekly SS average") and team challenges ("team average SS 80+", "everyone logs 5 days")
+- **D-06:** Completing a challenge earns XP bonus (flat amount) plus a visual flair icon next to the user's name in the leaderboard for that week
+- **D-07:** Challenge XP integrates into calcXPBreakdown, not as a parallel system
 
-### Unlock Celebrations
-- **D-08:** Toast notification with badge icon, name, and "+25 XP" text, plus CSS confetti particle burst — no npm dependency for confetti
-- **D-09:** Toast disappears after 4-5 seconds, confetti uses CSS keyframe animations
-- **D-10:** Badge checks run on data load and after entry submit — compare against localStorage list of earned badges (st_badges_{user}) to detect new unlocks
-- **D-11:** Multiple simultaneous unlocks are queued as sequential toasts
+### Social Reactions & Fun Facts
+- **D-08:** Kudos system extended with optional short text comments alongside emoji reactions — shows as a small speech bubble in the leaderboard
+- **D-09:** Weekly highlight reel card displayed prominently above the leaderboard, showing superlatives: records broken, biggest improvements, "Most consistent", "Biggest comeback", etc.
+- **D-10:** Highlight reel is computed from data (not AI-generated), refreshed weekly (Monday start)
 
 ### Goal Setting & Tracking
-- **D-12:** Goal tracker lives inside HeroCard — shows monthly SS target, current average, and on-track/behind status
-- **D-13:** Tapping the goal area opens a popover/dialog with a slider (60-95 range), default suggestion based on last month's average
-- **D-14:** Goal stored in localStorage as st_goal_{user}_{month}
-- **D-15:** When no goal is set, HeroCard shows a subtle "Set a monthly target ->" prompt
+- **D-11:** Users set monthly SS targets via a settings/profile area (slider 60-95 range, default suggestion based on last month's average)
+- **D-12:** Goal stored in localStorage as st_goal_{user}_{month}
+- **D-13:** Goal progress appears in leaderboard rows for all users — everyone sees everyone's goal status (social pressure)
+- **D-14:** Goal display format in leaderboard is Claude's discretion (compact chip, sub-row, or other approach that fits existing layout)
+- **D-15:** When no goal is set, the settings area shows a prompt to set one; leaderboard row shows no goal indicator
 
 ### Claude's Discretion
-- Badge progress hints for locked badges (progress bar, hint text, or hidden)
-- Goal status visual design (color-coded progress bar + text, emoji indicators, or hybrid)
-- Exact badge icon/emoji choices per badge
-- Confetti particle animation details (colors, particle count, spread)
-- Badge popup/tooltip design details
-- How badge definitions are structured in code (extending BONUS_DEFS or new module)
+- Streak competition visual design (race indicators, milestone callouts, or hybrid)
+- Goal progress display format in leaderboard (chip vs sub-row vs inline)
+- Challenge pool content (specific challenge definitions and XP amounts)
+- Highlight reel card design and superlative categories
+- Reaction comment UI (bubble style, max length, display pattern)
+- Confetti/celebration for challenge completion
+- Week boundary logic (Monday start vs Sunday start)
+- How the settings/profile area is accessed (gear icon, user menu, separate page)
 
 </decisions>
 
@@ -52,22 +54,23 @@ Achievement badge system with unlock celebrations and personal sleep score targe
 **Downstream agents MUST read these before planning or implementing.**
 
 ### Gamification Rules
-- `GAMIFICATION.md` — XP earning/spending rules, streak rules, kudos rules, color system — badge XP must integrate with these rules
+- `GAMIFICATION.md` — XP earning/spending rules, streak rules, kudos rules, color system — challenge XP and goal systems must integrate with these rules
 
 ### Requirements
-- `.planning/REQUIREMENTS.md` §Achievement Badges — BADGE-01 through BADGE-07 badge requirements with category definitions
-- `.planning/REQUIREMENTS.md` §Sleep Goals — GOAL-01, GOAL-02 goal requirements
+- `.planning/REQUIREMENTS.md` §Sleep Goals — GOAL-01, GOAL-02 goal requirements (still active)
 
 ### Source Files (integration points)
-- `src/lib/gamify.ts` — XP calculation (calcXPBreakdown), streak logic — badge XP adds here
-- `src/components/dashboard/BonusSection.tsx` — Current bonus section with BONUS_DEFS array — replaced by badge collection
-- `src/components/dashboard/HeroCard.tsx` — Hero card where goal tracker is added
-- `src/components/dashboard/XPBreakdown.tsx` — XP breakdown display where badge XP line is added
-- `src/lib/kudos.ts` — Kudos system (getTotalKudos) — needed for social badge checks
-- `src/hooks/useGameState.ts` — Game state hook — may need badge state integration
+- `src/lib/gamify.ts` — XP calculation (calcXPBreakdown), streak logic (loggingStreak) — challenge XP adds here
+- `src/components/dashboard/Leaderboard.tsx` — Current leaderboard: SS-sorted, kudos, level/tier display — primary extension point for multi-metric, time periods, goal display
+- `src/components/dashboard/BonusSection.tsx` — Current bonus section with BONUS_DEFS array — replaced by challenges
+- `src/components/dashboard/HeroCard.tsx` — Hero card (goal prompt removed in favor of leaderboard integration)
+- `src/components/dashboard/XPBreakdown.tsx` — XP breakdown display where challenge XP line is added
+- `src/lib/kudos.ts` — Kudos system (getKudos, saveKudos, getKudosFor, getTotalKudos) — extended with comment text
+- `src/hooks/useGameState.ts` — Game state hook — may need challenge and goal state integration
+- `src/components/shared/Toast.tsx` — Toast for challenge completion celebrations
 
 ### Phase 1 Context
-- `.planning/phases/01-foundation-refactor/01-CONTEXT.md` — Phase 1 decisions, especially D-05 (data-driven BonusSection for Phase 2 extensibility)
+- `.planning/phases/01-foundation-refactor/01-CONTEXT.md` — Phase 1 decisions, especially D-05 (data-driven BonusSection for extensibility)
 
 </canonical_refs>
 
@@ -75,26 +78,27 @@ Achievement badge system with unlock celebrations and personal sleep score targe
 ## Existing Code Insights
 
 ### Reusable Assets
-- `BonusSection.tsx` + `BONUS_DEFS` array: Data-driven bonus definitions with progress tracking — designed in Phase 1 specifically for Phase 2 badge extensibility
-- `Section` component: Expandable card wrapper used by all dashboard sections
-- `Toast.tsx`: Existing toast notification component — extend for badge celebrations
-- `gamify.ts`: XP calculation with breakdown — add badgeXP field to XPBreakdown interface
-- `kudos.ts`: getTotalKudos function — needed for social badge condition checks
-- shadcn `Popover` component available for goal-setting UI
-- shadcn `Slider` component available for target selection
+- `Leaderboard.tsx`: Already renders per-person rows with medal, avatar, level badge, streak, SS, kudos — extend for multi-metric, goal display, time periods
+- `BonusSection.tsx` + `BONUS_DEFS`: Data-driven bonus array with progress tracking — pattern reusable for challenge definitions
+- `kudos.ts`: Full kudos CRUD (getKudos, saveKudos, getKudosFor, getTotalKudos) — extend for comment text
+- `Toast.tsx`: Toast notification component — reuse for challenge completion
+- `Section` component: Expandable card wrapper for dashboard sections
+- shadcn `Slider`, `Dialog`, `Popover`, `Tabs` components available
+- CSS keyframe animations in index.css (fadeUp, fadeIn, slideIn, pulse-soft)
 
 ### Established Patterns
 - localStorage with `st_` prefix for all client state
 - Props-down from App.tsx, no state library
+- Data-driven rendering (BONUS_DEFS array → rendered list)
+- useMemo for computed values (leaderboard already memoized)
 - Color functions (ssColor, rhrColor, hrvColor) for metric-semantic coloring
-- CSS keyframe animations already defined in index.css (fadeUp, fadeIn, slideIn, pulse-soft)
-- Data-driven rendering pattern (BONUS_DEFS → badge definitions)
+- NAMES constant for team member iteration
 
 ### Integration Points
-- `App.tsx` passes data/user to DashboardPage → HeroCard, BonusSection — badge/goal state flows through same path
-- `calcXPBreakdown` in gamify.ts — add badgeXP to the breakdown interface and total calculation
-- `useGameState` hook — may need to include badge state for dashboard consumption
-- Toast system in App.tsx (showToast callback) — extend for celebratory badge toasts with confetti
+- `App.tsx` passes data/user to DashboardPage → Leaderboard, BonusSection — challenge/goal state flows through same path
+- `calcXPBreakdown` in gamify.ts — add challengeXP to the breakdown interface and total calculation
+- `useGameState` hook — include challenge and goal state for dashboard consumption
+- Toast system in App.tsx (showToast callback) — use for challenge completions
 
 </code_context>
 
@@ -108,11 +112,13 @@ No specific requirements — open to standard approaches
 <deferred>
 ## Deferred Ideas
 
-None — discussion stayed within phase scope
+- Badge system (17 achievements across 4 categories) — reverted, could return as future phase if team wants collectibles
+- AI-generated weekly challenges based on team data — keep challenge pool static for now, AI generation could enhance in Phase 3
+- Team challenges with multi-week tracking — keep challenges weekly for simplicity
 
 </deferred>
 
 ---
 
 *Phase: 02-badges-and-goals*
-*Context gathered: 2026-03-24*
+*Context gathered: 2026-03-24 (updated)*
