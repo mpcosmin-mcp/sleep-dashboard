@@ -26,8 +26,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **BADGE-02**: Challenge pool includes a mix of individual challenges ("log every day this week", "beat your weekly SS average") and team challenges ("team average SS 80+", "everyone logs 5 days")
 - [ ] **BADGE-03**: Leaderboard supports multi-metric sorting via toggle chips (SS, streak length, XP, improvement trend)
 - [ ] **BADGE-04**: Weekly highlight reel card shows team superlatives (best sleep, most consistent, biggest improvement, most active) computed from data
-- [ ] **BADGE-05**: User sees the weekly challenge with progress bar and XP reward in the dashboard (ChallengeSection replaces BonusSection)
-- [ ] **BADGE-06**: Challenge completion triggers a celebratory toast notification with CSS confetti animation and a flair icon in the leaderboard
+- [x] **BADGE-05**: User sees the weekly challenge with progress bar and XP reward in the dashboard (ChallengeSection replaces BonusSection)
+- [x] **BADGE-06**: Challenge completion triggers a celebratory toast notification with CSS confetti animation and a flair icon in the leaderboard
 - [x] **BADGE-07**: Challenge XP integrates into the existing XP system through gamify.ts calcXPBreakdown, not as a parallel reward system
 
 ### Social Enhancements
@@ -37,7 +37,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 ### Sleep Goals
 
 - [x] **GOAL-01**: User can set a personal monthly SS target (e.g., "average SS >= 85 this month")
-- [ ] **GOAL-02**: User can see progress toward their goal with on-track/behind/ahead status and trajectory visualization; goal status is visible in leaderboard rows for all users
+- [x] **GOAL-02**: User can see progress toward their goal with on-track/behind/ahead status and trajectory visualization; goal status is visible in leaderboard rows for all users
 
 ### Weekly AI Analysis
 
@@ -113,12 +113,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BADGE-02 | Phase 2 | Complete |
 | BADGE-03 | Phase 2 | Pending |
 | BADGE-04 | Phase 2 | Pending |
-| BADGE-05 | Phase 2 | Pending |
-| BADGE-06 | Phase 2 | Pending |
+| BADGE-05 | Phase 2 | Complete |
+| BADGE-06 | Phase 2 | Complete |
 | BADGE-07 | Phase 2 | Complete |
 | KUDOS-01 | Phase 2 | Complete |
 | GOAL-01 | Phase 2 | Complete |
-| GOAL-02 | Phase 2 | Pending |
+| GOAL-02 | Phase 2 | Complete |
 | AI-01 | Phase 3 | Pending |
 | AI-02 | Phase 3 | Pending |
 | AI-03 | Phase 3 | Pending |

@@ -49,10 +49,10 @@ Plans:
   6. Weekly highlight reel shows team superlatives (best sleep, most consistent, biggest improvement, most active)
   7. Kudos can include optional short text comments visible in the leaderboard
   8. Existing gamification (XP ring, streak dots, leaderboard, kudos) continues to work correctly
-**Plans:** 3 plans
+**Plans:** 2/3 plans executed
 Plans:
 - [x] 02-01-PLAN.md — Challenge engine, goals module, kudos comment extension, XP integration
-- [ ] 02-02-PLAN.md — ChallengeSection UI, GoalTracker in HeroCard, confetti Toast, DashboardPage wiring
+- [x] 02-02-PLAN.md — ChallengeSection UI, GoalTracker in HeroCard, confetti Toast, DashboardPage wiring
 - [ ] 02-03-PLAN.md — Leaderboard expansion (multi-metric, goals, flair), highlight reel, visual verification
 
 ### Phase 3: AI Analysis and English Migration
@@ -85,6 +85,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Refactor | 0/4 | Planning complete | - |
-| 2. Social Competitions and Goals | 0/3 | Replanned (pivot) |  |
+| 2. Social Competitions and Goals | 2/3 | In Progress|  |
 | 3. AI Analysis and English Migration | 0/TBD | Not started | - |
 | 4. Mobile UX Polish | 0/TBD | Not started | - |
