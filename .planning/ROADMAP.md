@@ -2,7 +2,7 @@
 
 ## Overview
 
-This milestone transforms the existing sleep tracker from a functional but monolithic app into a polished, feature-rich gamified experience. The 750-line DashboardPage god component is decomposed first (enabling all subsequent work), then badges and goals add collection and target-setting mechanics, followed by weekly AI team analysis with English migration, and finally mobile UX polish once all new dashboard content exists.
+This milestone transforms the existing sleep tracker from a functional but monolithic app into a polished, feature-rich gamified experience. The 750-line DashboardPage god component is decomposed first (enabling all subsequent work), then social competitions and goals add engagement mechanics, followed by weekly AI team analysis with English migration, and finally mobile UX polish once all new dashboard content exists.
 
 ## Phases
 
@@ -13,7 +13,7 @@ This milestone transforms the existing sleep tracker from a functional but monol
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation Refactor** - Decompose DashboardPage, unify XP logic, fix defects, prune unused code
-- [ ] **Phase 2: Badges and Goals** - Achievement badge system with unlock celebrations and personal sleep score targets
+- [ ] **Phase 2: Social Competitions and Goals** - Weekly challenges, expanded leaderboard, highlight reel, kudos comments, and personal sleep score targets
 - [ ] **Phase 3: AI Analysis and English Migration** - Weekly AI team report via Cloudflare Worker and full English UI
 - [ ] **Phase 4: Mobile UX Polish** - Collapsible dashboard sections, mobile-optimized charts, TypeScript cleanup
 
@@ -36,21 +36,24 @@ Plans:
 - [x] 01-03-PLAN.md — Decompose DashboardPage into section components with memoization
 - [ ] 01-04-PLAN.md — Replace `any` types, remove unused shadcn/ui components and dependencies
 
-### Phase 2: Badges and Goals
-**Goal**: Users have things to collect (badges) and targets to chase (sleep goals), deepening daily engagement
+### Phase 2: Social Competitions and Goals
+**Goal**: Users engage through weekly challenges, an expanded competitive leaderboard, social highlights, and personal sleep score targets
 **Depends on**: Phase 1
 **Requirements**: BADGE-01, BADGE-02, BADGE-03, BADGE-04, BADGE-05, BADGE-06, BADGE-07, GOAL-01, GOAL-02
 **Success Criteria** (what must be TRUE):
-  1. User can view a badge collection showing earned badges (with unlock date) and locked badges (with progress hints) across all four categories
-  2. When a badge is unlocked, user sees a celebratory toast notification with confetti animation
-  3. Badge XP appears in the existing XP breakdown — earning a badge visibly increases the user's XP total and can affect level/tier
+  1. User sees a weekly challenge (rotating from a pool of 8+) with progress tracking and XP reward upon completion
+  2. Challenge completion triggers a celebratory toast notification with confetti animation
+  3. Challenge XP appears in the existing XP breakdown — completing a challenge visibly increases the user's XP total
   4. User can set a monthly sleep score target and see whether they are on-track, behind, or ahead with a visual progress indicator
-  5. Existing gamification (XP ring, streak dots, leaderboard, kudos) continues to work correctly with badges and goals integrated
-**Plans:** 2/3 plans executed
+  5. Leaderboard supports multi-metric sorting (SS, streak, XP, trend) and shows each user's goal status
+  6. Weekly highlight reel shows team superlatives (best sleep, most consistent, biggest improvement, most active)
+  7. Kudos can include optional short text comments visible in the leaderboard
+  8. Existing gamification (XP ring, streak dots, leaderboard, kudos) continues to work correctly
+**Plans:** 3 plans
 Plans:
-- [x] 02-01-PLAN.md — Test infra, badge definitions and check logic, XP integration, kudos extension
-- [x] 02-02-PLAN.md — Badge collection UI, unlock celebration toast with confetti, XP display
-- [ ] 02-03-PLAN.md — Goal logic module, goal tracker in HeroCard with slider dialog
+- [ ] 02-01-PLAN.md — Challenge engine, goals module, kudos comment extension, XP integration
+- [ ] 02-02-PLAN.md — ChallengeSection UI, GoalTracker in HeroCard, confetti Toast, DashboardPage wiring
+- [ ] 02-03-PLAN.md — Leaderboard expansion (multi-metric, goals, flair), highlight reel, visual verification
 **UI hint**: yes
 
 ### Phase 3: AI Analysis and English Migration
@@ -83,6 +86,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Refactor | 0/4 | Planning complete | - |
-| 2. Badges and Goals | 2/3 | In Progress |  |
+| 2. Social Competitions and Goals | 0/3 | Replanned (pivot) |  |
 | 3. AI Analysis and English Migration | 0/TBD | Not started | - |
 | 4. Mobile UX Polish | 0/TBD | Not started | - |
