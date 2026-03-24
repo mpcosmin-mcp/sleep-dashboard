@@ -1,5 +1,6 @@
 import { type SleepEntry } from '@/lib/sleep';
 import { getTotalKudos } from '@/lib/kudos';
+import { getChallengeXP } from '@/lib/challenges';
 
 // XP & Streak: Duolingo golden
 export const XP_COLOR = '#f59e0b';
@@ -179,6 +180,7 @@ export interface XPBreakdown {
   streakBonus: number;
   goodSleepBonus: number;
   kudosXP: number;
+  challengeXP: number;  // from weekly challenge completion (D-07)
   spent: number;
   total: number;
 }
@@ -202,10 +204,13 @@ export function calcXPBreakdown(data: SleepEntry[], name: string): XPBreakdown {
   // Kudos XP — use getTotalKudos instead of inline localStorage scanning
   const kudosXP = getTotalKudos(name) * 5;
 
+  // Challenge XP — from weekly challenge completion (D-07)
+  const challengeXP = getChallengeXP(data, name);
+
   let spent = 0;
   try { spent = parseInt(localStorage.getItem(`st_xp_spent_${name}`) || '0'); } catch {}
 
-  return { base, bonusSS, streakBonus, goodSleepBonus, kudosXP, spent, total: Math.max(0, base + bonusSS + streakBonus + goodSleepBonus + kudosXP - spent) };
+  return { base, bonusSS, streakBonus, goodSleepBonus, kudosXP, challengeXP, spent, total: Math.max(0, base + bonusSS + streakBonus + goodSleepBonus + kudosXP + challengeXP - spent) };
 }
 
 export function calcXP(data: SleepEntry[], name: string): number {
