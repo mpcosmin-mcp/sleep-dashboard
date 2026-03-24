@@ -110,6 +110,10 @@ button, [role="button"], a {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
 }
+@keyframes confetti-fall {
+  0%   { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(var(--dx), 60px) rotate(var(--rot)); }
+}
 
 /* Card reveal animation */
 main .shadow-sm {

@@ -42,7 +42,7 @@ export default function App() {
     setJumpUser(userFilter);
     setPage('dashboard');
   }, []);
-  const [toast, setToast] = useState({ msg: '', show: false });
+  const [toast, setToast] = useState({ msg: '', show: false, confetti: false });
   const [dark, setDark] = useState(() => {
     try { return localStorage.getItem('st_dark') === '1'; } catch { return false; }
   });
@@ -58,9 +58,9 @@ export default function App() {
   }, [dark]);
 
   // Toast
-  const showToast = useCallback((msg: string) => {
-    setToast({ msg, show: true });
-    setTimeout(() => setToast(t => ({ ...t, show: false })), 2500);
+  const showToast = useCallback((msg: string, opts?: { confetti?: boolean; duration?: number }) => {
+    setToast({ msg, show: true, confetti: opts?.confetti ?? false });
+    setTimeout(() => setToast(t => ({ ...t, show: false })), opts?.duration ?? 2500);
   }, []);
 
   // Load data
@@ -180,7 +180,7 @@ export default function App() {
           </div>
         </nav>
 
-        <Toast msg={toast.msg} show={toast.show} />
+        <Toast msg={toast.msg} show={toast.show} confetti={toast.confetti} />
       </div>
     </TooltipProvider>
     </HideCtx.Provider>
