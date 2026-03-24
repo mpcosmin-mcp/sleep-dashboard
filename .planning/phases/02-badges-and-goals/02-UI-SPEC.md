@@ -31,7 +31,7 @@ Declared values (must be multiples of 4):
 
 | Token | Value | Usage |
 |-------|-------|-------|
-| xs | 4px | Icon gaps, inline badge padding, progress bar height (6px exception) |
+| xs | 4px | Icon gaps, inline badge padding |
 | sm | 8px | Badge grid gap, compact element spacing |
 | md | 16px | Card internal padding, default element spacing |
 | lg | 24px | Section padding |
@@ -42,8 +42,8 @@ Declared values (must be multiples of 4):
 Exceptions:
 - Badge icon container: 40px x 40px (rounded-full, centered emoji — between sm and md, matches existing metric tile sizing)
 - Badge grid: 4 columns, gap-2 (8px) — matches existing `space-y-2` card pattern
-- Touch targets on badge tap: minimum 44px (badges are 40px icon + tap area expands to 44px via padding)
-- Progress bar height: 6px (h-1.5 — established in BonusSection.tsx, reused for badge progress)
+- Touch targets on badge tap: padding ensures 44px minimum tap area — this is an implementation detail handled via padding, not a declared spacing token
+- Progress bar height (badge progress): `h-1.5` (6px) is a pre-existing Tailwind class reused from BonusSection.tsx — inherited CSS class reuse, not a new spacing token
 - Goal progress bar height: 8px (h-2 — slightly taller than badge progress to signal primary importance)
 
 ---
@@ -53,12 +53,12 @@ Exceptions:
 | Role | Size | Weight | Line Height | Font | Notes |
 |------|------|--------|-------------|------|-------|
 | Body | 14px (text-sm) | 400 (regular) | 1.5 | Fraunces | Badge names in tooltip/popup; goal status text |
-| Label | 11px (text-[11px]) | 500 (medium) | 1.4 | Fraunces | Badge name under icon in locked state; section sub-labels — matches BonusSection pattern |
+| Label | 11px (text-[11px]) | 400 (regular) | 1.4 | Fraunces | Badge name under icon in locked state; section sub-labels — uses `font-medium` Tailwind class for visual weight, not a new declared weight |
 | Heading | 20px (text-xl) | 700 (bold) | 1.2 | Fraunces | Section title "Badges (4/16 earned)"; goal target number |
 | Metric | 12px (text-xs) | 700 (bold) | 1.0 | Geist Mono | Goal current average value; progress numerics |
 
 Sizes declared: 4 (11px label, 14px body, 20px heading, 12px metric mono).
-Weights declared: 2 (400 regular, 700 bold). Medium 500 used only for badge names (matches existing `font-medium` sparingly).
+Weights declared: 2 (400 regular, 700 bold). `font-medium` is a Tailwind utility class reuse on the Label row — it does not introduce a third declared weight.
 
 Tiny label sizes 7px (text-[7px]) and 9px (text-[9px]) are pre-existing project conventions used for metric sublabels — reuse without re-specifying. New Phase 2 content does not introduce sub-7px sizes.
 
@@ -132,14 +132,14 @@ Note: dialog.tsx already exists and is the recommended goal-setting trigger on m
 - Badge item dimensions: 40px x 40px container, rounded-lg (not rounded-full — matches card radius theme)
 - Earned state: full-color emoji, `bg-green-50 dark:bg-green-950/20` background, 2px primary-color ring
 - Locked state: emoji with `opacity-40 grayscale` filter, `bg-muted/30` background, no ring
-- Tap/click on any badge: shows Radix Tooltip (or small popover) with: badge name (14px), category label (11px muted), progress bar (locked only, h-1.5, 6px), progress text "{n}/{target}" (9px mono), hint text (11px)
+- Tap/click on any badge: shows Radix Tooltip (or small popover) with: badge name (14px), category label (11px muted), progress bar (locked only, h-1.5 reused from BonusSection.tsx), progress text "{n}/{target}" (9px mono), hint text (11px)
 - Section header: "Badges ({earned}/{total} earned)" — earned count updates live as data loads
 - Section is expandable (uses existing `Section` component wrapper, collapsed state remembered per project pattern)
 
 ### Goal Tracker (HeroCard row)
 
 - Position: between Row 2 (metric tiles) and Row 3 (view tabs), separated by a `border-t mt-2 pt-2`
-- No goal set state: single-line prompt `Set a monthly target →` in accent color, 11px, tappable full row (44px touch target)
+- No goal set state: single-line prompt `Set a monthly target →` in accent color, 11px, tappable full row (padding ensures 44px minimum tap area)
 - Goal set state: two-column layout
   - Left: target label "Goal: SS {target}" in 11px medium + status badge chip (Ahead / On track / Behind) with semantic background tint (color + '15' opacity suffix — matches existing chip pattern)
   - Right: current average value in 12px Geist Mono bold + projected trajectory label in 9px muted
