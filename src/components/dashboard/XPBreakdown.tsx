@@ -1,22 +1,43 @@
 import { type GameState } from '@/hooks/useGameState';
-import { XP_PER_LEVEL, XP_COLOR } from '@/lib/sleep';
+import { XP_PER_LEVEL, XP_COLOR, levelTier, levelTitle } from '@/lib/sleep';
 import { Section } from './Section';
 
 export function XPBreakdown({ gameState }: { gameState: GameState }) {
   const { xp, level, progress, breakdown } = gameState;
+  const tier = levelTier(level);
+  const nextTier = levelTier(level + 1);
+  const xpToNext = XP_PER_LEVEL - (xp % XP_PER_LEVEL);
+  const pct = (progress / XP_PER_LEVEL) * 100;
 
   return (
     <Section title={`${xp} XP`} icon="✨"
             badge={<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ color: XP_COLOR, background: XP_COLOR + '15' }}>Lvl {level}</span>}>
       <div className="pt-2">
-        {/* Progress bar */}
-        <div className="flex items-center justify-between text-[10px] mb-1">
-          <span className="font-bold" style={{ color: XP_COLOR }}>Level {level}</span>
-          <span className="text-muted-foreground">{progress}/{XP_PER_LEVEL} → Level {level + 1}</span>
-        </div>
-        <div className="h-2.5 rounded-full bg-muted overflow-hidden mb-3">
-          <div className="h-full rounded-full transition-all duration-500"
-               style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${XP_COLOR}, ${XP_COLOR}dd)` }} />
+        {/* Level progress — prominent loading bar */}
+        <div className="rounded-lg p-3 mb-3" style={{ background: XP_COLOR + '08' }}>
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm">{tier.icon}</span>
+              <span className="text-[11px] font-bold" style={{ color: tier.color }}>Level {level}</span>
+              <span className="text-[9px] text-muted-foreground">· {levelTitle(level)}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-sm">{nextTier.icon}</span>
+              <span className="text-[10px] font-bold" style={{ color: nextTier.color }}>Lv {level + 1}</span>
+            </div>
+          </div>
+          <div className="h-4 rounded-full bg-muted overflow-hidden relative">
+            <div className="h-full rounded-full transition-all duration-700 relative"
+                 style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${tier.color}, ${XP_COLOR})` }}>
+            </div>
+            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold"
+                  style={{ color: pct > 50 ? 'white' : XP_COLOR, mixBlendMode: pct > 50 ? 'normal' : undefined }}>
+              {progress} / {XP_PER_LEVEL} XP
+            </span>
+          </div>
+          <div className="text-[9px] text-muted-foreground text-center mt-1">
+            Inca <span className="font-bold font-mono" style={{ color: XP_COLOR }}>{xpToNext} XP</span> pana la Level {level + 1}
+          </div>
         </div>
         {/* Breakdown — human friendly */}
         <div className="space-y-1.5">

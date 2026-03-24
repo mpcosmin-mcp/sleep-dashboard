@@ -191,7 +191,7 @@ export function getWeekNumber(d?: Date): number {
 }
 
 // ── Get Monday of ISO week ──
-function getWeekStart(d?: Date): string {
+export function getWeekStart(d?: Date): string {
   const date = d ? new Date(d.getTime()) : new Date();
   const day = date.getDay();
   const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Monday
@@ -200,7 +200,7 @@ function getWeekStart(d?: Date): string {
   return monday.toISOString().split('T')[0];
 }
 
-function getWeekEnd(weekStart: string): string {
+export function getWeekEnd(weekStart: string): string {
   const d = new Date(weekStart + 'T12:00:00');
   d.setDate(d.getDate() + 6);
   return d.toISOString().split('T')[0];

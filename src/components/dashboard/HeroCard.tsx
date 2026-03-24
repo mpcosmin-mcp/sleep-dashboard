@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Slider } from '@/components/ui/slider';
@@ -150,13 +149,6 @@ export function HeroCard({ user, data, gameState, myData, view, onViewChange, ac
     return (
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <Tabs value={view} onValueChange={v => onViewChange(v as DashView)}>
-          <TabsList className="h-8">
-            <TabsTrigger value="daily" className="text-xs px-3 h-7">Zi</TabsTrigger>
-            <TabsTrigger value="weekly" className="text-xs px-3 h-7">7 zile</TabsTrigger>
-            <TabsTrigger value="monthly" className="text-xs px-3 h-7">Luna</TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
     );
   }
@@ -183,50 +175,59 @@ export function HeroCard({ user, data, gameState, myData, view, onViewChange, ac
             <div className="text-[9px] text-muted-foreground">/100</div>
           </div>
         </div>
-        {/* Row 2: Compact metrics */}
-        <div className="grid grid-cols-4 gap-1.5">
-          <div className="rounded-md p-1.5 text-center" style={{ background: rhrBg(myData.rhr) }}>
-            <div className="text-[7px] font-bold uppercase" style={{ color: rhrColor(myData.rhr), opacity: 0.7 }}>RHR</div>
-            <div className="font-mono text-xs font-bold" style={{ color: rhrColor(myData.rhr) }}><V>{myData.rhr}</V></div>
-            <TrendArrow value={trend.rhr} inverted />
-          </div>
-          <div className="rounded-md p-1.5 text-center" style={{ background: hrvBg(myData.hrv) }}>
-            <div className="text-[7px] font-bold uppercase" style={{ color: hrvColor(myData.hrv), opacity: 0.7 }}>HRV</div>
-            <div className="font-mono text-xs font-bold" style={{ color: hrvColor(myData.hrv) }}>{myData.hrv ?? '\u2014'}</div>
-            <TrendArrow value={trend.hrv} />
-          </div>
-          <div className="rounded-md p-1.5 text-center" style={{ background: XP_COLOR + '10' }}>
-            <div className="text-[7px] font-bold uppercase" style={{ color: XP_COLOR, opacity: 0.7 }}>Nivel</div>
-            <div className="font-mono text-xs font-bold" style={{ color: XP_COLOR }}>{progress}/{XP_PER_LEVEL}</div>
-            <div className="h-1 rounded-full bg-muted overflow-hidden mt-0.5">
-              <div className="h-full rounded-full" style={{ width: `${progress}%`, background: XP_COLOR }} />
-            </div>
-          </div>
-          <div className="rounded-md p-1.5 text-center" style={{ background: sr.days > 0 ? STREAK_COLOR + '10' : 'var(--muted)' }}>
-            <div className="text-[7px] font-bold uppercase" style={{ color: sr.days > 0 ? STREAK_COLOR : undefined, opacity: 0.7 }}>Streak</div>
-            <div className="font-mono text-xs font-bold" style={{ color: sr.days > 0 ? STREAK_COLOR : undefined }}>{sr.days > 0 ? sr.days : '0'}d</div>
-            {sr.autoSaved > 0 && <div className="text-[7px] text-green-600">+{sr.autoSaved} saved</div>}
-          </div>
-        </div>
+        {/* Row 2: Key stats */}
+        {(() => {
+          const correctLogs = data.filter(d => d.name === user && d.ss >= 75).length;
+          const totalLogs = data.filter(d => d.name === user).length;
+          const xpPct = (progress / XP_PER_LEVEL) * 100;
+          const xpToNext = XP_PER_LEVEL - (xp % XP_PER_LEVEL);
+          return (
+            <>
+              <div className="grid grid-cols-3 gap-1.5 mb-1.5">
+                <div className="rounded-md p-1.5 text-center" style={{ background: rhrBg(myData.rhr) }}>
+                  <div className="text-[7px] font-bold uppercase" style={{ color: rhrColor(myData.rhr), opacity: 0.7 }}>RHR</div>
+                  <div className="font-mono text-xs font-bold" style={{ color: rhrColor(myData.rhr) }}><V>{myData.rhr}</V></div>
+                  <TrendArrow value={trend.rhr} inverted />
+                </div>
+                <div className="rounded-md p-1.5 text-center" style={{ background: hrvBg(myData.hrv) }}>
+                  <div className="text-[7px] font-bold uppercase" style={{ color: hrvColor(myData.hrv), opacity: 0.7 }}>HRV</div>
+                  <div className="font-mono text-xs font-bold" style={{ color: hrvColor(myData.hrv) }}>{myData.hrv ?? '\u2014'}</div>
+                  <TrendArrow value={trend.hrv} />
+                </div>
+                <div className="rounded-md p-1.5 text-center" style={{ background: sr.days > 0 ? STREAK_COLOR + '10' : 'var(--muted)' }}>
+                  <div className="text-[7px] font-bold uppercase" style={{ color: sr.days > 0 ? STREAK_COLOR : undefined, opacity: 0.7 }}>Streak</div>
+                  <div className="font-mono text-xs font-bold" style={{ color: sr.days > 0 ? STREAK_COLOR : undefined }}>{sr.days > 0 ? sr.days : '0'}d</div>
+                  {sr.autoSaved > 0 && <div className="text-[7px] text-green-600">+{sr.autoSaved} saved</div>}
+                </div>
+              </div>
+              {/* XP level progress + correct logs */}
+              <div className="rounded-md p-2" style={{ background: XP_COLOR + '08' }}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-bold" style={{ color: XP_COLOR }}>Lv{level} → Lv{level + 1}</span>
+                    <span className="text-[8px] text-muted-foreground">({xpToNext} XP ramas)</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[8px] text-muted-foreground">Somn bun:</span>
+                    <span className="font-mono text-[10px] font-bold" style={{ color: '#16a34a' }}>{correctLogs}</span>
+                    <span className="text-[8px] text-muted-foreground">/ {totalLogs}</span>
+                  </div>
+                </div>
+                <div className="h-2.5 rounded-full bg-muted overflow-hidden relative">
+                  <div className="h-full rounded-full transition-all duration-500"
+                       style={{ width: `${xpPct}%`, background: `linear-gradient(90deg, ${XP_COLOR}, ${XP_COLOR}cc)` }} />
+                  {xpPct > 20 && (
+                    <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-white">
+                      {progress}/{XP_PER_LEVEL}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </>
+          );
+        })()}
         {/* Goal tracker row */}
         <GoalTracker key={goalRefresh} user={user} data={data} onGoalChange={() => setGoalRefresh(k => k + 1)} />
-        {/* Row 3: View tabs + date picker */}
-        <div className="flex items-center gap-2 mt-2 pt-2 border-t">
-          <Tabs value={view} onValueChange={v => onViewChange(v as DashView)}>
-            <TabsList className="h-7">
-              <TabsTrigger value="daily" className="text-[10px] px-2.5 h-6">Zi</TabsTrigger>
-              <TabsTrigger value="weekly" className="text-[10px] px-2.5 h-6">7 zile</TabsTrigger>
-              <TabsTrigger value="monthly" className="text-[10px] px-2.5 h-6">Luna</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          {view === 'daily' && (
-            <select value={activeDate} onChange={e => onDateChange(e.target.value)}
-              className="text-[10px] font-semibold bg-transparent border rounded px-1.5 py-1 outline-none">
-              {dates.map(d => <option key={d} value={d}>{fmtDate(d)}</option>)}
-            </select>
-          )}
-          <span className="text-[10px] text-muted-foreground ml-auto">{subText}</span>
-        </div>
       </CardContent>
     </Card>
   );
