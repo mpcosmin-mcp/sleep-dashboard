@@ -41,6 +41,35 @@ export function getTotalKudos(to: string): number {
   return c;
 }
 
+/** Get unseen kudos count since last login check */
+export function getUnseenKudosCount(user: string): number {
+  const total = getTotalKudos(user);
+  const seenKey = `st_kudos_seen_${user}`;
+  try {
+    const seen = parseInt(localStorage.getItem(seenKey) || '0', 10);
+    return Math.max(0, total - seen);
+  } catch { return 0; }
+}
+
+/** Mark all current kudos as seen */
+export function markKudosSeen(user: string) {
+  const total = getTotalKudos(user);
+  try { localStorage.setItem(`st_kudos_seen_${user}`, String(total)); } catch {}
+}
+
+/** Get recent kudos givers (from last 7 days) for notification message */
+export function getRecentKudosGivers(user: string, data: { date: string }[]): string[] {
+  const dates = [...new Set(data.map(d => d.date))].sort().slice(-7);
+  const givers = new Set<string>();
+  for (const date of dates) {
+    for (const n of NAMES) {
+      if (n === user) continue;
+      if (getKudos(n, user, date)) givers.add(n.split(' ')[0]);
+    }
+  }
+  return [...givers];
+}
+
 export function getTotalKudosGiven(from: string): number {
   let c = 0;
   try {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { type SleepEntry, fetchAllData } from '@/lib/sleep';
+import { getUnseenKudosCount, markKudosSeen, getRecentKudosGivers } from '@/lib/kudos';
 import { HideCtx } from '@/lib/hide';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Toast } from '@/components/shared/Toast';
@@ -76,6 +77,16 @@ export default function App() {
   const pickUser = (n: string) => {
     try { localStorage.setItem('st_user', n); } catch {}
     setUser(n);
+    // Notify about unseen kudos
+    setTimeout(() => {
+      const unseen = getUnseenKudosCount(n);
+      if (unseen > 0) {
+        const givers = getRecentKudosGivers(n, data);
+        const giversText = givers.length ? ` de la ${givers.join(', ')}` : '';
+        showToast(`❤️ Ai ${unseen} like-uri noi${giversText}!`, { duration: 4000 });
+        markKudosSeen(n);
+      }
+    }, 800);
   };
   const logout = () => {
     try { localStorage.removeItem('st_user'); } catch {}

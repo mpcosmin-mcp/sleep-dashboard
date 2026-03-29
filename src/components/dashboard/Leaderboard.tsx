@@ -73,8 +73,8 @@ function LeaderRow({ p, i, isMe, filtered, showDaily, activeDate, me, onCheer, c
           return (
             <button onClick={(e) => { e.stopPropagation(); onCheer(p.name); }}
               className="w-7 shrink-0 flex items-center justify-center gap-0.5 hover:scale-110 active:scale-125 transition-all"
-              title={myLike ? 'Unlike' : 'Like'}>
-              <span className={`text-sm ${myLike ? '' : 'grayscale opacity-25'}`}>👍</span>
+              title={myLike ? 'Unlike' : 'Love'}>
+              <span className={`text-sm ${myLike ? '' : 'grayscale opacity-25'}`}>❤️</span>
               {likes.length > 0 && <span className={`text-[9px] font-bold ${myLike ? '' : 'text-muted-foreground'}`} style={myLike ? { color: '#2563eb' } : undefined}>{likes.length}</span>}
             </button>
           );
@@ -139,12 +139,12 @@ function buildEntries(data: SleepEntry[], sorted: AggEntry[], sortBy: SortMetric
 /* ══════════════════════════════════════════════════════
    TODAY'S LEADERBOARD
    ══════════════════════════════════════════════════════ */
-export function TodayLeaderboard({ data, user }: { data: SleepEntry[]; user: string }) {
+export function TodayLeaderboard({ data, user, activeDate: activeDateProp }: { data: SleepEntry[]; user: string; activeDate?: string }) {
   const [cheerRefresh, setCheerRefresh] = useState(0);
   const me = user;
 
   const dates = useMemo(() => [...new Set(data.map(d => d.date))].sort(), [data]);
-  const activeDate = dates[dates.length - 1] || '';
+  const activeDate = activeDateProp || dates[dates.length - 1] || '';
   const filtered = useMemo(() => data.filter(d => d.date === activeDate), [data, activeDate]);
   const sorted = useMemo(() => [...filtered].sort((a, b) => b.ss - a.ss), [filtered]);
   const leaderboard = useMemo(() => buildEntries(data, sorted, 'ss'), [data, sorted]);
@@ -155,14 +155,14 @@ export function TodayLeaderboard({ data, user }: { data: SleepEntry[]; user: str
     if (existing) {
       try { localStorage.removeItem(`st_kudos_${activeDate}_${me}_${to}`); } catch {}
     } else {
-      saveKudos(me, to, activeDate, '👍');
+      saveKudos(me, to, activeDate, '❤️');
     }
     setCheerRefresh(c => c + 1);
   };
 
   return (
-    <Section title="Azi" icon="📊" defaultOpen={true}
-            badge={<span className="text-[9px] text-muted-foreground">{fmtDate(activeDate)}</span>}>
+    <Section title={activeDateProp ? fmtDate(activeDate) : 'Azi'} icon="📊" defaultOpen={true}
+            badge={activeDateProp ? undefined : <span className="text-[9px] text-muted-foreground">{fmtDate(activeDate)}</span>}>
       <div className="pt-2 space-y-2">
         {leaderboard.map((p, i) => (
           <LeaderRow key={p.name} p={p} i={i} isMe={p.name === me} filtered={filtered}

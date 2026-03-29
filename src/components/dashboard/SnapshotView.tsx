@@ -66,10 +66,10 @@ export function SnapshotView({ data, filtered, activeDate, user, snapshotUser, o
                       return (
                         <button onClick={() => {
                           if (myLike) { try { localStorage.removeItem(`st_kudos_${activeDate}_${me}_${entry.name}`); } catch {} }
-                          else { handleCheer(entry.name, '👍'); }
+                          else { handleCheer(entry.name, '❤️'); }
                           setCheerRefresh(c => c + 1);
                         }} className="shrink-0 flex items-center gap-0.5 hover:scale-110 transition-all">
-                          <span className={`text-base ${myLike ? '' : 'grayscale opacity-25'}`}>👍</span>
+                          <span className={`text-base ${myLike ? '' : 'grayscale opacity-25'}`}>❤️</span>
                           {likes.length > 0 && <span className={`text-[10px] font-bold ${myLike ? '' : 'text-muted-foreground'}`} style={myLike ? { color: '#2563eb' } : undefined}>{likes.length}</span>}
                         </button>
                       );

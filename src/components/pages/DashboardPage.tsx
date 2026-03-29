@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { type SleepEntry, saveRepair, STREAK_REPAIR_COST, XP_COLOR } from '@/lib/sleep';
 import { useGameState } from '@/hooks/useGameState';
-import { getWeekNumber } from '@/lib/challenges';
 import { HeroCard, type DashView } from '@/components/dashboard/HeroCard';
 import { SnapshotView } from '@/components/dashboard/SnapshotView';
 import { Tracker } from '@/components/dashboard/Tracker';
 import { TodayLeaderboard, PeriodLeaderboard } from '@/components/dashboard/Leaderboard';
-import { ChallengeSection } from '@/components/dashboard/ChallengeSection';
-import { BonusPopup } from '@/components/dashboard/BonusSection';
 import { HighlightReel } from '@/components/dashboard/HighlightReel';
 
 export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack, showToast }: {
@@ -43,17 +40,6 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
   const gameState = useGameState(data, me);
   const myData = sorted.find(p => p.name === me);
 
-  // Challenge completion celebration — once per week
-  useEffect(() => {
-    if (!gameState.challenge?.status.completed || !me) return;
-    const weekKey = `st_challenge_celebrated_${me}_${getWeekNumber()}`;
-    try {
-      if (localStorage.getItem(weekKey)) return;
-      localStorage.setItem(weekKey, '1');
-      showToast(`\uD83C\uDFC6 ${gameState.challenge.def.name} — completat! +${gameState.challenge.def.xp} XP`, { confetti: true, duration: 4500 });
-    } catch {}
-  }, [gameState.challenge?.status.completed, me, showToast]);
-
   if (!data.length) return <div className="text-center text-muted-foreground py-20 text-sm">Nicio înregistrare.</div>;
 
   // Snapshot mode
@@ -74,53 +60,30 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
   const noop = () => {};
 
   return (
-    <div>
-      {/* ── Desktop: 2-column layout. Mobile: stacked ── */}
-      <div className="lg:grid lg:grid-cols-[1fr_340px] lg:gap-5 lg:items-start">
+    <div className="space-y-3">
+      <HeroCard user={me} data={data} gameState={gameState} myData={myData} view={dummyView} onViewChange={noop}
+                activeDate={activeDate} dates={dates} onDateChange={setSelDate} subText="" />
 
-        {/* Left column: personal stats + tracker */}
-        <div>
-          <HeroCard user={me} data={data} gameState={gameState} myData={myData} view={dummyView} onViewChange={noop}
-                    activeDate={activeDate} dates={dates} onDateChange={setSelDate} subText="" />
+      <Tracker data={data} user={me} trackerRange={trackerRange} onTrackerRangeChange={setTrackerRange}
+               onDateSelect={handleDateSelect} snapshotMode={snapshotMode} />
 
-          <Tracker data={data} user={me} trackerRange={trackerRange} onTrackerRangeChange={setTrackerRange}
-                   onDateSelect={handleDateSelect} snapshotMode={snapshotMode} />
-
-          {/* Streak repair alert */}
-          {gameState.streak.needsRepair && (
-            <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
-              <span className="text-[10px] text-amber-700 dark:text-amber-400">⚠️ Somnul e sub 75 — streak în pericol</span>
-              <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > gameState.xp}
-                className="text-[9px] font-bold px-2 py-0.5 rounded transition-all disabled:opacity-40 ml-auto"
-                style={{ background: XP_COLOR, color: 'white' }}>
-                Salvează ({STREAK_REPAIR_COST} XP)
-              </button>
-            </div>
-          )}
-
-          {/* Desktop: highlight reel under tracker */}
-          <div className="hidden lg:block">
-            <HighlightReel data={data} />
-          </div>
+      {/* Streak repair alert */}
+      {gameState.streak.needsRepair && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30">
+          <span className="text-[10px] text-amber-700 dark:text-amber-400">⚠️ Somnul e sub 75 — streak în pericol</span>
+          <button onClick={handleRepair} disabled={STREAK_REPAIR_COST > gameState.xp}
+            className="text-[9px] font-bold px-2 py-0.5 rounded transition-all disabled:opacity-40 ml-auto"
+            style={{ background: XP_COLOR, color: 'white' }}>
+            Salvează ({STREAK_REPAIR_COST} XP)
+          </button>
         </div>
+      )}
 
-        {/* Right column: leaderboards (sticky on desktop) */}
-        <div className="lg:sticky lg:top-8 space-y-3">
-          <TodayLeaderboard data={data} user={me} />
-          <PeriodLeaderboard data={data} user={me} />
-        </div>
-      </div>
+      {/* Leaderboards — show selected date data */}
+      <TodayLeaderboard data={data} user={me} activeDate={activeDate} />
+      <PeriodLeaderboard data={data} user={me} />
 
-      {/* Mobile: highlight reel below leaderboards */}
-      <div className="lg:hidden">
-        <HighlightReel data={data} />
-      </div>
-
-      {/* Full-width bottom: challenges */}
-      <ChallengeSection gameState={gameState} data={data} user={me} />
-
-      {/* Bonusuri popup button */}
-      <BonusPopup gameState={gameState} data={data} user={me} />
+      <HighlightReel data={data} />
     </div>
   );
 }
