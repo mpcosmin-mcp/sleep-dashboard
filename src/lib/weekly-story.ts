@@ -145,29 +145,16 @@ Reguli:
 }
 
 /** Get or generate weekly story (cached) */
-export async function getWeeklyStory(data: SleepEntry[]): Promise<WeeklyStory> {
+export function getWeeklyStory(data: SleepEntry[]): WeeklyStory {
   const weekKey = lastWeekKey();
 
   // Check cache first
   const cached = getCachedStory();
   if (cached && cached.weekKey === weekKey) return cached;
 
-  // Try AI generation
-  let text: string | null = null;
-  let source: 'ai' | 'local' = 'local';
-
-  if (isAIConfigured()) {
-    text = await generateAIStory(data);
-    if (text) source = 'ai';
-  }
-
-  // Fallback to local
-  if (!text) {
-    text = generateLocalStory(data);
-    source = 'local';
-  }
-
-  const story: WeeklyStory = { weekKey, text, source };
+  // Generate local story (instant, no AI needed)
+  const text = generateLocalStory(data);
+  const story: WeeklyStory = { weekKey, text, source: 'local' };
 
   // Cache it
   try { localStorage.setItem(cacheKey(weekKey), JSON.stringify(story)); } catch {}
