@@ -23,7 +23,7 @@ export function WeeklyStory({ data }: { data: SleepEntry[] }) {
         <CardContent className="py-3 px-4">
           <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
             <div className="w-3 h-3 border-2 border-border border-t-primary rounded-full animate-spin" />
-            Oracolul scrie povestea saptamanii...
+            Se incarca povestea...
           </div>
         </CardContent>
       </Card>
