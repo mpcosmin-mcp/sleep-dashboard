@@ -3,6 +3,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { type SleepEntry, fetchAllData } from '@/lib/sleep';
 import { getUnseenKudosCount, markKudosSeen, getRecentKudosGivers } from '@/lib/kudos';
 import { getLatestWinner } from '@/lib/trophies';
+import { detectMilestone } from '@/lib/milestones';
 import { HideCtx } from '@/lib/hide';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Toast } from '@/components/shared/Toast';
@@ -99,6 +100,13 @@ export default function App() {
         } catch {}
       }
     }, 2000);
+    // Notify about personal milestones
+    setTimeout(() => {
+      const milestone = detectMilestone(data, n);
+      if (milestone) {
+        showToast(`${milestone.emoji} ${milestone.text}`, { confetti: true, duration: 5000 });
+      }
+    }, 3500);
   };
   const logout = () => {
     try { localStorage.removeItem('st_user'); } catch {}
