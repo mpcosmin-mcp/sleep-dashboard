@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { type SleepEntry, NAMES, ssColor, rhrColor, hrvColor, getTier, todayStr, submitEntry, calcXP, loggingStreak, personColor, XP_COLOR, STREAK_COLOR, xpLevel, xpProgress, XP_PER_LEVEL } from '@/lib/sleep';
+import { getLatestWinner } from '@/lib/trophies';
 import { MVal } from '@/components/shared/MVal';
 import { Avi } from '@/components/shared/Avi';
 
@@ -22,18 +23,26 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
         <h2 className="text-2xl font-bold tracking-tight mb-1">Alege profilul</h2>
         <p className="text-muted-foreground text-sm mb-6">Selectează-ți contul pentru a loga datele de somn.</p>
         <div className="flex flex-col gap-2">
-          {[...NAMES].sort((a, b) => calcXP(data, b) - calcXP(data, a)).map((n, rank) => {
+          {(() => { const winner = getLatestWinner(data); return [...NAMES].sort((a, b) => calcXP(data, b) - calcXP(data, a)).map((n, rank) => {
             const xp = calcXP(data, n);
             const sr = loggingStreak(data, n);
             const c = personColor(n);
             const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : '🥉';
+            const isWinner = winner && winner.winner === n;
             return (
               <button key={n} onClick={() => pickUser(n)}
-                className="flex items-center rounded-xl border bg-card hover:scale-[1.01] active:scale-[0.99] transition-all text-left overflow-hidden">
+                className="flex items-center rounded-xl border bg-card hover:scale-[1.01] active:scale-[0.99] transition-all text-left overflow-hidden"
+                style={isWinner ? { borderColor: personColor(n) + '40', boxShadow: `0 0 12px ${personColor(n)}15` } : undefined}>
                 <div className="flex items-center gap-3 flex-1 min-w-0 px-4 py-3">
                   <span className="text-sm w-5 text-center shrink-0">{medal}</span>
                   <Avi name={n} size="md" />
-                  <span className="font-semibold text-sm truncate">{n}</span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-semibold text-sm truncate">{n}</span>
+                      {isWinner && <span className="text-sm" title={`${winner.trophy.title} — Campionul saptamanii`}>{winner.trophy.emoji}</span>}
+                    </div>
+                    {isWinner && <div className="text-[9px] font-bold" style={{ color: personColor(n) }}>{winner.trophy.title} 🏆</div>}
+                  </div>
                 </div>
                 <div className="flex items-center gap-3 px-4 py-3 shrink-0">
                   {sr.days > 0 && <span className="text-[10px] font-bold" style={{ color: STREAK_COLOR }}>⚡{sr.days}d</span>}
@@ -49,7 +58,7 @@ export function InputPage({ data, setData, user, pickUser, logout, showToast }: 
                 </div>
               </button>
             );
-          })}
+          }); })()}
         </div>
       </div>
     );
