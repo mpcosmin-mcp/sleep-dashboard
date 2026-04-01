@@ -7,6 +7,7 @@ import { calcXP, loggingStreak, xpLevel } from '@/lib/gamify';
 import { getKudos, saveKudos, getKudosFor } from '@/lib/kudos';
 import { goalStatus } from '@/lib/goals';
 import { getWeeklyChallenge, checkChallenge, getWeekNumber } from '@/lib/challenges';
+import { getLatestWinner, getTrophyCounts } from '@/lib/trophies';
 import { V } from '@/lib/hide';
 import { Avi } from '@/components/shared/Avi';
 import { Section } from './Section';
@@ -183,6 +184,8 @@ export function PeriodLeaderboard({ data, user }: { data: SleepEntry[]; user: st
   const [period, setPeriod] = useState<PeriodTab>('weekly');
   const [sortBy, setSortBy] = useState<SortMetric>('ss');
   const me = user;
+  const latestWinner = useMemo(() => getLatestWinner(data), [data]);
+  const trophyCounts = useMemo(() => getTrophyCounts(data), [data]);
 
   const { filtered, subText } = useMemo(() => {
     if (period === 'weekly') {
@@ -204,6 +207,34 @@ export function PeriodLeaderboard({ data, user }: { data: SleepEntry[]; user: st
     <Section title="Clasament" icon="🏆" defaultOpen={true}
             badge={<span className="text-[9px] text-muted-foreground">{subText}</span>}>
       <div className="pt-2 pb-1 space-y-1.5">
+        {/* Weekly champion banner */}
+        {latestWinner && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg mb-1"
+            style={{ background: personColor(latestWinner.winner) + '10', border: `1px solid ${personColor(latestWinner.winner)}25` }}>
+            <span className="text-lg">{latestWinner.trophy.emoji}</span>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold" style={{ color: personColor(latestWinner.winner) }}>
+                {latestWinner.winner.split(' ')[0]} — {latestWinner.trophy.title}
+              </div>
+              <div className="text-[8px] text-muted-foreground">
+                Campionul saptamanii · SS {latestWinner.avgSS}
+              </div>
+            </div>
+            {/* Trophy count badges */}
+            <div className="flex gap-1.5 shrink-0">
+              {NAMES.map(n => {
+                const count = trophyCounts[n] || 0;
+                if (!count) return null;
+                return (
+                  <span key={n} className="text-[8px] font-bold px-1 py-0.5 rounded"
+                    style={{ color: personColor(n), background: personColor(n) + '15' }}>
+                    {n.split(' ')[0].charAt(0)}{n.split(' ').pop()?.charAt(0)} {count}🏆
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {/* Period tabs */}
         <div className="flex items-center gap-1.5">
           {([['weekly', '7 zile'], ['monthly', 'Luna']] as const).map(([v, label]) => (
