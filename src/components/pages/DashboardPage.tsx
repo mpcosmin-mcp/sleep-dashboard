@@ -5,7 +5,6 @@ import { HeroCard, type DashView } from '@/components/dashboard/HeroCard';
 import { SnapshotView } from '@/components/dashboard/SnapshotView';
 import { Tracker } from '@/components/dashboard/Tracker';
 import { TodayLeaderboard, PeriodLeaderboard } from '@/components/dashboard/Leaderboard';
-import { SleepOracle } from '@/components/dashboard/SleepOracle';
 import { WeeklyStory } from '@/components/dashboard/WeeklyStory';
 
 export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack, showToast }: {
@@ -80,8 +79,7 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
         </div>
       )}
 
-      {/* Oracle + Story */}
-      <SleepOracle data={data} user={me} />
+      {/* Weekly Story */}
       <WeeklyStory data={data} />
 
       {/* Leaderboards — show selected date data */}
