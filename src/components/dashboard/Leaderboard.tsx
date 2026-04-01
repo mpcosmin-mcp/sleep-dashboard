@@ -16,10 +16,10 @@ type SortMetric = 'ss' | 'rhr' | 'streak';
 const SORT_LABELS: Record<SortMetric, string> = { ss: 'Score', rhr: 'RHR', streak: 'Streak' };
 
 /* ── Shared row renderer ── */
-function LeaderRow({ p, i, isMe, filtered, showDaily, activeDate, me, onCheer, cheerRefresh }: {
+function LeaderRow({ p, i, isMe, filtered, showDaily, activeDate, me, onCheer, cheerRefresh, trophyEmoji }: {
   p: { name: string; xp: number; level: number; ss: number; streak: number; entries: number; goal: ReturnType<typeof goalStatus>; challengeComplete: boolean; trend: number };
   i: number; isMe: boolean; filtered: SleepEntry[]; showDaily: boolean; activeDate: string; me: string;
-  onCheer: (to: string) => void; cheerRefresh: number;
+  onCheer: (to: string) => void; cheerRefresh: number; trophyEmoji?: string;
 }) {
   const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
   const pc = personColor(p.name);
@@ -34,6 +34,7 @@ function LeaderRow({ p, i, isMe, filtered, showDaily, activeDate, me, onCheer, c
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <span className="text-[11px] font-bold truncate" style={{ color: pc }}>{p.name.split(' ')[0]} {p.name.split(' ').pop()}</span>
+            {trophyEmoji && <span className="text-xs" title="Campionul saptamanii trecute">{trophyEmoji}</span>}
             {p.challengeComplete && <span className="text-[8px]" title="Provocarea saptamanii completata">🏆</span>}
             <span className="text-[8px] font-bold px-1 py-0.5 rounded inline-flex items-center gap-0.5 shrink-0" style={{ color: levelTier(p.level).color, background: levelTier(p.level).color + '15' }}>
               {levelTier(p.level).icon} Lv{p.level}
@@ -260,7 +261,8 @@ export function PeriodLeaderboard({ data, user }: { data: SleepEntry[]; user: st
         {leaderboard.map((p, i) => (
           <LeaderRow key={p.name} p={p} i={i} isMe={p.name === me} filtered={[]}
             showDaily={false} activeDate="" me={me}
-            onCheer={() => {}} cheerRefresh={0} />
+            onCheer={() => {}} cheerRefresh={0}
+            trophyEmoji={period === 'weekly' && latestWinner?.winner === p.name ? latestWinner.trophy.emoji : undefined} />
         ))}
       </div>
     </Section>

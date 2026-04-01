@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { type SleepEntry, fetchAllData } from '@/lib/sleep';
 import { getUnseenKudosCount, markKudosSeen, getRecentKudosGivers } from '@/lib/kudos';
+import { getLatestWinner } from '@/lib/trophies';
 import { HideCtx } from '@/lib/hide';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { Toast } from '@/components/shared/Toast';
@@ -85,6 +86,19 @@ export default function App() {
         markKudosSeen(n);
       }
     }, 800);
+    // Notify about new trophy
+    setTimeout(() => {
+      const winner = getLatestWinner(data);
+      if (winner && winner.winner === n) {
+        const seenKey = `st_trophy_seen_${winner.weekKey}`;
+        try {
+          if (!localStorage.getItem(seenKey)) {
+            localStorage.setItem(seenKey, '1');
+            showToast(`${winner.trophy.emoji} Ai castigat "${winner.trophy.title}"! Campionul saptamanii!`, { confetti: true, duration: 5000 });
+          }
+        } catch {}
+      }
+    }, 2000);
   };
   const logout = () => {
     try { localStorage.removeItem('st_user'); } catch {}
