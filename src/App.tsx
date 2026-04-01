@@ -9,22 +9,20 @@ import { InputPage } from '@/components/pages/InputPage';
 import { DashboardPage } from '@/components/pages/DashboardPage';
 import { ChartsPage } from '@/components/pages/ChartsPage';
 import { HistoryPage } from '@/components/pages/HistoryPage';
-import { HabitPage } from '@/components/pages/HabitPage';
 import { ProgressHub } from '@/components/shared/ProgressHub';
 
 // ── Types ──
-type Page = 'input' | 'dashboard' | 'charts' | 'history' | 'habits';
+type Page = 'input' | 'dashboard' | 'charts' | 'history';
 
 const NAV: { id: Page; label: string }[] = [
   { id: 'input', label: 'Log Data' },
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'charts', label: 'Evoluție' },
   { id: 'history', label: 'Arhivă' },
-  { id: 'habits', label: '1% Better' },
 ];
 
 const NAV_ICONS: Record<string, string> = {
-  input: '✏️', dashboard: '📊', charts: '📈', history: '📋', habits: '🔥',
+  input: '✏️', dashboard: '📊', charts: '📈', history: '📋',
 };
 
 // ════════════════════════════════════════════
@@ -172,7 +170,6 @@ export default function App() {
               {page === 'dashboard' && <DashboardPage data={data} user={user} jumpDate={jumpDate} jumpUser={jumpUser} clearJump={() => { setJumpDate(null); setJumpUser(undefined); }} onBack={() => setPage('charts')} showToast={showToast} />}
               {page === 'charts' && <ChartsPage data={data} dark={dark} onDateClick={navigateToDashDate} />}
               {page === 'history' && <HistoryPage data={data} />}
-              {page === 'habits' && <HabitPage user={user} pickUser={pickUser} logout={logout} />}
             </>
           )}
         </main>

@@ -5,7 +5,6 @@ import { HeroCard, type DashView } from '@/components/dashboard/HeroCard';
 import { SnapshotView } from '@/components/dashboard/SnapshotView';
 import { Tracker } from '@/components/dashboard/Tracker';
 import { TodayLeaderboard, PeriodLeaderboard } from '@/components/dashboard/Leaderboard';
-import { HighlightReel } from '@/components/dashboard/HighlightReel';
 
 export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBack, showToast }: {
   data: SleepEntry[]; user: string | null; jumpDate?: string | null; jumpUser?: string; clearJump?: () => void; onBack?: () => void;
@@ -82,8 +81,6 @@ export function DashboardPage({ data, user, jumpDate, jumpUser, clearJump, onBac
       {/* Leaderboards — show selected date data */}
       <TodayLeaderboard data={data} user={me} activeDate={activeDate} />
       <PeriodLeaderboard data={data} user={me} />
-
-      <HighlightReel data={data} />
     </div>
   );
 }
